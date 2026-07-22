@@ -1,0 +1,2524 @@
+#!/usr/bin/env python3
+"""wf — the workflow.json pipeline driver.
+
+Stdlib only. The renderer exists so agents never have to parse workflow.json
+themselves: one cheap call returns the whole pipeline state as a compact banner.
+
+  wf status [--full] [--plain|--color]   render the pipeline (default command)
+                            color auto-on for a terminal, off when piped; NO_COLOR honored
+  wf create [<dest-path>] [--no-git]   scaffold a new project by cloning this
+                            template (cleaned); prompts for the path if omitted
+  wf create <dest> --satellites "users-web:web[:owner/repo[:react+next]],..."
+                            also CREATE sibling satellite projects wired to this hub
+                            (4th :segment = the satellite's stack, '+'-separated)
+  wf create <dest> --connect "../users-web:web[:owner/repo[:react+next]]"
+                            CONNECT existing sibling projects as satellites
+  wf create <dest> --controller        dest is a pure workflow controller (holds the
+                            pipeline + SDD docs; all code lives in the satellites)
+  wf workspace [status]     role, hub, satellites and their link health
+  wf workspace add <path> [--name N] [--type T] [--repo owner/name] [--stack "react,next"]
+                            create-or-connect one satellite from the hub
+  wf workspace init [--stack "a,b"] [--verify "npm test"] [--repo owner/name] [--type T]
+                            FROM a satellite: configure ITS stack/verify/repo
+                            (local workflow.json + mirrored to the hub)
+  wf feature add <slug> "T" --project app-web,app-api   comma list = one feature
+                            per project, all sharing the US (cross-cutting story)
+  wf init [--name N] [--type api|web|...] [--stack "a,b"] [--lang pt_BR]
+          [--code-naming english|hybrid|project-language]
+          [--comments minimal|detailed] [--doc-format javadoc|jsdoc|...|none]
+          [--api-docs openapi|...|none] [--agent-review on|off]
+          [--harness on|off] [--verify CMD] [--github on|off] [--repo owner/n]
+          [--assignee U] [--project N] [--keep-example]
+                            apply the whole setup in one pass (engine behind /wf-setup)
+  wf next                   the next eligible step, with its resolved agent
+  wf show <id>              one step in detail
+  wf start <id>             mark in_progress (stamps started_at)
+  wf done <id>              mark done (checks acceptance + produces)
+  wf block <id> "reason"    mark blocked
+  wf skip <id> "reason"     mark skipped
+  wf reopen <id> [--cascade]   send a done step back to pending; --cascade also
+                            reopens every step derived from it (else warns they are stale)
+  wf feature add <slug> "Title" [--us US-1.1] [--project <workspace-name>]
+                            append a feature step with the full SDD lifecycle;
+                            --project routes its commits/issues/PRs to that satellite's repo
+  wf harness [status]       show the harness state and which gates it backs
+  wf harness on [--profile api] [--verify "npm run verify"]
+  wf harness off            verify_green gates become advisory
+  wf harness verify "CMD"   set the single green/red command
+  wf harness signal test "npm test"   set the command for one CI signal
+  wf harness ci             generate .github/workflows/ci.yml from the signals
+  wf github [status]        show GitHub config and per-feature issue/PR mapping
+  wf github on --repo owner/name [--assignee user] [--project N] [--reviewers a,b]
+  wf github off             stop producing issues/PRs/comments/board updates
+  wf github link <feature> [--issue N] [--pr N] [--branch B] [--card ID] [--merged develop|main]
+  wf github issue|changelog <feature>      print the payload to hand to `gh`
+  wf github pr <feature> [--base B] [--head H]   PR payload; default base = integration branch
+  wf github pending         features merged to the integration branch, not yet promoted
+  wf github comment <step> --event start|done|gate|block|audit
+  wf github commit <task> [--type feat]    print a Conventional Commits message
+  wf agents [<id-prefix>]   every step's resolved model/effort, own vs inherited
+  wf agent <id|defaults> [--model m] [--effort e] [--subagent N|none]
+           [--isolation worktree|none] [--background on|off]   change one step's agent
+  wf engine [status]        the active SDD engine: manifest, layout, lifecycle
+  wf engine list            available engine manifests under engines/
+  wf engine scan            what's installed vs the manifests: drift + candidates to learn
+  wf engine set <name>      switch engines (existing features keep the old layout)
+  wf oq [list [--all]]      pending Open Questions from catalogs/open-questions.md
+  wf oq show OQ-03          one question in full
+  wf oq answer OQ-03 "decision" [--by name]   resolve + record decision + history
+  wf oq add "title" [--severity blocker|important|tactical] [--impact "..."]
+  wf validate               invariants: ids, instruction files, requires, cycles
+
+The github subcommands are OFFLINE: they generate payloads and record numbers.
+The agent runs `gh` with them, after human confirmation — never bin/wf itself.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
+from glob import glob
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOCAL_WF = os.path.join(ROOT, "workflow.json")
+
+# Workspace resolution. A `satellite` project keeps only code + local memory;
+# ALL pipeline state lives in its hub, so every wf command run from a satellite
+# transparently operates on the hub's workflow.json. Resolved lazily (and
+# cached) so `wf create` / `--help` work even where no workflow.json exists.
+_STATE = {}
+
+
+def state():
+    if _STATE:
+        return _STATE
+    root, wf, role, local_name = ROOT, LOCAL_WF, "standalone", None
+    if os.path.exists(LOCAL_WF):
+        try:
+            with open(LOCAL_WF, encoding="utf-8") as fh:
+                local = json.load(fh)
+        except (OSError, json.JSONDecodeError):
+            local = {}
+        ws = (local.get("workspace") or {}) if isinstance(local, dict) else {}
+        if ws.get("role") == "satellite":
+            hub_dir = os.path.normpath(os.path.join(ROOT, os.path.expanduser(ws.get("hub") or "")))
+            hub_wf = os.path.join(hub_dir, "workflow.json")
+            if not os.path.exists(hub_wf):
+                die(f"this project is a satellite of '{ws.get('hub')}' but {hub_wf} does not exist")
+            root, wf, role = hub_dir, hub_wf, "satellite"
+            local_name = (local.get("project") or {}).get("name") or os.path.basename(ROOT)
+        elif ws.get("role") == "hub":
+            role = "hub"
+    _STATE.update(root=root, wf=wf, role=role, local_name=local_name)
+    return _STATE
+
+# status → (glyph, ANSI styles). Glyphs are single-width and widely supported;
+# color is applied only when writing to a real terminal (see render()).
+GLYPH = {
+    "done": "✔",
+    "in_progress": "▸",
+    "pending": "○",
+    "blocked": "✖",
+    "skipped": "⊘",
+}
+STYLE = {
+    "done": ("green",),
+    "in_progress": ("yellow", "bold"),
+    "pending": ("dim",),
+    "blocked": ("red", "bold"),
+    "skipped": ("dim",),
+}
+ANSI = {"green": "32", "yellow": "33", "red": "31", "cyan": "36", "dim": "2", "bold": "1"}
+GATE_TAG = {"human_approval": "approval", "verify_green": "verify", "audit_pass": "audit"}
+BAR_WIDTH = 16
+RULE_WIDTH = 58
+# The SDD engine is DATA: engines/<name>/engine.json declares the feature
+# lifecycle, artifact layout and (in phase 2) external-tool delegation. This
+# embedded copy of the default manifest is only a fallback for projects
+# scaffolded before engines/ existed — the file wins whenever present.
+DEFAULT_ENGINE = {
+    "id": "default",
+    "name": "Workflow SDD (bundled)",
+    "scaffold": ["../_shared/upstream", "scaffold"],
+    "constitution": {"produces": "constitution/*.md"},
+    "feature": {
+        "dir": "features/{nnn}-{slug}",
+        "instructions": "instructions/feature-lifecycle.md",
+        "scaffold_dirs": ["contracts"],
+        "lifecycle": [
+            {"key": "spec", "title": "Spec — what and why, in Gherkin",
+             "instructions": "instructions/feature-spec.md",
+             "agent": {"model": "opus", "effort": "high"}, "gate": "human_approval",
+             "produces": ["spec.md"]},
+            {"key": "plan", "title": "Plan — how, with contracts",
+             "instructions": "instructions/feature-plan.md",
+             "agent": {"model": "opus", "effort": "high"}, "gate": "human_approval",
+             "produces": ["plan.md", "data-model.md"]},
+            {"key": "tasks", "title": "Tasks — atomic and verifiable",
+             "instructions": "instructions/feature-tasks.md",
+             "agent": {"model": "sonnet", "effort": "medium"}, "gate": "human_approval",
+             "produces": ["tasks.md"]},
+            {"key": "implement", "title": "Implement — code + tests",
+             "instructions": "instructions/feature-implement.md",
+             "agent": {"model": "sonnet", "effort": "high"}, "gate": "verify_green",
+             "produces": []},
+            {"key": "audit", "title": "Audit — adversarial check",
+             "instructions": "instructions/feature-audit.md",
+             "agent": {"model": "opus", "effort": "xhigh"}, "gate": "audit_pass",
+             "produces": ["audit.md"]},
+            {"key": "review", "title": "Review — pull request & human verdict",
+             "instructions": "instructions/feature-review.md",
+             "agent": {"model": "sonnet", "effort": "medium"}, "gate": "human_approval",
+             "produces": []},
+        ],
+    },
+}
+
+
+def load_engine(doc):
+    """The active engine manifest and where it came from: (manifest, path|None)."""
+    name = ((doc.get("engine") or {}).get("name")) or "default"
+    path = os.path.join(state()["root"], "engines", name, "engine.json")
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                eng = json.load(fh)
+        except json.JSONDecodeError as exc:
+            die(f"engine manifest {path} is not valid JSON: {exc}")
+        eng.setdefault("id", name)
+        return eng, path
+    if name == "default":
+        return DEFAULT_ENGINE, None
+    die(f"engine '{name}' not found — expected {path}")
+
+
+def materialize_engine(doc):
+    """Copy the active engine's scaffold into the project root — the SDD seed
+    documents an engine needs on disk (catalogs, PRD template, feature templates…).
+    Existing files are NEVER overwritten, so re-running is always safe. Local
+    file copies only; no network. Returns the created paths."""
+    eng, path = load_engine(doc)
+    base = os.path.dirname(path) if path else os.path.join(state()["root"], "engines", "default")
+    prune = {".git", ".github", "node_modules", "__pycache__"}
+    created = []
+    for src_rel in eng.get("scaffold", []) or []:
+        src = os.path.normpath(os.path.join(base, src_rel))
+        if not os.path.isdir(src):
+            print(f"note: scaffold source not found, skipped → {os.path.relpath(src, state()['root'])}")
+            continue
+        for dirpath, dirnames, filenames in os.walk(src):
+            # prune VCS/build junk in place — a scaffold pointing at a cloned
+            # source must never smuggle .git objects into the project root
+            dirnames[:] = [d for d in dirnames if d not in prune]
+            rel = os.path.relpath(dirpath, src)
+            dst_dir = state()["root"] if rel == "." else os.path.join(state()["root"], rel)
+            os.makedirs(dst_dir, exist_ok=True)
+            for fn in filenames:
+                if fn == ".DS_Store" or fn.endswith(".tmp"):
+                    continue
+                dst = os.path.join(dst_dir, fn)
+                if not os.path.exists(dst):
+                    shutil.copy2(os.path.join(dirpath, fn), dst)
+                    created.append(os.path.relpath(dst, state()["root"]))
+    return created
+
+
+# ---------------------------------------------------------------- io helpers
+
+def die(msg: str, code: int = 1):
+    print(f"wf: error: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def load() -> dict:
+    wf = state()["wf"]
+    if not os.path.exists(wf):
+        die(f"{wf} not found")
+    try:
+        with open(wf, encoding="utf-8") as fh:
+            return json.load(fh)
+    except json.JSONDecodeError as exc:
+        die(f"workflow.json is not valid JSON: {exc}")
+
+
+def save(doc: dict):
+    # Write to a sibling temp file and atomically replace, so a crash or a full
+    # disk mid-write can never leave workflow.json — the whole project's state —
+    # truncated or half-written.
+    wf = state()["wf"]
+    tmp = wf + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(doc, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+    os.replace(tmp, wf)
+
+
+def now() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def arg_value(args, flag, default=None):
+    """Value following `flag`. Safe when the flag is absent or is the last token."""
+    if flag in args:
+        i = args.index(flag)
+        if i + 1 < len(args) and not args[i + 1].startswith("--"):
+            return args[i + 1]
+        die(f"{flag} requires a value")
+    return default
+
+
+# ------------------------------------------------------------ tree utilities
+
+def walk(steps, depth=0, parent=None):
+    """Yield (step, depth, parent) depth-first, in declaration order."""
+    for step in steps or []:
+        yield step, depth, parent
+        yield from walk(step.get("steps"), depth + 1, step)
+
+
+def all_steps(doc):
+    return [t for t in walk(doc.get("steps", []))]
+
+
+def find(doc, step_id):
+    for step, _, parent in walk(doc.get("steps", [])):
+        if step.get("id") == step_id:
+            return step, parent
+    return None, None
+
+
+def inherited(doc, step, parent_chain, key, fallback=None):
+    """Nearest-ancestor-wins resolution, then defaults, then fallback."""
+    for node in [step] + list(reversed(parent_chain)):
+        if key in node:
+            return node[key]
+    return doc.get("defaults", {}).get(key, fallback)
+
+
+def chain_for(doc, target):
+    """Ancestor chain (outermost first) for a step id."""
+    path = []
+
+    def rec(steps, acc):
+        for step in steps or []:
+            if step is target:
+                path.extend(acc)
+                return True
+            if rec(step.get("steps"), acc + [step]):
+                return True
+        return False
+
+    rec(doc.get("steps", []), [])
+    return path
+
+
+def effective_status(step) -> str:
+    """A parent's status rolls up from its children unless explicitly blocked."""
+    if step.get("status") == "blocked":
+        return "blocked"
+    kids = step.get("steps")
+    if not kids:
+        return step.get("status", "pending")
+    kid_states = [effective_status(k) for k in kids]
+    if all(s in ("done", "skipped") for s in kid_states):
+        # A container holds a backlog, so finishing its current children proves
+        # nothing about whether the backlog is empty. Only an explicit close
+        # ends it — otherwise delivery would declare itself done after the very
+        # first feature and the pipeline would run on to release.
+        if step.get("kind") == "container" and step.get("status") != "done":
+            return "in_progress"
+        return "done"
+    if any(s in ("in_progress", "done") for s in kid_states):
+        return "in_progress"
+    if any(s == "blocked" for s in kid_states):
+        return "blocked"
+    return step.get("status", "pending")
+
+
+def agent_of(doc, step):
+    chain = chain_for(doc, step)
+    agent = None
+    for node in [step] + list(reversed(chain)):
+        if node.get("agent"):
+            agent = node["agent"]
+            break
+    if agent is None:
+        agent = doc.get("defaults", {}).get("agent", {"model": "sonnet", "effort": "medium"})
+    return agent
+
+
+def is_background(doc, step):
+    chain = chain_for(doc, step)
+    for node in [step] + list(reversed(chain)):
+        if "background" in node:
+            return bool(node["background"])
+    return bool(doc.get("defaults", {}).get("background", False))
+
+
+# ------------------------------------------------------------- eligibility
+
+def own_blockers(doc, step):
+    """Blockers arising from this step's own `requires` and its predecessor siblings."""
+    reasons = []
+    index = {s.get("id"): s for s, _, _ in walk(doc.get("steps", []))}
+
+    for req in step.get("requires", []):
+        dep = index.get(req)
+        if dep is None:
+            reasons.append(f"requires unknown step '{req}'")
+        elif effective_status(dep) not in ("done", "skipped"):
+            reasons.append(f"waits on {req} ({effective_status(dep)})")
+
+    # sequential semantics among siblings, unless the predecessor is background
+    chain = chain_for(doc, step)
+    siblings = chain[-1].get("steps") if chain else doc.get("steps", [])
+    for sib in siblings or []:
+        if sib is step:
+            break
+        state = effective_status(sib)
+        if state in ("done", "skipped"):
+            continue
+        if is_background(doc, sib) and state == "in_progress":
+            continue
+        reasons.append(f"predecessor {sib.get('id')} is {state}")
+        gate = sib.get("gate", doc.get("defaults", {}).get("gate", "none"))
+        if gate and gate != "none":
+            reasons.append(f"gate '{gate}' on {sib.get('id')} unsatisfied")
+        break
+    return reasons
+
+
+def blockers(doc, step):
+    """Why this step cannot start yet. Empty list = eligible.
+
+    A step inherits every blocker of its ancestors: a child cannot begin while
+    the branch it hangs from is itself not allowed to start.
+    """
+    reasons = list(own_blockers(doc, step))
+    for ancestor in chain_for(doc, step):
+        reasons.extend(f"[{ancestor.get('id')}] {r}" for r in own_blockers(doc, ancestor))
+    return reasons
+
+
+def next_steps(doc):
+    out = []
+    for step, _, _ in walk(doc.get("steps", [])):
+        state = effective_status(step)
+        if step.get("steps"):
+            # A container whose current children are all finished becomes
+            # actionable again: take the next item off the backlog, or close it.
+            exhausted = step.get("kind") == "container" and state == "in_progress" and all(
+                effective_status(k) in ("done", "skipped") for k in step["steps"]
+            )
+            if not exhausted:
+                continue
+        elif state != "pending":
+            continue
+        if not blockers(doc, step):
+            out.append(step)
+    return out
+
+
+def setup_pending(doc) -> bool:
+    """True while the project has not been set up: the bootstrap step (which
+    /wf-setup · wf init completes) is still pending. Nothing but setup should
+    run before it."""
+    step, _ = find(doc, "bootstrap")
+    return bool(step) and effective_status(step) == "pending"
+
+
+# ---------------------------------------------------------------- rendering
+
+def render(doc, full=False, hook=False, color=None):
+    if color is None:
+        color = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+
+    def paint(s, *styles):
+        if not color or not styles:
+            return s
+        return f"\033[{';'.join(ANSI[x] for x in styles)}m{s}\033[0m"
+
+    proj = doc.get("project", {})
+    harness = doc.get("harness", {}) or {}
+    github = doc.get("github", {}) or {}
+    leaves = [s for s, _, _ in walk(doc.get("steps", [])) if not s.get("steps")]
+    total = len(leaves)
+    done = sum(1 for s in leaves if effective_status(s) in ("done", "skipped"))
+
+    # --- header ---------------------------------------------------------
+    name = proj.get("name", "?")
+    if proj.get("type") and proj["type"] != "none":
+        name += f" ({proj['type']})"
+    filled = round(done / total * BAR_WIDTH) if total else 0
+    bar = paint("█" * filled, "green") + paint("░" * (BAR_WIDTH - filled), "dim")
+    facts = [
+        f"{done}/{total}",
+        f"harness {'✔' if harness.get('enabled') else '·'}",
+    ]
+    if github.get("enabled"):
+        facts.append("gh ✔")
+    facts.append(f"lang {proj.get('language', 'en')}")
+    ws = doc.get("workspace") or {}
+    st = state()
+    if st["role"] == "satellite":
+        facts.append(f"via {st['local_name']}")
+    elif ws.get("role") == "hub" and ws.get("projects"):
+        facts.append(f"sats {len(ws['projects'])}")
+    rule = paint("─" * RULE_WIDTH, "dim")
+    pending_setup = setup_pending(doc)
+    lines = [
+        paint(f"PIPELINE · {name}", "bold"),
+        f"{bar}  " + paint("  ·  ".join(facts), "dim"),
+        rule,
+    ]
+    if pending_setup:
+        lines.append(paint("⚠ SETUP PENDING — run /wf-setup before anything else", "red", "bold"))
+        lines.append(rule)
+
+    # --- tree -----------------------------------------------------------
+    def visible(children, depth):
+        return [c for c in children
+                if full or depth == 0 or effective_status(c) not in ("done", "skipped")]
+
+    def emit(steps, prefix, depth):
+        sibs = visible(steps, depth)
+        for i, step in enumerate(sibs):
+            last = i == len(sibs) - 1
+            state = effective_status(step)
+            glyph = paint(GLYPH.get(state, "?"), *STYLE.get(state, ()))
+            if depth == 0:
+                branch, child_prefix = "", ""
+            else:
+                branch = "└ " if last else "├ "
+                child_prefix = prefix + ("  " if last else "│ ")
+            sid = step.get("id", "")
+            sid = paint(sid, "bold") if state == "in_progress" else sid
+            pfx = paint(prefix + branch, "dim") if (prefix + branch) else ""
+            title = step.get("title", "")
+            row = f"{pfx}{glyph} {sid}  {paint(title, 'dim') if title else ''}"
+
+            meta = []
+            if not step.get("steps"):
+                a = agent_of(doc, step)
+                meta.append(f"{a.get('model')}·{a.get('effort', 'medium')}")
+                if a.get("subagent_type"):
+                    meta.append(a["subagent_type"])
+                if a.get("isolation", "none") != "none":
+                    meta.append(a["isolation"])
+                if is_background(doc, step):
+                    meta.append("bg")
+            if meta:
+                row += "  " + paint("· " + " ".join(meta), "dim")
+            gate = step.get("gate", "none")
+            if gate and gate != "none":
+                row += "  " + paint(f"‹{GATE_TAG.get(gate, gate)}›", "cyan")
+            if step.get("project"):
+                row += "  " + paint(f"@{step['project']}", "cyan")
+            if state == "blocked" and step.get("notes"):
+                row += "  " + paint(f"⤷ {step['notes'][:44]}", "red")
+            lines.append(row)
+            if step.get("steps"):
+                emit(step["steps"], child_prefix, depth + 1)
+
+    emit(doc.get("steps", []), "", 0)
+    lines.append(rule)
+
+    # --- now / next -----------------------------------------------------
+    def locate(step):
+        a = agent_of(doc, step)
+        return f"{step.get('id')}  {paint(a.get('model') + '·' + a.get('effort','medium'), 'dim')}  {paint(step.get('instructions',''), 'dim')}"
+
+    running = [s for s in leaves if effective_status(s) == "in_progress"]
+    for step in running:
+        lines.append(paint("▸ NOW ", "yellow", "bold") + " " + locate(step))
+    nxt = next_steps(doc)
+    if pending_setup and not running:
+        lines.append(paint("→ NEXT", "cyan", "bold") + " /wf-setup  "
+                     + paint("the setup wizard — configures engine · language · harness · GitHub and completes bootstrap", "dim"))
+    elif nxt:
+        lines.append(paint("→ NEXT", "cyan", "bold") + " " + locate(nxt[0]))
+        if len(nxt) > 1:
+            lines.append(paint("       also: " + ", ".join(s.get("id") for s in nxt[1:4]), "dim"))
+    elif not running:
+        stuck = [s for s, _, _ in walk(doc.get("steps", [])) if effective_status(s) == "blocked"]
+        if stuck:
+            lines.append(paint("✖ BLOCKED", "red", "bold") + " " + ", ".join(s.get("id") for s in stuck))
+        else:
+            lines.append(paint("✓ pipeline complete", "green", "bold"))
+
+    if not hook:
+        lines.append(paint("✔ done  ▸ active  ○ pending  ✖ blocked  ⊘ skipped", "dim"))
+    if hook:
+        lines.append("")
+        if pending_setup:
+            lines.append(
+                "SETUP HAS NOT RUN. Reproduce this pipeline block at the TOP of your reply, "
+                "then STOP: do not execute any pipeline step or start any other work — "
+                "recommend /wf-setup and wait for the human to run it."
+            )
+        else:
+            lines.append(
+                "Reproduce this pipeline block at the TOP of your reply, then continue. "
+                "Read the NEXT step's instructions file before acting on it."
+            )
+    return "\n".join(lines)
+
+
+# ----------------------------------------------------------------- commands
+
+def cmd_status(args):
+    doc = load()
+    color = None  # auto-detect from TTY
+    if "--plain" in args or "--no-color" in args:
+        color = False
+    elif "--color" in args:
+        color = True
+    print(render(doc, full="--full" in args, hook="--hook" in args, color=color))
+
+
+def cmd_next(args):
+    doc = load()
+    if setup_pending(doc):
+        print("setup pending — run /wf-setup (it completes the bootstrap step).")
+        print("Nothing else should run before it. Non-interactive alternative: ./bin/wf init …")
+        return
+    nxt = next_steps(doc)
+    if not nxt:
+        print("nothing eligible")
+        return
+    for step in nxt:
+        agent = agent_of(doc, step)
+        bg = " bg" if is_background(doc, step) else ""
+        print(f"{step['id']}\t{agent.get('model')}/{agent.get('effort','medium')}{bg}\t{step['instructions']}\t{step.get('title','')}")
+
+
+def cmd_show(args):
+    if not args:
+        die("usage: wf show <id>")
+    doc = load()
+    step, _ = find(doc, args[0])
+    if not step:
+        die(f"unknown step '{args[0]}'")
+    agent = agent_of(doc, step)
+    print(f"id           {step['id']}")
+    print(f"title        {step.get('title','')}")
+    print(f"kind         {step.get('kind','stage')}")
+    print(f"status       {effective_status(step)}")
+    print(f"agent        {agent.get('model')}/{agent.get('effort','medium')}"
+          + (f" via {agent['subagent_type']}" if agent.get("subagent_type") else "")
+          + (f" [{agent['isolation']}]" if agent.get("isolation", "none") != "none" else ""))
+    print(f"background   {is_background(doc, step)}")
+    print(f"instructions {step.get('instructions')}")
+    print(f"gate         {step.get('gate','none')}")
+    if step.get("requires"):
+        print(f"requires     {', '.join(step['requires'])}")
+    if step.get("produces"):
+        print(f"produces     {', '.join(step['produces'])}")
+    for item in step.get("acceptance", []) or []:
+        print(f"  accept     - {item}")
+    if step.get("notes"):
+        print(f"notes        {step['notes']}")
+    blk = blockers(doc, step)
+    if blk:
+        print("blockers     " + "; ".join(blk))
+
+
+def _set_status(step_id, status, note=None, force=False):
+    doc = load()
+    step, _ = find(doc, step_id)
+    if not step:
+        die(f"unknown step '{step_id}'")
+
+    if status == "in_progress":
+        blk = blockers(doc, step)
+        if blk and not force:
+            die("cannot start: " + "; ".join(blk) + "  (--force to override)")
+        if doc.get("policy", {}).get("single_in_progress", True):
+            for other, _, _ in walk(doc.get("steps", [])):
+                if other is step or other.get("steps"):
+                    continue
+                if other.get("status") == "in_progress" and not is_background(doc, other):
+                    die(f"{other['id']} is already in_progress (single_in_progress policy)")
+        step["started_at"] = now()
+
+    if status == "done":
+        # You must start what you finish: closing a step that never legitimately
+        # began is how gates and `requires` get bypassed from the back door.
+        current = step.get("status", "pending")
+        if current == "pending" and not force:
+            blk = blockers(doc, step)
+            if blk:
+                die("cannot close a step that never started and is still blocked: "
+                    + "; ".join(blk) + "  (--force to override)")
+            die(f"{step_id} is still pending — run `wf start {step_id}` first  (--force to override)")
+        missing = []
+        for pattern in step.get("produces", []) or []:
+            if not glob(os.path.join(state()["root"], pattern), recursive=True):
+                missing.append(pattern)
+        if missing and not force:
+            die("cannot close: no artifact matches " + ", ".join(missing) + "  (--force to override)")
+        step["completed_at"] = now()
+
+    step["status"] = status
+    if note:
+        step["notes"] = note
+    save(doc)
+    print(render(load()))
+
+
+def cmd_start(args):
+    if not args:
+        die("usage: wf start <id> [--force]")
+    _set_status(args[0], "in_progress", force="--force" in args)
+
+
+def cmd_done(args):
+    if not args:
+        die("usage: wf done <id> [--force]")
+    _set_status(args[0], "done", force="--force" in args)
+
+
+def cmd_block(args):
+    if len(args) < 2:
+        die('usage: wf block <id> "reason"')
+    _set_status(args[0], "blocked", note=args[1])
+
+
+def cmd_skip(args):
+    if len(args) < 2:
+        die('usage: wf skip <id> "reason"')
+    _set_status(args[0], "skipped", note=args[1])
+
+
+def _requires_closure(index, sid, seen=None):
+    """All step ids reachable from sid through the `requires` graph."""
+    seen = seen if seen is not None else set()
+    for req in index.get(sid, {}).get("requires", []) or []:
+        if req not in seen:
+            seen.add(req)
+            _requires_closure(index, req, seen)
+    return seen
+
+
+def cmd_reopen(args):
+    """Send a finished step back to pending so it (and, with --cascade, everything
+    built on it) can be redone. Fills the gap that `start` leaves: reopening a
+    step never invalidates what was derived from it, so the pipeline would keep
+    reporting stale downstream steps as done."""
+    if not args:
+        die("usage: wf reopen <id> [--cascade]")
+    target_id = args[0]
+    cascade = "--cascade" in args
+    doc = load()
+    target, _ = find(doc, target_id)
+    if not target:
+        die(f"unknown step '{target_id}'")
+
+    index = {s.get("id"): s for s, _, _ in walk(doc.get("steps", []))}
+    order = {sid: i for i, sid in enumerate(index)}
+    dependents = [sid for sid in index
+                  if sid != target_id and target_id in _requires_closure(index, sid)]
+
+    changed = []
+
+    def reset(step, is_root=False):
+        st = step.get("status", "pending")
+        # the explicitly reopened root goes back regardless; everything else only
+        # if it had actually run — a deliberately `skipped` step stays skipped.
+        if (is_root or st in ("done", "in_progress")) and st != "pending":
+            step["status"] = "pending"
+            step.pop("started_at", None)
+            step.pop("completed_at", None)
+            changed.append(step.get("id"))
+        for child in step.get("steps", []) or []:
+            reset(child)
+
+    reset(target, is_root=True)
+
+    stale = []
+    if cascade:
+        for sid in sorted(dependents, key=lambda s: order.get(s, 0)):
+            reset(index[sid])
+    else:
+        stale = sorted((sid for sid in dependents
+                        if effective_status(index[sid]) in ("done", "in_progress")),
+                       key=lambda s: order.get(s, 0))
+
+    save(doc)
+    changed_sorted = sorted(set(changed), key=lambda s: order.get(s, 0))
+    print("reopened → pending: " + (", ".join(changed_sorted) if changed_sorted else "(nothing changed)"))
+    if not cascade and stale:
+        print("\n⚠ these were built on it and are now STALE (still marked done):")
+        for sid in stale:
+            print(f"    {sid}")
+        print("  redo them too, or re-run with --cascade to reopen the whole chain:")
+        print(f"    ./bin/wf reopen {target_id} --cascade")
+    print()
+    plain = "--plain" in args or "--no-color" in args
+    print(render(load(), color=(False if plain else None)))
+
+
+def cmd_agents(args):
+    """wf agents [<id-prefix>] — every step's resolved agent, own vs inherited."""
+    doc = load()
+    prefix = args[0] if args and not args[0].startswith("--") else None
+    d = doc.get("defaults", {}).get("agent", {}) or {}
+    print(f"{'step':<46} {'agent':<14} {'source':<8} extras")
+    print(f"{'(defaults)':<46} {d.get('model', 'sonnet') + '·' + d.get('effort', 'medium'):<14} {'—':<8} "
+          "inherited by steps without their own agent")
+    shown = 0
+    for step, depth, _ in walk(doc.get("steps", [])):
+        sid = step.get("id", "")
+        if prefix and not sid.startswith(prefix):
+            continue
+        shown += 1
+        a = agent_of(doc, step)
+        label = f"{a.get('model')}·{a.get('effort', 'medium')}"
+        source = "own" if step.get("agent") else "inherit"
+        extras = []
+        if a.get("subagent_type"):
+            extras.append(a["subagent_type"])
+        if a.get("isolation", "none") != "none":
+            extras.append(a["isolation"])
+        if is_background(doc, step):
+            extras.append("bg")
+        gate = step.get("gate", "none")
+        if gate != "none":
+            extras.append(f"gate:{GATE_TAG.get(gate, gate)}")
+        print(f"{'  ' * depth + sid:<46} {label:<14} {source:<8} {' '.join(extras)}")
+    if prefix and not shown:
+        die(f"no step id starts with '{prefix}'")
+    print('\nchange one:  wf agent <step-id> --model opus --effort high')
+    print('the default: wf agent defaults --model sonnet --effort medium')
+    print('the MAIN session model is not set here — it is the Claude Code session setting (/model).')
+
+
+def cmd_agent(args):
+    """wf agent <id|defaults> [--model m] [--effort e] [--subagent N|none]
+    [--isolation worktree|none] [--background on|off]"""
+    if not args:
+        die("usage: wf agent <step-id|defaults> [--model m] [--effort e] "
+            "[--subagent NAME|none] [--isolation worktree|none] [--background on|off]")
+    target = args[0]
+    doc = load()
+    if target == "defaults":
+        step = None
+        holder = doc.setdefault("defaults", {}).setdefault("agent", {})
+        resolved_before = dict(holder)
+    else:
+        step, _ = find(doc, target)
+        if not step:
+            die(f"unknown step '{target}'")
+        resolved_before = agent_of(doc, step)
+        holder = step.setdefault("agent", {})
+
+    changed = []
+    m = arg_value(args, "--model")
+    if m:
+        if m not in ("haiku", "sonnet", "opus", "fable"):
+            die("--model must be haiku, sonnet, opus or fable")
+        holder["model"] = m
+        changed.append(f"model {m}")
+    e = arg_value(args, "--effort")
+    if e:
+        if e not in ("low", "medium", "high", "xhigh", "max"):
+            die("--effort must be low, medium, high, xhigh or max")
+        holder["effort"] = e
+        changed.append(f"effort {e}")
+    s = arg_value(args, "--subagent")
+    if s:
+        if s == "none":
+            holder.pop("subagent_type", None)
+        else:
+            holder["subagent_type"] = s
+        changed.append(f"subagent {s}")
+    iso = arg_value(args, "--isolation")
+    if iso:
+        if iso not in ("worktree", "none"):
+            die("--isolation must be worktree or none")
+        if iso == "none":
+            holder.pop("isolation", None)
+        else:
+            holder["isolation"] = iso
+        changed.append(f"isolation {iso}")
+    bg = arg_value(args, "--background")
+    if bg:
+        if step is None:
+            die("--background applies to a step, not to defaults")
+        if bg not in ("on", "off"):
+            die("--background must be on or off")
+        if bg == "on" and step.get("gate", "none") != "none":
+            die(f"{target} holds gate '{step['gate']}' — a background step cannot hold a gate")
+        step["background"] = bg == "on"
+        changed.append(f"background {bg}")
+
+    if not changed:
+        label = f"{resolved_before.get('model', 'sonnet')}·{resolved_before.get('effort', 'medium')}"
+        print(f"{target}: {label}" + ("  (own)" if (step or {}).get("agent") else "  (inherited)"))
+        return
+
+    # the schema requires `model` on any agent object; complete a partial edit
+    # from what the step resolved to before, so we never save an invalid shape
+    if "model" not in holder:
+        holder["model"] = resolved_before.get("model", "sonnet")
+    save(doc)
+    print(f"{target}: " + ", ".join(changed))
+    if step is not None and step.get("steps"):
+        print("substeps without their own agent now inherit this.")
+
+
+def cmd_feature(args):
+    if len(args) < 3 or args[0] != "add":
+        die('usage: wf feature add <slug> "Title" [--us US-1.1] [--project <workspace-name>]')
+    slug, title = args[1], args[2]
+    if not re.match(r"^[a-z0-9][a-z0-9-]*$", slug):
+        die("slug must be kebab-case")
+    us = arg_value(args, "--us")
+
+    doc = load()
+    if setup_pending(doc):
+        die("setup pending — run /wf-setup (or ./bin/wf init …) before adding features")
+    # --project accepts a comma list: one feature is created PER target, all
+    # sharing the US — how a cross-cutting story (create-login) maps onto the
+    # hub and its satellites in one command. The hub's own name (or "hub")
+    # targets the hub itself (feature stays unrouted).
+    hub_name = doc.get("project", {}).get("name")
+    ws_names = [p.get("name") for p in (doc.get("workspace") or {}).get("projects", [])]
+    raw_targets = arg_value(args, "--project")
+    if raw_targets:
+        targets = []
+        for t in (x.strip() for x in raw_targets.split(",")):
+            if not t:
+                continue
+            if t in ("hub", hub_name):
+                targets.append(None)
+            elif t in ws_names:
+                targets.append(t)
+            else:
+                die(f"unknown workspace project '{t}'"
+                    + (f" (have: {', '.join(ws_names)}, or '{hub_name}'/'hub' for the hub itself)"
+                       if ws_names else " — no workspace.projects defined"))
+        if not targets:
+            die("--project given but empty")
+    else:
+        targets = [None]
+
+    container = None
+    for step, _, _ in walk(doc.get("steps", [])):
+        if step.get("container_for") == "features":
+            container = step
+            break
+    if container is None:
+        die('no step marked container_for:"features" in workflow.json')
+
+    eng, _ = load_engine(doc)
+    feat_spec = eng.get("feature", {}) or {}
+    if not (feat_spec.get("lifecycle") or []):
+        die(f"engine '{eng.get('id')}' declares no feature lifecycle")
+
+    multi = len(targets) > 1
+    created = []
+    for target in targets:
+        existing = [s for s in container.get("steps", []) if s.get("kind") == "feature"]
+        seq = len(existing) + 1
+        fslug = f"{slug}-{target}" if (multi and target) else (f"{slug}-{hub_name}" if multi else slug)
+        fid = f"feat-{seq:03d}-{fslug}"
+        if find(doc, fid)[0]:
+            die(f"step id '{fid}' already exists")
+        fdir = feat_spec.get("dir", "features/{nnn}-{slug}").format(nnn=f"{seq:03d}", slug=fslug)
+
+        children = []
+        for stage in feat_spec.get("lifecycle", []) or []:
+            # a delegate stage runs an external engine's command; its instruction
+            # file is the generic wrapper that loads the delegate and closes the loop
+            instr = stage.get("instructions") or (
+                "instructions/engine-delegate.md" if stage.get("delegate")
+                else "instructions/feature-lifecycle.md")
+            child = {
+                "id": f"{fid}.{stage['key']}",
+                "title": stage.get("title", stage["key"]),
+                "status": "pending",
+                "instructions": instr,
+                "agent": dict(stage.get("agent") or {"model": "sonnet", "effort": "medium"}),
+                "gate": stage.get("gate", "none"),
+            }
+            if stage.get("delegate"):
+                child["delegate"] = stage["delegate"]
+            produces = [f"{fdir}/{p}" for p in stage.get("produces", []) or []]
+            if produces:
+                child["produces"] = produces
+            children.append(child)
+
+        # no @target in the title: the slug already carries it, the banner tags
+        # routed features with @project, and the title feeds GitHub issue/PR titles
+        feature = {
+            "id": fid,
+            "title": f"{title}" + (f" ({us})" if us else ""),
+            "kind": "feature",
+            "status": "pending",
+            "instructions": feat_spec.get("instructions", "instructions/feature-lifecycle.md"),
+            "steps": children,
+        }
+        if target:
+            feature["project"] = target
+        container.setdefault("steps", []).append(feature)
+        created.append((fid, fdir))
+
+    save(doc)
+    for fid, fdir in created:
+        for sub in [""] + list(feat_spec.get("scaffold_dirs", []) or []):
+            os.makedirs(os.path.join(state()["root"], fdir, sub), exist_ok=True)
+        print(f"added {fid} → {fdir}/")
+    if multi and us:
+        print(f"({len(created)} features share {us} — spec each project's slice; contracts live "
+              "with the API-side feature and the others consume them)")
+    print()
+    print(render(load()))
+    doc2 = load()
+    for fid, _ in created:
+        print(f"\nagents for {fid} (adjust: wf agent <id> … or /wf-agents {fid}):")
+        step2, _ = find(doc2, fid)
+        for child in step2.get("steps", []):
+            a = agent_of(doc2, child)
+            print(f"  {child['id']:<38} {a.get('model')}·{a.get('effort', 'medium')}")
+    if doc2.get("policy", {}).get("ask_agent_review", True):
+        print("agent review prompt: on")
+    else:
+        print("agent review prompt: off — keeping defaults silently")
+
+
+def _gated_steps(doc, gate="verify_green"):
+    return [s.get("id") for s, _, _ in walk(doc.get("steps", [])) if s.get("gate") == gate]
+
+
+TOOLCHAINS = [
+    (("node", "nodejs", "npm", "pnpm", "yarn", "typescript", "ts", "next", "react", "vite", "deno", "bun"),
+     ["      - uses: actions/setup-node@v4",
+      "        with: { node-version: '20', cache: 'npm' }"]),
+    (("java", "maven", "gradle", "jakarta", "spring", "kotlin"),
+     ["      - uses: actions/setup-java@v4",
+      "        with: { distribution: 'temurin', java-version: '21', cache: 'maven' }"]),
+    (("python", "py", "django", "flask", "fastapi", "poetry"),
+     ["      - uses: actions/setup-python@v5",
+      "        with: { python-version: '3.12' }"]),
+    (("go", "golang"),
+     ["      - uses: actions/setup-go@v5",
+      "        with: { go-version: 'stable' }"]),
+    (("rust", "cargo"),
+     ["      - uses: dtolnay/rust-toolchain@stable"]),
+]
+
+
+def generate_ci(doc):
+    """Render a GitHub Actions workflow from harness.signals + harness.commands.
+
+    Each signal becomes its own visible step, so `build` and `test` show up as
+    distinct stages in the Actions UI. A signal with no configured command
+    generates a step that FAILS loudly — an unconfigured build must not pass
+    green, or CI would certify work it never checked.
+    """
+    h = doc.get("harness", {}) or {}
+    proj = doc.get("project", {}) or {}
+    gh = doc.get("github", {}) or {}
+    branches = [gh.get("default_branch") or "main"]
+    integ = gh.get("integration_branch")
+    if integ and integ not in branches:
+        branches.append(integ)
+    branches.append("feature/**")  # the publish step's branch push must run build+test
+    signals = h.get("signals") or ["test", "build"]
+    commands = h.get("commands") or {}
+
+    tokens = {str(proj.get("type", "")).lower()} | {str(s).lower() for s in proj.get("stack", [])}
+    setup = []
+    for keys, block in TOOLCHAINS:
+        if tokens & set(keys):
+            setup = block
+            break
+
+    L = [
+        f"# CI — {proj.get('name', 'project')}",
+        "# Generated by `wf harness ci` from harness.signals. Re-run it after changing signals.",
+        "# Each signal is a separate step; edit commands with `wf harness signal <name> \"<cmd>\"`.",
+        "name: ci",
+        "on:",
+        f"  push: {{ branches: [{', '.join(repr(b) for b in branches)}] }}",
+        "  pull_request:",
+        "jobs:",
+        "  verify:",
+        "    runs-on: ubuntu-latest",
+        "    steps:",
+        "      - uses: actions/checkout@v4",
+    ]
+    if setup:
+        L += setup
+    else:
+        L.append("      # no toolchain detected from project.stack — add your setup-* step here")
+
+    missing = []
+    for sig in signals:
+        cmd = commands.get(sig)
+        L.append(f"      - name: {sig}")
+        if cmd:
+            L.append(f"        run: {cmd}")
+        else:
+            missing.append(sig)
+            L.append('        run: |')
+            L.append(f'          echo "::error::no command configured for \'{sig}\'."')
+            L.append(f'          echo "Set it: wf harness signal {sig} \\"<command>\\""')
+            L.append("          exit 1")
+    return "\n".join(L) + "\n", missing
+
+
+def cmd_harness(args):
+    """wf harness [status] | on [--profile T] [--verify CMD] | off | verify "CMD" """
+    doc = load()
+    h = doc.setdefault("harness", {"enabled": False})
+    sub = args[0] if args else "status"
+
+    def report():
+        doc2 = load()
+        h2 = doc2.get("harness", {})
+        state = "ON" if h2.get("enabled") else "OFF"
+        print(f"harness      {state}")
+        print(f"verify       {h2.get('verify') or '(not set)'}")
+        print(f"profile      {h2.get('profile') or '(not set)'}")
+        print(f"ci           {h2.get('ci') or '(not set)'}")
+        if h2.get("signals"):
+            cmds = h2.get("commands") or {}
+            shown = [f"{s}={'✓' if cmds.get(s) else 'TODO'}" for s in h2["signals"]]
+            print(f"signals      {'  '.join(shown)}")
+        gated = _gated_steps(doc2)
+        if gated:
+            word = "enforced against `%s`" % h2.get("verify") if h2.get("enabled") else "ADVISORY ONLY"
+            print(f"\nverify_green gates ({len(gated)}): {word}")
+            for g in gated:
+                print(f"  · {g}")
+
+    if sub == "status":
+        report()
+        return
+
+    if sub == "off":
+        h["enabled"] = False
+        save(doc)
+        print("harness OFF — verify_green gates are now advisory.")
+        print("Report results honestly: say no automated verification ran; do not imply a check that did not happen.\n")
+        report()
+        return
+
+    if sub == "on":
+        t = arg_value(args, "--profile")
+        if t:
+            path = t if t.endswith(".md") else f"harness/profiles/{t}.md"
+            if not os.path.exists(os.path.join(state()["root"], path)):
+                die(f"profile not found: {path}")
+            h["profile"] = path
+        v = arg_value(args, "--verify")
+        if v:
+            h["verify"] = v
+        h["enabled"] = True
+        save(doc)
+        print("harness ON.\n")
+        report()
+        if not h.get("verify"):
+            print("\nWARNING: no verify command set. The gates cannot check anything.")
+            print('Set one:  ./bin/wf harness verify "npm run verify"')
+        else:
+            print(f"\nNext: wire each signal's command, then generate the CI workflow:")
+            print('  ./bin/wf harness signal test "npm test"')
+            print('  ./bin/wf harness signal build "npm run build"')
+            print("  ./bin/wf harness ci")
+        return
+
+    if sub == "verify":
+        if len(args) < 2:
+            die('usage: wf harness verify "<command>"')
+        h["verify"] = args[1]
+        save(doc)
+        print(f"verify = {args[1]}\n")
+        report()
+        return
+
+    if sub == "signal":
+        if len(args) < 3:
+            die('usage: wf harness signal <name> "<command>"')
+        name, cmd = args[1], args[2]
+        h.setdefault("signals", [])
+        if name not in h["signals"]:
+            h["signals"].append(name)
+        h.setdefault("commands", {})[name] = cmd
+        save(doc)
+        print(f"signal {name} = {cmd}\n")
+        report()
+        print("\nRegenerate CI to pick this up:  ./bin/wf harness ci")
+        return
+
+    if sub == "ci":
+        yaml, missing = generate_ci(doc)
+        path = h.get("ci") or ".github/workflows/ci.yml"
+        dest = os.path.join(state()["root"], path)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w", encoding="utf-8") as fh:
+            fh.write(yaml)
+        h["ci"] = path
+        save(doc)
+        print(f"wrote {path} with steps: {', '.join(h.get('signals') or [])}")
+        if missing:
+            print("\nThese steps have NO command yet and will FAIL in CI until wired:")
+            for m in missing:
+                print(f'  ./bin/wf harness signal {m} "<command>"')
+        print("\nCommit and push the workflow (with confirmation) to activate it on GitHub.")
+        return
+
+    die(f"unknown subcommand '{sub}'. Use: status | on | off | verify | signal | ci")
+
+
+# ------------------------------------------------------------------- engine
+
+def cmd_engine(args):
+    """wf engine [status] | list | set <name>"""
+    sub = args[0] if args else "status"
+
+    if sub == "status":
+        doc = load()
+        eng, path = load_engine(doc)
+        print(f"engine       {eng.get('id')} — {eng.get('name', '')}")
+        print(f"manifest     {os.path.relpath(path, state()['root']) if path else '(bundled fallback — no engines/ dir)'}")
+        inst = eng.get("install") or {}
+        if inst.get("hint"):
+            print(f"install      {inst['hint']}")
+        feat_spec = eng.get("feature", {}) or {}
+        print(f"feature dir  {feat_spec.get('dir', '?')}")
+        print("\nlifecycle:")
+        for stage in feat_spec.get("lifecycle", []) or []:
+            a = stage.get("agent") or {}
+            src = stage.get("delegate") and f"delegate → {stage['delegate']}" or stage.get("instructions", "?")
+            print(f"  {stage.get('key', '?'):<10} {a.get('model', '·')}·{a.get('effort', '·'):<8} "
+                  f"gate:{GATE_TAG.get(stage.get('gate', 'none'), stage.get('gate', 'none')):<9} {src}")
+        return
+
+    if sub == "list":
+        root = state()["root"]
+        base = os.path.join(root, "engines")
+        names = []
+        if os.path.isdir(base):
+            names = sorted(n for n in os.listdir(base)
+                           if os.path.exists(os.path.join(base, n, "engine.json")))
+        if "default" not in names:
+            names.insert(0, "default (bundled)")
+        active = ((load().get("engine") or {}).get("name")) or "default"
+        for n in names:
+            mark = "→" if n.split(" ")[0] == active else " "
+            print(f"{mark} {n}")
+        return
+
+    if sub == "scan":
+        # Deterministic discovery: what engine commands are actually installed in
+        # .claude/commands, how they compare to the manifests on disk (drift both
+        # ways), and which command groups have no manifest yet (candidates for
+        # /wf-engine learn). Read-only.
+        root = state()["root"]
+        cmd_dir = os.path.join(root, ".claude", "commands")
+        bases = sorted(os.path.basename(p)[:-3] for p in glob(os.path.join(cmd_dir, "*.md")))
+        groups = {}
+        for base in bases:
+            prefix = re.split(r"[.-]", base, maxsplit=1)[0]
+            groups.setdefault(prefix, []).append(base)
+        groups.pop("wf", None)  # the workflow's own commands
+
+        manifests = {}
+        eng_dir = os.path.join(root, "engines")
+        if os.path.isdir(eng_dir):
+            for n in sorted(os.listdir(eng_dir)):
+                mp = os.path.join(eng_dir, n, "engine.json")
+                if os.path.exists(mp):
+                    try:
+                        with open(mp, encoding="utf-8") as fh:
+                            manifests[n] = json.load(fh)
+                    except (OSError, json.JSONDecodeError):
+                        manifests[n] = None
+
+        active = ((load().get("engine") or {}).get("name")) or "default"
+        covered = set()
+        for name, man in manifests.items():
+            mark = "→" if name == active else " "
+            if man is None:
+                print(f"{mark} {name}: engine.json unreadable")
+                continue
+            delegates = [st.get("delegate")
+                         for st in ((man.get("feature") or {}).get("lifecycle") or [])
+                         if st.get("delegate")]
+            if (man.get("constitution") or {}).get("delegate"):
+                delegates.append(man["constitution"]["delegate"])
+            check = (man.get("install") or {}).get("check")
+            installed = bool(check and os.path.exists(os.path.join(root, check)))
+            bits = []
+            if delegates:
+                present = [d for d in delegates if f"{d}" in bases]
+                bits.append("installed ✓" if installed else "NOT installed")
+                bits.append(f"delegates {len(present)}/{len(delegates)}")
+            else:
+                bits.append("native (no delegates)")
+            print(f"{mark} {name}: " + " · ".join(bits))
+            prefixes = {re.split(r"[.-]", d, maxsplit=1)[0] for d in delegates}
+            covered |= prefixes
+            for d in delegates:
+                if d not in bases:
+                    print(f"    missing   .claude/commands/{d}.md")
+            known = set(delegates)
+            for p in sorted(prefixes):
+                for base in groups.get(p, []):
+                    if base not in known:
+                        print(f"    unmapped  {base}  (installed but absent from the manifest — drift?)")
+
+        cands = {p: fs for p, fs in groups.items() if p not in covered and len(fs) >= 2}
+        if cands:
+            print("\ncandidate engines (installed command groups with no manifest):")
+            for p, fs in sorted(cands.items()):
+                print(f"  {p}: {', '.join(fs)}")
+            print("\nlearn one: /wf-engine learn <prefix>  — drafts engines/<prefix>/engine.json from the installed files")
+        return
+
+    if sub == "set":
+        if len(args) < 2:
+            die("usage: wf engine set <name>")
+        name = args[1]
+        doc = load()
+        # resolve the manifest before committing to it
+        probe = dict(doc)
+        probe["engine"] = {"name": name}
+        eng, path = load_engine(probe)
+        doc["engine"] = {"name": name}
+        save(doc)
+        print(f"engine set to '{name}'" + ("" if path else " (bundled)"))
+        created = materialize_engine(doc)
+        if created:
+            tops = sorted({c.split(os.sep)[0] for c in created})
+            print(f"scaffold materialized: {len(created)} file(s) → {', '.join(tops)}/")
+        feats = [s for s, _, _ in walk(doc.get("steps", [])) if s.get("kind") == "feature"]
+        if feats:
+            print(f"NOTE: {len(feats)} existing feature(s) were generated by the previous engine; "
+                  "their steps and artifact paths keep the old layout. Only NEW features use this engine.")
+        inst = eng.get("install") or {}
+        if inst.get("check") and not os.path.exists(os.path.join(state()["root"], inst["check"])):
+            print(f"WARNING: install check failed ({inst['check']} not found). " +
+                  (f"Install first: {inst['hint']}" if inst.get("hint") else ""))
+        return
+
+    die(f"unknown subcommand '{sub}'. Use: status | list | scan | set")
+
+
+# ----------------------------------------------------------- open questions
+#
+# Deterministic bookkeeping for catalogs/open-questions.md. The CONVERSATION
+# (question cards, propagating decisions into PRD prose) is agent work driven
+# by /wf-answer; recording status/decision/history in the catalog is done here
+# so it never depends on the agent remembering the format.
+
+OQ_FILE = os.path.join("catalogs", "open-questions.md")
+
+
+def _oq_read():
+    path = os.path.join(state()["root"], OQ_FILE)
+    if not os.path.exists(path):
+        die(f"{OQ_FILE} not found — the SDD scaffold is not materialized yet; "
+            "run /wf-setup (or `wf engine set <name>`) first")
+    with open(path, encoding="utf-8") as fh:
+        lines = fh.read().splitlines()
+    blocks, cur = [], None
+    for i, ln in enumerate(lines):
+        m = re.match(r"^###\s+(OQ-\d+)\s*[—–-]+\s*(.*)$", ln)
+        if m:
+            if cur:
+                cur["end"] = i
+                blocks.append(cur)
+            cur = {"id": m.group(1), "title": m.group(2).strip(), "start": i, "end": len(lines)}
+        elif ln.startswith("## ") and cur:
+            cur["end"] = i
+            blocks.append(cur)
+            cur = None
+    if cur:
+        blocks.append(cur)
+    for b in blocks:
+        b["status"], b["severity"], b["impact"], b["status_at"] = "open", "", "", None
+        for j in range(b["start"], b["end"]):
+            low = lines[j].lower()
+            if low.startswith("**status:**"):
+                b["status_at"] = j
+                b["status"] = "resolved" if ("resolved" in low or "✅" in lines[j]) else "open"
+            elif low.startswith("**severity:**"):
+                b["severity"] = lines[j].split(":**", 1)[-1].strip()
+            elif low.startswith("**impact:**"):
+                b["impact"] = lines[j].split(":**", 1)[-1].strip()
+    # the template placeholder block is not a real question
+    blocks = [b for b in blocks if not b["title"].startswith("<")]
+    return path, lines, blocks
+
+
+def _oq_write(path, lines):
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines) + "\n")
+    os.replace(tmp, path)
+
+
+def _oq_history(lines, entry):
+    """Append a row to the ## History table; no-op if the section is missing."""
+    in_hist, last_row = False, None
+    for i, ln in enumerate(lines):
+        if ln.startswith("## "):
+            in_hist = ln.strip().lower() == "## history"
+        elif in_hist and ln.startswith("|"):
+            last_row = i
+    if last_row is not None:
+        lines.insert(last_row + 1, f"| {now()[:10]} | {entry} |")
+
+
+def cmd_oq(args):
+    """wf oq [list [--all]] | show <id> | answer <id> "decision" [--by name] | add "title" ..."""
+    sub = args[0] if args else "list"
+
+    if sub in ("list", "--all"):
+        _, _, blocks = _oq_read()
+        want_all = "--all" in args or sub == "--all"
+        rows = [b for b in blocks if want_all or b["status"] == "open"]
+        if not rows:
+            print("no open questions pending" if not want_all else "no open questions recorded")
+            return
+        for b in rows:
+            mark = "✅" if b["status"] == "resolved" else "○"
+            sev = b["severity"] or "—"
+            print(f"{mark} {b['id']}\t{sev}\t{b['title']}" + (f"\timpact: {b['impact']}" if b["impact"] else ""))
+        open_n = sum(1 for b in blocks if b["status"] == "open")
+        print(f"\n{open_n} pending · answer with: wf oq answer <id> \"decision\" [--by name]")
+        return
+
+    if sub == "show":
+        if len(args) < 2:
+            die("usage: wf oq show OQ-NN")
+        _, lines, blocks = _oq_read()
+        for b in blocks:
+            if b["id"] == args[1]:
+                print("\n".join(lines[b["start"]:b["end"]]).rstrip())
+                return
+        die(f"unknown question '{args[1]}'")
+
+    if sub == "answer":
+        if len(args) < 3:
+            die('usage: wf oq answer OQ-NN "decision" [--by name]')
+        qid, decision = args[1], args[2]
+        by = arg_value(args[3:], "--by")
+        path, lines, blocks = _oq_read()
+        block = next((b for b in blocks if b["id"] == qid), None)
+        if block is None:
+            die(f"unknown question '{qid}'")
+        if block["status"] == "resolved":
+            die(f"{qid} is already resolved")
+        stamp = now()[:10]
+        credit = f" — decided by {by}, {stamp}." if by else f" — decided {stamp}."
+        if block["status_at"] is not None:
+            lines[block["status_at"]] = f"**Status:** ✅ resolved ({stamp})."
+            lines.insert(block["status_at"] + 1, f"**Decision:** {decision}{credit}")
+        else:
+            lines.insert(block["end"], f"**Status:** ✅ resolved ({stamp}).")
+            lines.insert(block["end"] + 1, f"**Decision:** {decision}{credit}")
+        _oq_history(lines, f"{qid} resolved: {decision[:70] + '…' if len(decision) > 70 else decision}")
+        _oq_write(path, lines)
+        _, _, blocks = _oq_read()
+        remaining = [b["id"] for b in blocks if b["status"] == "open"]
+        print(f"{qid} resolved. Remaining: {', '.join(remaining) if remaining else 'none'}")
+        print("Propagate now: update the PRD §Open Questions row and any [TBD — " + qid + "] markers;")
+        print("if the decision invalidates approved artifacts, `wf reopen <step> [--cascade]`.")
+        return
+
+    if sub == "add":
+        if len(args) < 2:
+            die('usage: wf oq add "title" [--severity blocker|important|tactical] [--impact "..."] [--path "..."]')
+        title = args[1]
+        sev_key = (arg_value(args[2:], "--severity") or "important").lower()
+        sev = {"blocker": "🔴 Blocker", "important": "🟡 Important", "tactical": "🟢 Tactical"}.get(sev_key)
+        if sev is None:
+            die("--severity must be blocker, important or tactical")
+        impact = arg_value(args[2:], "--impact") or "<what it blocks>"
+        suggested = arg_value(args[2:], "--path") or "<how to resolve>"
+        path, lines, blocks = _oq_read()
+        next_n = max((int(b["id"].split("-")[1]) for b in blocks), default=0) + 1
+        qid = f"OQ-{next_n:02d}"
+        insert_at = len(lines)
+        for i, ln in enumerate(lines):
+            if ln.strip().lower() == "## history":
+                insert_at = i
+                break
+        block = [f"### {qid} — {title}", f"**Severity:** {sev}",
+                 "**Description:** <what is unknown and why it matters>",
+                 f"**Impact:** {impact}", f"**Suggested path:** {suggested}",
+                 "**Status:** open.", ""]
+        lines[insert_at:insert_at] = block
+        _oq_history(lines, f"{qid} opened: {title[:70]}")
+        _oq_write(path, lines)
+        print(f"added {qid} — {title}")
+        return
+
+    die(f"unknown subcommand '{sub}'. Use: list | show | answer | add")
+
+
+# ------------------------------------------------------------------- github
+#
+# Division of labour: bin/wf stays OFFLINE. It resolves config, generates the
+# exact payloads (issue/PR/comment/commit/changelog text) deterministically from
+# workflow.json, and records the resulting issue/PR numbers back into the file.
+# It NEVER touches the network. The agent runs `gh` with the generated payloads
+# after the human confirms — creating a PR, opening an issue, commenting and
+# pushing are outward-facing actions and stay behind explicit permission.
+
+def gh_config(doc):
+    g = doc.get("github", {}) or {}
+    return g if g.get("enabled") else None
+
+
+def norm_repo(s):
+    s = s.strip()
+    s = re.sub(r"^https?://", "", s)
+    s = re.sub(r"^(www\.)?github\.com/", "", s)
+    s = re.sub(r"\.git$", "", s)
+    return s.strip("/")
+
+
+def feature_step(doc, fid):
+    step, _ = find(doc, fid)
+    if not step:
+        die(f"unknown step '{fid}'")
+    if step.get("kind") != "feature":
+        die(f"'{fid}' is not a feature step")
+    return step
+
+
+def slug_of(fid):
+    m = re.match(r"^feat-\d+-(.+)$", fid)
+    return m.group(1) if m else fid
+
+
+def feature_of(doc, step_id):
+    """The enclosing feature step for any step id, or None."""
+    step, _ = find(doc, step_id)
+    if not step:
+        return None
+    for anc in reversed(chain_for(doc, step)):
+        if anc.get("kind") == "feature":
+            return anc
+    return step if step.get("kind") == "feature" else None
+
+
+def repo_of(doc, feat):
+    """The repo a feature's commits/issues/PRs target: its workspace project's
+    repo when routed with `feature add --project`, else the hub's github.repo."""
+    if feat and feat.get("project"):
+        for p in (doc.get("workspace") or {}).get("projects", []):
+            if p.get("name") == feat["project"] and p.get("repo"):
+                return p["repo"]
+    return (doc.get("github") or {}).get("repo")
+
+
+def tasks_of(feature):
+    """(title, done) for each task under the feature's implement step."""
+    out = []
+    for child in feature.get("steps", []):
+        if child.get("id", "").endswith(".implement"):
+            for task in child.get("steps", []):
+                title = re.sub(r"^T\d+\s*[—-]\s*", "", task.get("title", ""))
+                out.append((title, effective_status(task) in ("done", "skipped")))
+    return out
+
+
+def cmd_github(args):
+    """wf github status|on|off|link|issue|comment|pr|commit|changelog"""
+    sub = args[0] if args else "status"
+    rest = args[1:]
+
+    # ---- config toggles -------------------------------------------------
+    if sub == "on":
+        doc = load()
+        g = doc.setdefault("github", {})
+        repo = arg_value(rest, "--repo")
+        if repo:
+            g["repo"] = norm_repo(repo)
+        if not g.get("repo"):
+            die('a repo is required: wf github on --repo owner/name [--assignee user]')
+        for flag, key in (("--assignee", "assignee"), ("--branch", "default_branch"),
+                          ("--integration", "integration_branch")):
+            v = arg_value(rest, flag)
+            if v:
+                g[key] = v
+        rev = arg_value(rest, "--reviewers")
+        if rev:
+            g["reviewers"] = [r.strip() for r in rev.split(",") if r.strip()]
+        proj = arg_value(rest, "--project")
+        if proj:
+            g.setdefault("project", {})["enabled"] = True
+            g["project"]["number"] = int(proj) if proj.isdigit() else proj
+        g.setdefault("default_branch", "main")
+        g.setdefault("integration_branch", "develop")
+        g.setdefault("artifacts", {"readme": "README.md", "changelog": "CHANGELOG.md"})
+        g.setdefault("commit_convention", "conventional")
+        g.setdefault("sync", {"issue_per": "feature", "pr_per": "feature",
+                              "comment_on_gate": True, "changelog_on": "audit_pass"})
+        g["enabled"] = True
+        save(doc)
+        print(f"github ON → {g['repo']}")
+        return cmd_github(["status"])
+
+    if sub == "off":
+        doc = load()
+        doc.setdefault("github", {})["enabled"] = False
+        save(doc)
+        print("github OFF — no issues, PRs, comments or board updates will be produced.")
+        return
+
+    if sub == "status":
+        doc = load()
+        g = doc.get("github", {}) or {}
+        state = "ON" if g.get("enabled") else "OFF"
+        print(f"github       {state}")
+        print(f"repo         {g.get('repo') or '(not set)'}")
+        print(f"assignee     {g.get('assignee') or '(not set)'}")
+        print(f"trunk        {g.get('default_branch') or 'main'}")
+        print(f"integration  {g.get('integration_branch') or '(same as trunk — trunk-based)'}")
+        proj = g.get("project") or {}
+        print(f"project      {('#' + str(proj.get('number'))) if proj.get('enabled') else '(off)'}")
+        if g.get("reviewers"):
+            print(f"reviewers    {', '.join(g['reviewers'])}")
+        feats = [s for s, _, _ in walk(doc.get("steps", [])) if s.get("kind") == "feature"]
+        if feats:
+            print("\nfeature                 issue   pr    merged   branch")
+            for f in feats:
+                gh = f.get("github", {}) or {}
+                print(f"  {f['id']:<20} {('#'+str(gh['issue'])) if gh.get('issue') else '—':<7} "
+                      f"{('#'+str(gh['pr'])) if gh.get('pr') else '—':<5} "
+                      f"{gh.get('merged') or '—':<8} {gh.get('branch') or '—'}")
+        return
+
+    if sub == "pending":
+        # Features merged into the integration branch but never promoted to the
+        # trunk — the report every implementation must end with.
+        doc = load()
+        g0 = doc.get("github", {}) or {}
+        stuck = [(f, f.get("github", {}) or {})
+                 for f, _, _ in ((s, d, p) for s, d, p in walk(doc.get("steps", [])))
+                 if f.get("kind") == "feature" and (f.get("github") or {}).get("merged") == "develop"]
+        if not stuck:
+            print(f"nothing pending — no feature sits on '{g0.get('integration_branch', 'develop')}' "
+                  "awaiting promotion")
+            return
+        print(f"on '{g0.get('integration_branch', 'develop')}' awaiting promotion to "
+              f"'{g0.get('default_branch', 'main')}':")
+        for f, gh in stuck:
+            print(f"  {f['id']:<28} {('PR #' + str(gh['pr'])) if gh.get('pr') else ''}")
+        print(f"\npromote: /wf-promote <feature>   ({len(stuck)} pending)")
+        return
+
+    # ---- everything below needs github enabled --------------------------
+    doc = load()
+    g = gh_config(doc)
+    if g is None:
+        die("github is not enabled. Run: wf github on --repo owner/name")
+
+    if sub == "link":
+        if not rest:
+            die("usage: wf github link <step-id> [--issue N] [--pr N] [--branch B] [--card ID]")
+        feat = feature_of(doc, rest[0])
+        if feat is None:
+            die(f"no feature encloses '{rest[0]}'")
+        ghs = feat.setdefault("github", {})
+        for flag, key, cast in (("--issue", "issue", int), ("--pr", "pr", int),
+                                ("--branch", "branch", str), ("--card", "card", str),
+                                ("--merged", "merged", str)):
+            v = arg_value(rest, flag)
+            if v is not None:
+                if key == "merged" and v not in ("develop", "main"):
+                    die("--merged must be develop or main")
+                ghs[key] = cast(v)
+        save(doc)
+        print(f"linked {feat['id']}: {ghs}")
+        return
+
+    if sub == "issue":
+        if not rest:
+            die("usage: wf github issue <feature-id>")
+        feat = feature_step(doc, rest[0])
+        title = re.sub(r"\s*\(US-[\d.]+\)\s*$", "", feat.get("title", ""))
+        us = re.search(r"\(US-([\d.]+)\)", feat.get("title", ""))
+        lines = [f"## Origin", f"- User story: {'US-'+us.group(1) if us else '(none)'}",
+                 f"- Pipeline step: `{feat['id']}`", "", "## Tasks"]
+        tasks = tasks_of(feat)
+        if tasks:
+            lines += [f"- [{'x' if done else ' '}] {t}" for t, done in tasks]
+        else:
+            lines.append("_Tasks appear here once the `tasks` step decomposes the plan._")
+        lines += ["", "---", "_Managed by the workflow pipeline. Do not renumber the step id._"]
+        print(f"TITLE\t{title}")
+        repo = repo_of(doc, feat)
+        if repo:
+            print(f"REPO\t{repo}")
+        if g.get("assignee"):
+            print(f"ASSIGNEE\t{g['assignee']}")
+        print("BODY")
+        print("\n".join(lines))
+        return
+
+    if sub == "comment":
+        if not rest:
+            die("usage: wf github comment <step-id> --event start|done|gate|block|audit")
+        step, _ = find(doc, rest[0])
+        if not step:
+            die(f"unknown step '{rest[0]}'")
+        event = arg_value(rest, "--event", "done")
+        t = step.get("title", "")
+        msg = {
+            "start": f"🔧 Started **{t}** (`{step['id']}`).",
+            "done": f"✅ Completed **{t}** (`{step['id']}`).",
+            "gate": f"🚦 Awaiting approval on **{t}** (`{step['id']}`).",
+            "block": f"⛔ Blocked on **{t}** (`{step['id']}`): {step.get('notes','(no reason recorded)')}",
+            "audit": f"🔎 Audit recorded for **{t}** (`{step['id']}`).",
+        }.get(event)
+        if msg is None:
+            die(f"unknown event '{event}'")
+        print(msg)
+        return
+
+    if sub == "pr":
+        if not rest:
+            die("usage: wf github pr <feature-id>")
+        feat = feature_step(doc, rest[0])
+        gh = feat.get("github", {}) or {}
+        title_txt = re.sub(r"\s*\(US-[\d.]+\)\s*$", "", feat.get("title", ""))
+        scope = slug_of(feat["id"])
+        lines = ["## Summary", f"Implements **{title_txt}** (`{feat['id']}`).", ""]
+        tasks = tasks_of(feat)
+        if tasks:
+            lines.append("## Tasks")
+            lines += [f"- [{'x' if done else ' '}] {t}" for t, done in tasks]
+            lines.append("")
+        h = doc.get("harness", {}) or {}
+        lines.append(f"## Verification\n`{h.get('verify')}`" if h.get("enabled") and h.get("verify")
+                     else "## Verification\nNo automated verify configured — see the harness note.")
+        base = arg_value(rest, "--base") or g.get("integration_branch") or g.get("default_branch", "main")
+        head = arg_value(rest, "--head") or gh.get("branch") or f"feature/{scope}"
+        if gh.get("issue"):
+            # GitHub only auto-closes issues when the PR merges into the repo's
+            # DEFAULT branch. A PR into develop must therefore say Refs, not
+            # Closes — the close happens at promotion (develop → trunk).
+            keyword = "Closes" if base == g.get("default_branch", "main") else "Refs"
+            lines += ["", f"{keyword} #{gh['issue']}"]
+        print(f"TITLE\tfeat({scope}): {title_txt}")
+        repo = repo_of(doc, feat)
+        if repo:
+            print(f"REPO\t{repo}")
+        if g.get("reviewers"):
+            print(f"REVIEWERS\t{','.join(g['reviewers'])}")
+        print(f"BASE\t{base}")
+        print(f"HEAD\t{head}")
+        print("BODY")
+        print("\n".join(lines))
+        return
+
+    if sub == "commit":
+        if not rest:
+            die("usage: wf github commit <task-id> [--type feat]")
+        step, _ = find(doc, rest[0])
+        if not step:
+            die(f"unknown step '{rest[0]}'")
+        feat = feature_of(doc, rest[0])
+        scope = slug_of(feat["id"]) if feat else None
+        ctype = arg_value(rest, "--type") or step.get("commit_type") or "feat"
+        subject = re.sub(r"^T\d+\s*[—-]\s*", "", step.get("title", "")).strip()
+        subject = subject[0].lower() + subject[1:] if subject else subject
+        header = f"{ctype}({scope}): {subject}" if scope else f"{ctype}: {subject}"
+        gh = (feat.get("github", {}) if feat else {}) or {}
+        footer = f"\n\nRefs #{gh['issue']}" if gh.get("issue") else ""
+        print(header + footer)
+        return
+
+    if sub == "changelog":
+        if not rest:
+            die("usage: wf github changelog <feature-id>")
+        feat = feature_step(doc, rest[0])
+        gh = feat.get("github", {}) or {}
+        title_txt = re.sub(r"\s*\(US-[\d.]+\)\s*$", "", feat.get("title", ""))
+        ref = f" (#{gh['issue']})" if gh.get("issue") else ""
+        print("### Added")
+        print(f"- {title_txt}{ref}")
+        return
+
+    die(f"unknown subcommand '{sub}'. Use: status | on | off | link | issue | comment | pr | commit | changelog")
+
+
+# --------------------------------------------------------------------- init
+#
+# The deterministic engine behind the /wf-setup wizard: applies project
+# identity, the harness and GitHub choices in one pass. The wizard (a slash
+# command) collects the answers through the Claude question-card UI, then calls
+# this. It is equally usable non-interactively / from a script.
+
+PROJECT_TYPES = ("api", "web", "mobile", "cron", "lib", "none")
+
+
+def cmd_init(args):
+    doc = load()
+    load_engine(doc)  # fail fast: a broken engine ref must die BEFORE anything persists
+    proj = doc.setdefault("project", {})
+    changed = []
+
+    def take(flag, target, key, transform=lambda x: x, label=None):
+        v = arg_value(args, flag)
+        if v is not None:
+            target[key] = transform(v)
+            changed.append(label or key)
+
+    take("--name", proj, "name")
+    t = arg_value(args, "--type")
+    if t is not None:
+        if t not in PROJECT_TYPES:
+            die(f"--type must be one of {', '.join(PROJECT_TYPES)}")
+        proj["type"] = t
+        changed.append("type")
+    take("--stack", proj, "stack", lambda s: [x.strip() for x in s.split(",") if x.strip()])
+    take("--lang", proj, "language", label="language")
+    cn = arg_value(args, "--code-naming")
+    if cn is not None:
+        if cn not in ("english", "hybrid", "project-language"):
+            die("--code-naming must be english, hybrid or project-language")
+        proj["code_naming"] = cn
+        changed.append(f"code naming {cn}")
+
+    cs = arg_value(args, "--comments")
+    df = arg_value(args, "--doc-format")
+    ad = arg_value(args, "--api-docs")
+    if cs is not None or df is not None or ad is not None:
+        com = proj.setdefault("comments", {"scope": "minimal", "reference_docs": "", "api_docs": ""})
+        if cs is not None:
+            if cs not in ("minimal", "detailed"):
+                die("--comments must be minimal or detailed")
+            com["scope"] = cs
+            changed.append(f"comments {cs}")
+        if df is not None:
+            com["reference_docs"] = "" if df == "none" else df
+            changed.append(f"doc format {df}")
+        if ad is not None:
+            com["api_docs"] = "" if ad == "none" else ad
+            changed.append(f"api docs {ad}")
+
+    # harness
+    hv = arg_value(args, "--harness")
+    if hv is not None:
+        if hv not in ("on", "off"):
+            die("--harness must be on or off")
+        h = doc.setdefault("harness", {"enabled": False})
+        h["enabled"] = hv == "on"
+        changed.append(f"harness {hv}")
+        vv = arg_value(args, "--verify")
+        if vv:
+            h["verify"] = vv
+
+    # github
+    gv = arg_value(args, "--github")
+    if gv is not None:
+        if gv not in ("on", "off"):
+            die("--github must be on or off")
+        g = doc.setdefault("github", {"enabled": False})
+        g["enabled"] = gv == "on"
+        changed.append(f"github {gv}")
+        if gv == "on":
+            repo = arg_value(args, "--repo")
+            if repo:
+                g["repo"] = norm_repo(repo)
+            if not g.get("repo"):
+                die("--github on needs --repo owner/name")
+            take("--assignee", g, "assignee")
+            rv = arg_value(args, "--reviewers")
+            if rv:
+                g["reviewers"] = [r.strip() for r in rv.split(",") if r.strip()]
+            pn = arg_value(args, "--project")
+            if pn:
+                g.setdefault("project", {})["enabled"] = True
+                g["project"]["number"] = int(pn) if pn.isdigit() else pn
+
+    ar = arg_value(args, "--agent-review")
+    if ar is not None:
+        if ar not in ("on", "off"):
+            die("--agent-review must be on or off")
+        doc.setdefault("policy", {})["ask_agent_review"] = ar == "on"
+        changed.append(f"agent review prompt {ar}")
+
+    # drop the shipped example feature unless asked to keep it
+    if "--keep-example" not in args:
+        for step, _, _ in walk(doc.get("steps", [])):
+            if step.get("container_for") == "features":
+                before = len(step.get("steps", []))
+                step["steps"] = [c for c in step.get("steps", []) if c.get("id") != "feat-001-example"]
+                if len(step["steps"]) != before:
+                    changed.append("removed feat-001-example")
+
+    # the wizard IS bootstrap — close it once identity is real
+    if proj.get("name") and proj.get("name") != "the project" and proj.get("type"):
+        bs, _ = find(doc, "bootstrap")
+        if bs and bs.get("status") != "done":
+            bs["started_at"] = bs.get("started_at") or now()
+            bs["completed_at"] = now()
+            bs["status"] = "done"
+            changed.append("bootstrap → done")
+
+    save(doc)
+    created = materialize_engine(load())
+    if created:
+        tops = sorted({c.split(os.sep)[0] for c in created})
+        changed.append(f"scaffold materialized ({', '.join(tops)}/)")
+    print("setup applied: " + (", ".join(changed) if changed else "(no changes)"))
+    print()
+    print(render(load(), color=(False if ("--plain" in args or "--no-color" in args) else None)))
+
+
+# ------------------------------------------------------------------- create
+
+# Things that must never travel into a new project: the template's own git
+# history, its CI wiring, machine-local settings, transient files — and any
+# top-level SDD directories (a fresh project is engine-agnostic; the chosen
+# engine's scaffold materializes them at setup via `wf engine set`/`wf init`).
+SDD_TOPLEVEL = ("constitution", "prd", "catalogs", "definitions", "features")
+_CREATE_SKIP_TOP = None  # computed per-run by cmd_create from every engine manifest
+
+
+def _sdd_toplevel_dirs():
+    """Top-level dirs claimed by ANY engine manifest — feature dir and install
+    check — so `wf create` from a hub on a non-default engine (specs/, .specify/…)
+    still ships a core-only project."""
+    dirs = set(SDD_TOPLEVEL)
+    manifests = [DEFAULT_ENGINE]
+    for mp in glob(os.path.join(ROOT, "engines", "*", "engine.json")):
+        try:
+            with open(mp, encoding="utf-8") as fh:
+                manifests.append(json.load(fh))
+        except (OSError, json.JSONDecodeError):
+            continue
+    for man in manifests:
+        fd = ((man.get("feature") or {}).get("dir") or "")
+        if fd:
+            dirs.add(fd.strip("/").split("/")[0])
+        chk = ((man.get("install") or {}).get("check") or "")
+        if chk:
+            dirs.add(chk.strip("/").split("/")[0])
+    return {d for d in dirs if d and not d.startswith("{")}
+
+
+def _create_ignore(src_dir, names):
+    skip = set()
+    top = os.path.abspath(src_dir) == ROOT
+    sdd = _CREATE_SKIP_TOP if _CREATE_SKIP_TOP is not None else set(SDD_TOPLEVEL)
+    for n in names:
+        if n in (".git", ".github", ".DS_Store", "__pycache__", "node_modules"):
+            skip.add(n)
+        elif n.endswith(".tmp"):
+            skip.add(n)
+        elif n == "settings.local.json" and os.path.basename(src_dir) == ".claude":
+            skip.add(n)
+        elif top and n in sdd:
+            skip.add(n)
+    return skip
+
+
+SATELLITE_CLAUDE_MD = """# CLAUDE.md — {name} (workspace satellite)
+
+> This project is a **satellite** in a workflow workspace. The pipeline, the SDD documents
+> (constitution, PRD, catalogs, features) and ALL workflow state live in the **hub**:
+> `{hub}` — see `workflow.json → workspace.hub`.
+
+## Rule zero — unchanged
+
+Render the pipeline before every response: `./bin/wf status`. Run from here it resolves the hub
+automatically, so the banner you show IS the hub's pipeline. Never answer without it.
+
+## Working from this project
+
+1. `./bin/wf status | next | start | done | …` all operate on the hub's `workflow.json`.
+2. Before acting on a step, read its `instructions/` file **in the hub**.
+3. The code in THIS repository is what features routed to `{name}` implement. Its commits,
+   issues and PRs target this project's own repo (`workflow.json → github.repo` here, mirrored
+   in the hub's `workspace.projects`). This project's stack lives in
+   `workflow.json → project.stack` here — plans and code for features routed to `{name}`
+   design against it, not against the hub's stack.
+4. Cross-project context: the hub's `workspace.projects` lists every sibling — when work here
+   depends on another project's contracts or patterns, read that project's sources.
+5. Local-only files: `MEMORY.md` and `HANDOFF.md` belong to this project. The SDD source of
+   truth stays in the hub — never fork constitution/PRD/catalogs locally.
+
+Everything else — gates, source hierarchy, token discipline, Do NOTs — follows the hub's
+`CLAUDE.md` unchanged.
+"""
+
+
+def _write_satellite(sat_dir, name, stype, repo, hub_dir, create_new, language="en", stack=None):
+    """Drop the minimal satellite kit into sat_dir. Never overwrites existing files
+    (except that an existing workflow.json is a hard error — it means the directory
+    already belongs to some pipeline, and silently rebinding it would corrupt that)."""
+    if stype and stype not in PROJECT_TYPES:
+        die(f"satellite type must be one of {', '.join(PROJECT_TYPES)} (got '{stype}')")
+    if create_new:
+        if os.path.exists(sat_dir) and os.listdir(sat_dir):
+            die(f"{sat_dir} already exists and is not empty (use --connect for existing projects)")
+        os.makedirs(sat_dir, exist_ok=True)
+    elif not os.path.isdir(sat_dir):
+        die(f"cannot connect: {sat_dir} does not exist")
+
+    swf = os.path.join(sat_dir, "workflow.json")
+    if os.path.exists(swf):
+        die(f"{swf} already exists — refusing to overwrite an existing pipeline binding")
+
+    hub_rel = os.path.relpath(hub_dir, sat_dir)
+    sat_doc = {
+        "$schema": os.path.join(hub_rel, "workflow.schema.json"),
+        "version": "1.0.0",
+        "workspace": {"role": "satellite", "hub": hub_rel},
+        "project": {"name": name, "type": stype or "none", "stack": list(stack or []), "language": language},
+        "github": {"enabled": bool(repo), "repo": repo or ""},
+    }
+    with open(swf, "w", encoding="utf-8") as fh:
+        json.dump(sat_doc, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+
+    # kit pieces, copied from the hub only where missing
+    for rel in ("bin/wf", os.path.join(".claude", "settings.json"), ".gitignore"):
+        src, dst = os.path.join(hub_dir, rel), os.path.join(sat_dir, rel)
+        if os.path.exists(src) and not os.path.exists(dst):
+            os.makedirs(os.path.dirname(dst) or sat_dir, exist_ok=True)
+            shutil.copy2(src, dst)
+    src_cmds = os.path.join(hub_dir, ".claude", "commands")
+    dst_cmds = os.path.join(sat_dir, ".claude", "commands")
+    if os.path.isdir(src_cmds) and not os.path.exists(dst_cmds):
+        shutil.copytree(src_cmds, dst_cmds)
+    wf_bin = os.path.join(sat_dir, "bin", "wf")
+    if os.path.exists(wf_bin):
+        os.chmod(wf_bin, 0o755)
+
+    seeds = {
+        "CLAUDE.md": SATELLITE_CLAUDE_MD.format(name=name, hub=hub_rel),
+        "MEMORY.md": f"# Memory — {name}\n\nLocal memory index for this satellite. One line per fact.\n",
+        "HANDOFF.md": f"# Handoff — {name}\n\nLocal state of THIS project. The pipeline handoff lives in the hub ({hub_rel}/HANDOFF.md).\n",
+    }
+    for fname, content in seeds.items():
+        path = os.path.join(sat_dir, fname)
+        if not os.path.exists(path):
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(content)
+
+    if create_new:
+        try:
+            subprocess.run(["git", "init", "-q"], cwd=sat_dir, check=True,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+
+
+def _split_spec(spec):
+    """'name:type[:owner/repo[:stack+stack]]' items, comma-separated.
+    'a:web:org/a:react+next, b:mobile' → [('a','web','org/a',['react','next']),
+                                          ('b','mobile',None,[])]"""
+    out = []
+    for item in (spec or "").split(","):
+        item = item.strip()
+        if not item:
+            continue
+        parts = [p.strip() for p in item.split(":")]
+        first = parts[0]
+        stype = parts[1] if len(parts) > 1 and parts[1] else None
+        repo = parts[2] if len(parts) > 2 and parts[2] else None
+        stack = [s.strip() for s in parts[3].split("+") if s.strip()] if len(parts) > 3 else []
+        out.append((first, stype, repo, stack))
+    return out
+
+
+def cmd_create(args):
+    """Scaffold a new project by cloning this workflow directory, cleaned.
+    Prompts for the destination path when none is given (in a terminal)."""
+    if state()["role"] == "satellite":
+        die("run `wf create` from the template or a hub, not from a satellite")
+
+    value_flags = ("--satellites", "--connect")
+    consumed = set()
+    for f in value_flags:
+        if f in args:
+            i = args.index(f)
+            consumed.update((i, i + 1))
+    positional = [a for i, a in enumerate(args)
+                  if i not in consumed and not a.startswith("--")]
+    dest = positional[0] if positional else None
+    if not dest:
+        if not sys.stdin.isatty():
+            die("usage: wf create <destination-path>   e.g. ~/Workspace/Projects/users-api")
+        dest = input("Destination path + project name (e.g. ~/Workspace/Projects/users-api): ").strip()
+    if not dest:
+        die("no destination given")
+
+    dest = os.path.abspath(os.path.expanduser(dest))
+    name = os.path.basename(dest.rstrip(os.sep))
+    if not name:
+        die("destination has no project-name component")
+    if dest == ROOT or dest.startswith(ROOT + os.sep):
+        die("choose a destination OUTSIDE the workflow template directory")
+    if os.path.exists(dest) and os.listdir(dest):
+        die(f"{dest} already exists and is not empty")
+
+    sats_spec = arg_value(args, "--satellites")
+    conn_spec = arg_value(args, "--connect")
+    controller = "--controller" in args or "--model-controller" in args
+
+    global _CREATE_SKIP_TOP
+    _CREATE_SKIP_TOP = _sdd_toplevel_dirs()
+    shutil.copytree(ROOT, dest, ignore=_create_ignore, dirs_exist_ok=True)
+
+    wf_bin = os.path.join(dest, "bin", "wf")
+    if os.path.exists(wf_bin):
+        os.chmod(wf_bin, 0o755)
+
+    git_done = False
+    if "--no-git" not in args:
+        try:
+            subprocess.run(["git", "init", "-q"], cwd=dest, check=True,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            git_done = True
+        except Exception:
+            pass
+
+    # ---- workspace wiring -----------------------------------------------
+    sat_lines = []
+    if controller or sats_spec or conn_spec:
+        dwf = os.path.join(dest, "workflow.json")
+        with open(dwf, encoding="utf-8") as fh:
+            hub_doc = json.load(fh)
+        hub_doc.setdefault("project", {})["name"] = name
+        if controller:
+            hub_doc["project"]["type"] = "none"
+        language = hub_doc["project"].get("language", "en")
+        ws = hub_doc.setdefault("workspace", {})
+        ws["role"] = "hub"
+        entries = ws.setdefault("projects", [])
+
+        def register(sat_dir, sat_name, stype, repo, stack):
+            entry = {"name": sat_name,
+                     "path": os.path.relpath(sat_dir, dest),
+                     "type": stype or "none",
+                     "repo": repo or ""}
+            if stack:
+                entry["stack"] = list(stack)
+            entries.append(entry)
+            sat_lines.append(f"  satellite   {sat_name} → {sat_dir}"
+                             + (f"  ({repo})" if repo else "")
+                             + (f"  [{', '.join(stack)}]" if stack else ""))
+
+        for sat_name, stype, repo, stack in _split_spec(sats_spec):
+            sat_dir = os.path.join(os.path.dirname(dest), sat_name)
+            _write_satellite(sat_dir, sat_name, stype, repo, dest,
+                             create_new=True, language=language, stack=stack)
+            register(sat_dir, sat_name, stype, repo, stack)
+
+        for path_item, stype, repo, stack in _split_spec(conn_spec):
+            sat_dir = path_item if os.path.isabs(os.path.expanduser(path_item)) \
+                else os.path.normpath(os.path.join(dest, os.path.expanduser(path_item)))
+            sat_dir = os.path.abspath(os.path.expanduser(sat_dir))
+            sat_name = os.path.basename(sat_dir.rstrip(os.sep))
+            _write_satellite(sat_dir, sat_name, stype, repo, dest,
+                             create_new=False, language=language, stack=stack)
+            register(sat_dir, sat_name, stype, repo, stack)
+
+        with open(dwf, "w", encoding="utf-8") as fh:
+            json.dump(hub_doc, fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
+
+    print(f"created {dest}")
+    print(f"  project     {name}" + ("  (workspace controller)" if controller else ""))
+    print("  cleaned     .git · .github · .claude/settings.local.json · *.tmp · .DS_Store")
+    print("  core only   no SDD folders yet — the engine chosen in /wf-setup materializes them")
+    print(f"  git init    {'yes' if git_done else 'skipped'}")
+    for line in sat_lines:
+        print(line)
+    print("\nNext:")
+    print(f"  cd {dest}")
+    print("  claude          # open a session here, then run /wf-setup")
+    print("  # or non-interactively:  ./bin/wf init --name %s --type api --lang en ..." % name)
+    if sat_lines:
+        print("  # satellites resolve this hub automatically — open a session in any of them")
+
+
+def cmd_workspace(args):
+    """wf workspace [status] | add <path> [--name N] [--type T] [--repo owner/name]"""
+    sub = args[0] if args else "status"
+    st = state()
+
+    if sub == "status":
+        doc = load()
+        ws = doc.get("workspace") or {}
+        if st["role"] == "satellite":
+            print(f"workspace    satellite → hub at {st['root']}")
+            print(f"local        {st['local_name']}")
+            print("state        all wf commands here operate on the hub's workflow.json")
+            return
+        if ws.get("role") != "hub" or not ws.get("projects"):
+            print("workspace    none — standalone project")
+            print('add one:     wf workspace add ../users-web --type web --repo owner/users-web')
+            return
+        print(f"workspace    hub ({doc.get('project', {}).get('name', '?')})")
+        print(f"{'name':<16} {'path':<22} {'type':<8} {'stack':<20} {'repo':<24} link")
+        for p in ws["projects"]:
+            sat_dir = os.path.normpath(os.path.join(st["root"], p.get("path", "")))
+            swf = os.path.join(sat_dir, "workflow.json")
+            if not os.path.isdir(sat_dir):
+                link = "✖ dir missing"
+            elif not os.path.exists(swf):
+                link = "✖ no workflow.json"
+            else:
+                try:
+                    with open(swf, encoding="utf-8") as fh:
+                        sdoc = json.load(fh)
+                    sws = sdoc.get("workspace") or {}
+                    back = os.path.normpath(os.path.join(sat_dir, sws.get("hub", "")))
+                    link = "✓" if sws.get("role") == "satellite" and back == os.path.normpath(st["root"]) \
+                        else "✖ hub points elsewhere"
+                except (OSError, json.JSONDecodeError):
+                    link = "✖ unreadable"
+            stack_s = ",".join(p.get("stack") or []) or "—"
+            print(f"{p.get('name', '?'):<16} {p.get('path', '?'):<22} {p.get('type', '-'):<8} "
+                  f"{stack_s[:19]:<20} {p.get('repo') or '—':<24} {link}")
+        return
+
+    if sub == "init":
+        # The satellite-side setup: configures THIS satellite's own stack, verify
+        # signal and repo. Local config goes in the satellite's workflow.json;
+        # stack/repo/type are mirrored into the hub's workspace.projects entry so
+        # routed features plan against the right stack. Pipeline state stays in
+        # the hub untouched — single writer preserved.
+        if st["role"] != "satellite":
+            die("run `wf workspace init` from a satellite project "
+                "(from the hub, use `wf workspace add --stack/--repo` instead)")
+        rest = args[1:]
+        try:
+            with open(LOCAL_WF, encoding="utf-8") as fh:
+                local = json.load(fh)
+        except (OSError, json.JSONDecodeError) as exc:
+            die(f"cannot read {LOCAL_WF}: {exc}")
+        changed = []
+        stack_arg = arg_value(rest, "--stack")
+        if stack_arg:
+            local.setdefault("project", {})["stack"] = [s.strip() for s in stack_arg.split(",") if s.strip()]
+            changed.append("stack")
+        stype = arg_value(rest, "--type")
+        if stype:
+            if stype not in PROJECT_TYPES:
+                die(f"--type must be one of {', '.join(PROJECT_TYPES)}")
+            local.setdefault("project", {})["type"] = stype
+            changed.append("type")
+        verify = arg_value(rest, "--verify")
+        if verify:
+            local["harness"] = {"enabled": True, "verify": verify}
+            changed.append("verify")
+        repo = arg_value(rest, "--repo")
+        if repo:
+            repo = norm_repo(repo)
+            local["github"] = {"enabled": True, "repo": repo}
+            changed.append("repo")
+        if not changed:
+            h = local.get("harness") or {}
+            g = local.get("github") or {}
+            print(f"satellite    {local.get('project', {}).get('name')}")
+            print(f"stack        {', '.join(local.get('project', {}).get('stack') or []) or '(not set)'}")
+            print(f"verify       {h.get('verify') or '(not set — implement cannot close its loop here)'}")
+            print(f"repo         {g.get('repo') or '(not set)'}")
+            print('\nconfigure:   wf workspace init --stack "react,next" --verify "npm test" --repo owner/name')
+            return
+        tmp = LOCAL_WF + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(local, fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
+        os.replace(tmp, LOCAL_WF)
+
+        # mirror into the hub's workspace entry
+        doc = load()
+        my_name = local.get("project", {}).get("name") or os.path.basename(ROOT)
+        for p in (doc.get("workspace") or {}).get("projects", []) or []:
+            if p.get("name") == my_name:
+                if stack_arg:
+                    p["stack"] = local["project"]["stack"]
+                if stype:
+                    p["type"] = stype
+                if repo:
+                    p["repo"] = repo
+                save(doc)
+                break
+        else:
+            print(f"note: hub has no workspace entry named '{my_name}' — local config saved, nothing mirrored")
+        print(f"satellite configured: {', '.join(changed)}  (local workflow.json + mirrored to hub)")
+        return
+
+    if sub == "add":
+        if st["role"] == "satellite":
+            die("run `wf workspace add` from the hub, not from a satellite")
+        rest = args[1:]
+        positional = [a for i, a in enumerate(rest)
+                      if not a.startswith("--") and (i == 0 or not rest[i - 1].startswith("--"))]
+        if not positional:
+            die("usage: wf workspace add <path> [--name N] [--type T] [--repo owner/name]")
+        raw = positional[0]
+        sat_dir = raw if os.path.isabs(os.path.expanduser(raw)) \
+            else os.path.normpath(os.path.join(st["root"], os.path.expanduser(raw)))
+        sat_dir = os.path.abspath(os.path.expanduser(sat_dir))
+        name = arg_value(rest, "--name") or os.path.basename(sat_dir.rstrip(os.sep))
+        stype = arg_value(rest, "--type")
+        repo = arg_value(rest, "--repo")
+        if repo:
+            repo = norm_repo(repo)
+        stack_arg = arg_value(rest, "--stack")
+        stack = [s.strip() for s in stack_arg.split(",") if s.strip()] if stack_arg else []
+
+        doc = load()
+        ws = doc.setdefault("workspace", {})
+        ws["role"] = "hub"
+        entries = ws.setdefault("projects", [])
+        if any(p.get("name") == name for p in entries):
+            die(f"workspace already has a project named '{name}'")
+
+        create_new = not os.path.exists(sat_dir)
+        _write_satellite(sat_dir, name, stype, repo, st["root"], create_new=create_new,
+                         language=doc.get("project", {}).get("language", "en"), stack=stack)
+        entry = {"name": name, "path": os.path.relpath(sat_dir, st["root"]),
+                 "type": stype or "none", "repo": repo or ""}
+        if stack:
+            entry["stack"] = stack
+        entries.append(entry)
+        save(doc)
+        print(f"{'created' if create_new else 'connected'} satellite {name} → {sat_dir}")
+        print()
+        return cmd_workspace(["status"])
+
+    die(f"unknown subcommand '{sub}'. Use: status | add | init")
+
+
+def cmd_validate(args):
+    doc = load()
+    problems = []
+
+    seen = {}
+    for step, _, _ in walk(doc.get("steps", [])):
+        sid = step.get("id")
+        if not sid:
+            problems.append(f"step without id: {step.get('title','?')}")
+            continue
+        if sid in seen:
+            problems.append(f"duplicate id '{sid}'")
+        seen[sid] = step
+
+        instr = step.get("instructions")
+        if not instr:
+            problems.append(f"{sid}: missing instructions")
+        else:
+            if not re.match(r"^instructions/[a-z0-9]+(-[a-z0-9]+)*\.md$", instr):
+                problems.append(f"{sid}: '{instr}' breaks the instructions/<name>-<info>.md pattern")
+            if not os.path.exists(os.path.join(state()["root"], instr)):
+                problems.append(f"{sid}: instruction file not found → {instr}")
+
+        agent = step.get("agent")
+        if agent:
+            if agent.get("model") not in ("haiku", "sonnet", "opus", "fable"):
+                problems.append(f"{sid}: unknown model '{agent.get('model')}'")
+            if agent.get("effort") and agent["effort"] not in ("low", "medium", "high", "xhigh", "max"):
+                problems.append(f"{sid}: unknown effort '{agent['effort']}'")
+
+        if is_background(doc, step) and step.get("gate", "none") != "none":
+            problems.append(f"{sid}: background step holds gate '{step['gate']}' — a gate must block")
+
+    for step, _, _ in walk(doc.get("steps", [])):
+        for req in step.get("requires", []):
+            if req not in seen:
+                problems.append(f"{step.get('id')}: requires unknown step '{req}'")
+
+    cn = doc.get("project", {}).get("code_naming")
+    if cn and cn not in ("english", "hybrid", "project-language"):
+        problems.append(f"project.code_naming '{cn}' invalid — use english | hybrid | project-language")
+    cscope = (doc.get("project", {}).get("comments") or {}).get("scope")
+    if cscope and cscope not in ("minimal", "detailed"):
+        problems.append(f"project.comments.scope '{cscope}' invalid — use minimal | detailed")
+
+    g = doc.get("github", {}) or {}
+    if g.get("enabled"):
+        if not g.get("repo"):
+            problems.append("github enabled but no repo set (wf github on --repo owner/name)")
+        if not g.get("assignee"):
+            problems.append("github enabled but no assignee — issues cannot be auto-assigned")
+
+    ws = doc.get("workspace") or {}
+    if ws.get("role") == "hub":
+        seen_names = set()
+        for p in ws.get("projects", []) or []:
+            pname = p.get("name", "?")
+            if pname in seen_names:
+                problems.append(f"workspace: duplicate project name '{pname}'")
+            seen_names.add(pname)
+            sat_dir = os.path.normpath(os.path.join(state()["root"], p.get("path", "")))
+            swf = os.path.join(sat_dir, "workflow.json")
+            if not os.path.isdir(sat_dir):
+                problems.append(f"workspace: {pname} path not found → {p.get('path')}")
+            elif not os.path.exists(swf):
+                problems.append(f"workspace: {pname} has no workflow.json (re-link with wf workspace add)")
+            else:
+                try:
+                    with open(swf, encoding="utf-8") as fh:
+                        sdoc = json.load(fh)
+                    sws = sdoc.get("workspace") or {}
+                    back = os.path.normpath(os.path.join(sat_dir, sws.get("hub", "")))
+                    if sws.get("role") != "satellite" or back != os.path.normpath(state()["root"]):
+                        problems.append(f"workspace: {pname}'s workflow.json does not point back to this hub")
+                except (OSError, json.JSONDecodeError):
+                    problems.append(f"workspace: {pname}'s workflow.json is unreadable")
+        # features routed to unknown projects
+        known = {p.get("name") for p in ws.get("projects", []) or []}
+        for step in seen.values():
+            if step.get("project") and step["project"] not in known:
+                problems.append(f"{step.get('id')}: routed to unknown workspace project '{step['project']}'")
+
+    # cycle detection over `requires`
+    visited = {}
+
+    def visit(sid, stack):
+        if visited.get(sid) == "done":
+            return
+        if sid in stack:
+            problems.append("cycle: " + " → ".join(stack[stack.index(sid):] + [sid]))
+            return
+        for req in seen.get(sid, {}).get("requires", []):
+            if req in seen:
+                visit(req, stack + [sid])
+        visited[sid] = "done"
+
+    for sid in seen:
+        visit(sid, [])
+
+    # An instruction file is orphaned only if NO step binds it AND no other
+    # instruction file references it. The second clause spares cross-cutting
+    # docs (e.g. github-sync.md) that steps point to by prose, not by field.
+    inst_files = sorted(glob(os.path.join(state()["root"], "instructions", "*.md")))
+    contents = {}
+    for path in inst_files:
+        try:
+            with open(path, encoding="utf-8") as fh:
+                contents[path] = fh.read()
+        except OSError:
+            contents[path] = ""
+    # instruction files the engine binds dynamically (created per feature by
+    # `wf feature add`) are never "orphans", even before the first feature exists.
+    eng_ok = True
+    try:
+        eng, eng_path = load_engine(doc)
+    except SystemExit:
+        raise
+    feat_spec = eng.get("feature", {}) or {}
+    dynamic = {feat_spec.get("instructions", "instructions/feature-lifecycle.md"),
+               "instructions/engine-delegate.md"}
+    seen_keys = set()
+    for stage in feat_spec.get("lifecycle", []) or []:
+        key = stage.get("key")
+        if not key:
+            problems.append(f"engine {eng.get('id')}: lifecycle stage without a key")
+            eng_ok = False
+            continue
+        if key in seen_keys:
+            problems.append(f"engine {eng.get('id')}: duplicate lifecycle key '{key}'")
+        seen_keys.add(key)
+        if not stage.get("instructions") and not stage.get("delegate"):
+            problems.append(f"engine {eng.get('id')}: stage '{key}' has neither instructions nor delegate")
+        instr = stage.get("instructions")
+        if instr:
+            dynamic.add(instr)
+            if not os.path.exists(os.path.join(state()["root"], instr)):
+                problems.append(f"engine {eng.get('id')}: stage '{key}' instructions not found → {instr}")
+        delegate = stage.get("delegate")
+        if delegate:
+            cmd_file = os.path.join(state()["root"], ".claude", "commands", delegate + ".md")
+            if not os.path.exists(cmd_file):
+                problems.append(f"engine {eng.get('id')}: stage '{key}' delegates to missing "
+                                f".claude/commands/{delegate}.md — is the engine installed?")
+        a = stage.get("agent") or {}
+        if a.get("model") and a["model"] not in ("haiku", "sonnet", "opus", "fable"):
+            problems.append(f"engine {eng.get('id')}: stage '{key}' unknown model '{a['model']}'")
+        g = stage.get("gate", "none")
+        if g not in ("none", "human_approval", "verify_green", "audit_pass"):
+            problems.append(f"engine {eng.get('id')}: stage '{key}' unknown gate '{g}'")
+    if not feat_spec.get("lifecycle") and eng_ok:
+        problems.append(f"engine {eng.get('id')}: no feature lifecycle declared")
+    const_delegate = (eng.get("constitution") or {}).get("delegate")
+    if const_delegate and not os.path.exists(
+            os.path.join(state()["root"], ".claude", "commands", const_delegate + ".md")):
+        problems.append(f"engine {eng.get('id')}: constitution delegates to missing "
+                        f".claude/commands/{const_delegate}.md — is the engine installed?")
+    orphans = []
+    for path in inst_files:
+        base = os.path.basename(path)
+        rel = "instructions/" + base
+        if rel in dynamic:
+            continue
+        bound = any(s.get("instructions") == rel for s in seen.values())
+        # referenced if any OTHER instruction file mentions it by name
+        referenced = any(base in body for p, body in contents.items() if p != path)
+        if not bound and not referenced:
+            orphans.append(rel)
+
+    if problems:
+        for p in problems:
+            print(f"FAIL  {p}")
+    if orphans:
+        for o in orphans:
+            print(f"WARN  unreferenced instruction file: {o}")
+    if not problems:
+        print(f"OK    {len(seen)} steps, all instruction files present, no cycles")
+    sys.exit(1 if problems else 0)
+
+
+COMMANDS = {
+    "status": cmd_status,
+    "render": cmd_status,
+    "next": cmd_next,
+    "show": cmd_show,
+    "start": cmd_start,
+    "done": cmd_done,
+    "block": cmd_block,
+    "skip": cmd_skip,
+    "reopen": cmd_reopen,
+    "agents": cmd_agents,
+    "agent": cmd_agent,
+    "create": cmd_create,
+    "workspace": cmd_workspace,
+    "init": cmd_init,
+    "feature": cmd_feature,
+    "harness": cmd_harness,
+    "github": cmd_github,
+    "engine": cmd_engine,
+    "oq": cmd_oq,
+    "validate": cmd_validate,
+}
+
+
+def main():
+    argv = sys.argv[1:]
+    if not argv:
+        return cmd_status([])
+    cmd, rest = argv[0], argv[1:]
+    if cmd in ("-h", "--help", "help"):
+        print(__doc__)
+        return
+    if cmd not in COMMANDS:
+        die(f"unknown command '{cmd}'. Try: {', '.join(sorted(COMMANDS))}")
+    COMMANDS[cmd](rest)
+
+
+if __name__ == "__main__":
+    main()

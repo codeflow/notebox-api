@@ -1,0 +1,111 @@
+{
+  "id": "default",
+  "name": "Workflow SDD (bundled)",
+  "description": "The template's own SDD engine — constitution, versioned PRD, catalogs and the spec→plan→tasks→implement→audit feature lifecycle. Ships with the template; nothing to install.",
+  "install": {
+    "check": "prd",
+    "hint": "bundled with the template — nothing to install"
+  },
+  "scaffold": [
+    "../_shared/upstream",
+    "scaffold"
+  ],
+  "constitution": {
+    "produces": "constitution/*.md"
+  },
+  "feature": {
+    "dir": "features/{nnn}-{slug}",
+    "instructions": "instructions/feature-lifecycle.md",
+    "scaffold_dirs": [
+      "contracts"
+    ],
+    "lifecycle": [
+      {
+        "key": "spec",
+        "title": "Spec — what and why, in Gherkin",
+        "instructions": "instructions/feature-spec.md",
+        "agent": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "gate": "human_approval",
+        "produces": [
+          "spec.md"
+        ]
+      },
+      {
+        "key": "plan",
+        "title": "Plan — how, with contracts",
+        "instructions": "instructions/feature-plan.md",
+        "agent": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "gate": "human_approval",
+        "produces": [
+          "plan.md",
+          "data-model.md"
+        ]
+      },
+      {
+        "key": "tasks",
+        "title": "Tasks — atomic and verifiable",
+        "instructions": "instructions/feature-tasks.md",
+        "agent": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "gate": "human_approval",
+        "produces": [
+          "tasks.md"
+        ]
+      },
+      {
+        "key": "implement",
+        "title": "Implement — code + tests",
+        "instructions": "instructions/feature-implement.md",
+        "agent": {
+          "model": "sonnet",
+          "effort": "high"
+        },
+        "gate": "verify_green",
+        "produces": []
+      },
+      {
+        "key": "audit",
+        "title": "Audit — adversarial check",
+        "instructions": "instructions/feature-audit.md",
+        "agent": {
+          "model": "opus",
+          "effort": "xhigh"
+        },
+        "gate": "audit_pass",
+        "produces": [
+          "audit.md"
+        ]
+      },
+      {
+        "key": "publish",
+        "title": "Publish — branch feature/<slug> + CI",
+        "instructions": "instructions/feature-publish.md",
+        "agent": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "gate": "verify_green",
+        "produces": []
+      },
+      {
+        "key": "review",
+        "title": "Review — PR → integration branch, your approval on GitHub",
+        "instructions": "instructions/feature-review.md",
+        "agent": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "gate": "human_approval",
+        "produces": []
+      }
+    ]
+  }
+}

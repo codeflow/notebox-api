@@ -1,0 +1,108 @@
+{
+  "id": "speckit",
+  "name": "GitHub Spec Kit",
+  "description": "DRAFT — written from Spec Kit's documented commands (as of 2026-07), NOT yet tested against a real install. `wf validate` fails until Spec Kit is installed and its commands exist; verify the delegate names against your installed version before first use. Hybrid mode: the workflow's upstream (definitions, PRD, catalogs, OQ) stays native; Spec Kit drives the feature loop; the audit stage remains the workflow's own.",
+  "install": {
+    "check": ".specify",
+    "hint": "uvx --from git+https://github.com/github/spec-kit.git specify init --here --ai claude"
+  },
+  "scaffold": [
+    "../_shared/upstream"
+  ],
+  "constitution": {
+    "produces": ".specify/memory/constitution.md",
+    "delegate": "speckit.constitution"
+  },
+  "feature": {
+    "dir": "specs/{nnn}-{slug}",
+    "instructions": "instructions/feature-lifecycle.md",
+    "scaffold_dirs": [],
+    "lifecycle": [
+      {
+        "key": "specify",
+        "title": "Specify — Spec Kit spec",
+        "delegate": "speckit.specify",
+        "agent": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "gate": "human_approval",
+        "produces": [
+          "spec.md"
+        ]
+      },
+      {
+        "key": "plan",
+        "title": "Plan — Spec Kit plan",
+        "delegate": "speckit.plan",
+        "agent": {
+          "model": "opus",
+          "effort": "high"
+        },
+        "gate": "human_approval",
+        "produces": [
+          "plan.md"
+        ]
+      },
+      {
+        "key": "tasks",
+        "title": "Tasks — Spec Kit tasks",
+        "delegate": "speckit.tasks",
+        "agent": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "gate": "human_approval",
+        "produces": [
+          "tasks.md"
+        ]
+      },
+      {
+        "key": "implement",
+        "title": "Implement — Spec Kit implement",
+        "delegate": "speckit.implement",
+        "agent": {
+          "model": "sonnet",
+          "effort": "high"
+        },
+        "gate": "verify_green",
+        "produces": []
+      },
+      {
+        "key": "audit",
+        "title": "Audit — adversarial check (workflow-native)",
+        "instructions": "instructions/feature-audit.md",
+        "agent": {
+          "model": "opus",
+          "effort": "xhigh"
+        },
+        "gate": "audit_pass",
+        "produces": [
+          "audit.md"
+        ]
+      },
+      {
+        "key": "publish",
+        "title": "Publish — branch feature/<slug> + CI (workflow-native)",
+        "instructions": "instructions/feature-publish.md",
+        "agent": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "gate": "verify_green",
+        "produces": []
+      },
+      {
+        "key": "review",
+        "title": "Review — PR → integration branch, your approval on GitHub (workflow-native)",
+        "instructions": "instructions/feature-review.md",
+        "agent": {
+          "model": "sonnet",
+          "effort": "medium"
+        },
+        "gate": "human_approval",
+        "produces": []
+      }
+    ]
+  }
+}

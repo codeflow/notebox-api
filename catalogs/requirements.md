@@ -1,0 +1,55 @@
+# Catalog — Functional (FR) & Non-Functional (NFR) Requirements
+
+> Master table of product requirements, derived from the PRD. IDs immutable; deprecate, never reuse.
+> Language: English.
+
+**Last sync with PRD:** v1 (2026-07-22)
+
+## Functional Requirements
+
+| ID | Description | Priority | Origin | Delivered by | Status |
+|----|-------------|----------|--------|--------------|--------|
+| FR-01 | CRUD annotation types (name, icon image, ordered fields). | Must | INTAKE C1,C2,C4 + BR-03 | US-1.1 | todo |
+| FR-02 | Type field declares name, field type ∈ closed set of 7, optional icon, "visible for viewing" flag with per-type defaults. | Must | INTAKE C4,C6–C12,K3,D2 + BR-04 | US-1.1, US-1.2 | todo |
+| FR-03 | List/Single/Multiple fields define options on the field definition (ordered; label + optional badge colour from fixed palette). | Must | INTAKE C7,C10,C11,K4 + OQ-03 | US-1.1 | todo |
+| FR-04 | CRUD annotation records conforming to their type. | Must | INTAKE C13,C16,C17 + BR-03 | US-2.1 | todo |
+| FR-05 | List a type's annotations returning visible fields; detail view returns all fields incl. non-visible. | Must | INTAKE C14,C18 + BR-09 | US-1.2, US-2.2 | todo |
+| FR-06 | Explicit, irreversible delete of an annotation (confirmation is a UI concern). | Must | INTAKE C17 + BR-05 | US-2.1 | todo |
+| FR-07 | Store images (type icons, image fields, rich-text embeds) as MySQL BLOBs; retrieve via dedicated binary endpoint; thumbnail support. | Must | INTAKE C3,C12,K5,D6 + AD-04 | US-1.1, US-2.2 | todo |
+| FR-08 | CRUD groups; assign an item to at most one group; groups flat, separate per domain. | Must | INTAKE C29 + OQ-04 | US-3.1 | todo |
+| FR-09 | Provide navigation-tree data: annotations by type and tasks, organized by group. | Must | INTAKE C28,C30 | US-3.1 | todo |
+| FR-10 | CRUD tasks (name, priority enum, optional card, optional rich-text details; derived status %, derived dates). | Must | INTAKE C19,D7 + BR-06,BR-07 | US-4.1 | todo |
+| FR-11 | Manage subtasks (name, dates, optional card, done flag); completing/adding recomputes parent status %. | Must | INTAKE C23,C24 + BR-06 | US-4.1 | todo |
+| FR-12 | Derive task start = min(subtask start), end = max(subtask end). | Must | INTAKE C25 + BR-07 + OQ-05 | US-4.2 | todo |
+| FR-13 | Attach a card as inline value object (code id + optional URL) on task/subtask. | Must | INTAKE C21 + OQ-06 | US-4.2 | todo |
+| FR-14 | Store/return task rich-text details (WYSIWYG), sanitized on input/output. | Must | INTAKE C26,C27 + C-08 | US-4.2 | todo |
+| FR-15 | Resolve/serve localized system strings; locale = preference → Accept-Language → English; fallback English; never emit raw key/blank. | Must | INTAKE C31 + BR-08,AD-05 + OQ-07 | US-5.1 | todo |
+| FR-16 | Translation-management: CRUD message catalog per locale, tenant-admin only; en/pt fixed in v1. | Must | INTAKE C32 + AD-05,C-03 + OQ-07 | US-5.2 | todo |
+| FR-17 | Multi-tenant identity & isolation: stateless JWT auth, resolve tenant from token, authorize every access. | Must | INTAKE D4 + BR-01,BR-02 + OQ-08 | US-6.1 | todo |
+
+**Validation baseline (OQ-09):** type name unique per tenant; type/field names + field type required; Number
+fields carry optional per-field min/max; images PNG/JPEG/GIF/WebP; task/annotation names required; details optional.
+
+## Non-Functional Requirements
+
+| ID | Category | Requirement | Target | Origin |
+|----|----------|-------------|--------|--------|
+| NFR-01 | Security / isolation | No cross-tenant read or write on any tenant-owned endpoint. | 0 leaks; cross-tenant test per endpoint in CI. | BR-01,BR-02 + C-01 |
+| NFR-02 | Localization | Every user-facing system message key resolves per locale. | 100% en + pt coverage; CI check. | BR-08 + C-09 |
+| NFR-03 | Performance | Cached hot reads via Redis cache-aside. | Cache-hit read p95 < 50 ms; load test. | AD-13 + OQ-10 |
+| NFR-04 | Integrity / safety | Image uploads content-type validated + size-bounded. | Max 5 MB; oversize rejected; test. | AD-04,AD-07 + C-07 + OQ-10 |
+| NFR-05 | Resilience | Redis outage/cache miss degrades to MySQL without error. | Fault-injection: 0 errors. | AD-13 |
+| NFR-06 | Contract | Every HTTP endpoint documented in OpenAPI, in sync. | 100% coverage; contract lint. | 03-standards |
+| NFR-07 | Observability | Structured logging w/ correlation id; no secrets/PII/cross-tenant data. | Correlation id on every request; log review. | 01-arch, 02-compliance |
+| NFR-08 | Performance / contract | List endpoints paginated. | Default page 50, max 200. | OQ-10 |
+
+## Catalog history
+
+| Date | PRD version | Change |
+|------|-------------|--------|
+| 2026-07-19 | v1 | Initial creation. |
+| 2026-07-22 | v1 | Derived FR-01…FR-17, NFR-01…NFR-08 from approved PRD v1. |
+
+## Rules
+- IDs are immutable; deprecate, never reuse.
+- Changes only via `/new-prd-version`.

@@ -1,0 +1,136 @@
+openapi: 3.0.3
+info:
+  title: Notebox API — Identity & Tenancy
+  version: 1.0.0
+  description: >
+    Auth and tenant-isolation contract for feature 001. All non-auth endpoints require a valid
+    Bearer JWT (RS256, MicroProfile JWT). Tenant is derived from the token, never from request input.
+servers:
+  - url: /api
+paths:
+  /auth/login:
+    post:
+      summary: Authenticate credentials and issue a stateless JWT
+      security: []   # public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Authenticated; token issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+        '401':
+          description: Invalid credentials (AUTH_INVALID_CREDENTIALS)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
+  /me:
+    get:
+      summary: Current authenticated identity and tenant
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Caller identity
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Me' }
+        '401':
+          description: AUTH_REQUIRED | AUTH_TOKEN_EXPIRED | AUTH_TOKEN_INVALID
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
+  /users/{id}:
+    get:
+      summary: Read a user (tenant-scoped; cross-tenant → 404)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: The user, if within the caller's tenant
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/User' }
+        '404':
+          description: Not found or not in caller's tenant (no existence disclosure — BR-01)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '401': { description: Unauthenticated, content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+    patch:
+      summary: Update a user's mutable fields (tenant-scoped; cross-tenant → 404)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserPatch' }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } }
+        '404': { description: Not found / cross-tenant, content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+        '401': { description: Unauthenticated, content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } } }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, maxLength: 254 }
+        password: { type: string, minLength: 1, writeOnly: true }
+    LoginResponse:
+      type: object
+      required: [token, expiresAt]
+      properties:
+        token: { type: string, description: RS256 JWT }
+        expiresAt: { type: string, format: date-time }
+    Me:
+      type: object
+      required: [userId, tenantId, role, displayName]
+      properties:
+        userId: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        role: { type: string, enum: [MEMBER, ADMIN] }
+        displayName: { type: string }
+        locale: { type: string, nullable: true }
+    User:
+      type: object
+      description: passwordHash is NEVER present (C-04, INV-3)
+      required: [id, tenantId, email, role, displayName, active]
+      properties:
+        id: { type: string, format: uuid }
+        tenantId: { type: string, format: uuid }
+        email: { type: string, format: email }
+        role: { type: string, enum: [MEMBER, ADMIN] }
+        displayName: { type: string }
+        locale: { type: string, nullable: true }
+        active: { type: boolean }
+    UserPatch:
+      type: object
+      properties:
+        displayName: { type: string, maxLength: 120 }
+        locale: { type: string, maxLength: 5 }
+    Problem:
+      type: object
+      description: Uniform error envelope (AD-11); message is localized (BR-08)
+      required: [code, message]
+      properties:
+        code: { type: string, example: AUTH_INVALID_CREDENTIALS }
+        message: { type: string, description: localized per request locale }
+        correlationId: { type: string }

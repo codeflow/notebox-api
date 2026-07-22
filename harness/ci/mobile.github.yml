@@ -1,0 +1,25 @@
+# CI — static fallback for `mobile` projects.
+# Prefer `./bin/wf harness ci`, which GENERATES this from harness.signals.
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # - uses: actions/setup-node@v4     # React Native / JS
+      #   with: { node-version: '20', cache: 'npm' }
+      # - uses: actions/setup-java@v4     # Android build
+      #   with: { distribution: 'temurin', java-version: '17' }
+      - name: install
+        run: echo "TODO: install deps"
+      - name: lint
+        run: echo "TODO: lint command"
+      - name: test
+        run: echo "TODO: test command"
+      - name: build
+        run: echo "TODO: build command (bundle / assembleRelease)"
+  # Signed store builds (build-android / build-ios) need secrets — add a
+  # separate job gated on the release, not on every PR.

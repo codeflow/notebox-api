@@ -1,0 +1,448 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/rafaelsantos/workflow/workflow.schema.json",
+  "title": "workflow.json",
+  "description": "Declarative, stateful SDD pipeline. Every step binds to an instruction file and, optionally, to a specific agent model/effort and background execution.",
+  "type": "object",
+  "required": ["version", "project"],
+  "additionalProperties": false,
+
+  "allOf": [
+    {
+      "if": {
+        "required": ["workspace"],
+        "properties": { "workspace": { "required": ["role"], "properties": { "role": { "const": "satellite" } } } }
+      },
+      "then": {},
+      "else": { "required": ["steps"] }
+    }
+  ],
+
+  "properties": {
+    "$schema": { "type": "string" },
+
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version this file conforms to."
+    },
+
+    "project": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": ["api", "web", "mobile", "cron", "lib", "none"],
+          "description": "Selects the harness profile under harness/profiles/."
+        },
+        "stack": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Free-form stack list, e.g. [\"node\", \"typescript\", \"postgres\"]."
+        },
+        "language": {
+          "type": "string",
+          "default": "en",
+          "description": "Output language for ALL agent-authored artifacts AND for the agent's replies in the session (BCP-47-ish code, e.g. en, pt_BR). Agents must not switch languages on their own."
+        },
+        "code_naming": {
+          "enum": ["english", "hybrid", "project-language"],
+          "default": "english",
+          "description": "Identifier language in source code. english = everything in English (findUsers). hybrid = technical vocabulary in English, domain/business terms in project.language (findUsuarios). project-language = everything in project.language (buscarUsuarios). The enforceable rules are materialized in constitution/03-code-standards.md."
+        },
+        "comments": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Code-comment policy. Comments are always written in project.language; these fields set how much and in which format. Materialized as enforceable rules in constitution/03-code-standards.md.",
+          "properties": {
+            "scope": {
+              "enum": ["minimal", "detailed"],
+              "default": "minimal",
+              "description": "minimal = one short comment above each public function/method, nothing inline. detailed = inline comments inside functions/methods are also expected on non-obvious blocks."
+            },
+            "reference_docs": {
+              "type": "string",
+              "description": "The language's structured doc format, stack-dependent: javadoc (Java), jsdoc/tsdoc (JS/TS), docstrings (Python), godoc, rustdoc, xmldoc (C#)… Empty = none."
+            },
+            "api_docs": {
+              "type": "string",
+              "description": "API contract documentation for service projects: openapi (Swagger), asyncapi, graphql-sdl… Empty = none."
+            }
+          }
+        }
+      }
+    },
+
+    "harness": {
+      "$ref": "#/$defs/harness",
+      "description": "Optional Harness Engineering layer. Omit or set enabled:false to run pure SDD with no verify loop."
+    },
+
+    "github": {
+      "$ref": "#/$defs/github",
+      "description": "Optional GitHub integration. When enabled, pipeline steps drive issues, PRs, comments, commits, README/CHANGELOG and a Projects v2 board. Omit or set enabled:false to run with no GitHub side effects."
+    },
+
+    "workspace": {
+      "$ref": "#/$defs/workspace",
+      "description": "Optional multi-project workspace. role:hub lists the satellite projects whose context and repos this pipeline drives; role:satellite delegates ALL pipeline state to the hub (a satellite file needs no steps)."
+    },
+
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "description": "The SDD engine driving feature lifecycles and artifact layout. 'default' is bundled; other names resolve to engines/<name>/engine.json (see docs/engines.md). Omitting the block means default.",
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "default": "default" }
+      }
+    },
+
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Inherited by any step that does not override them. Resolution is nearest-ancestor-wins.",
+      "properties": {
+        "agent": { "$ref": "#/$defs/agent" },
+        "background": { "type": "boolean", "default": false },
+        "gate": { "$ref": "#/$defs/gate" }
+      }
+    },
+
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "render_pipeline_before_response": {
+          "type": "boolean",
+          "default": true,
+          "description": "Hard requirement: the agent renders the pipeline state before every answer in the session. Enforced deterministically by the UserPromptSubmit hook in .claude/settings.json."
+        },
+        "strict_gates": {
+          "type": "boolean",
+          "default": true,
+          "description": "A step cannot start while any step in `requires` is not done, or while its predecessor's gate is unsatisfied."
+        },
+        "single_in_progress": {
+          "type": "boolean",
+          "default": true,
+          "description": "At most one foreground step may be in_progress at a time. Background steps are exempt."
+        },
+        "escalate_on_constitution_violation": {
+          "type": "boolean",
+          "default": true,
+          "description": "On conflict with constitution/, stop and escalate rather than silently adjusting."
+        },
+        "auto_append_features": {
+          "type": "boolean",
+          "default": true,
+          "description": "Every new SDD feature is appended as a step under the container step flagged container_for:\"features\"."
+        },
+        "ask_agent_review": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true, adding a feature to the pipeline offers a card to review that feature's per-step agents. Set false to skip the question and keep the defaults silently (adjust anytime via /wf-agents)."
+        }
+      }
+    },
+
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    }
+  },
+
+  "$defs": {
+    "model": {
+      "enum": ["haiku", "sonnet", "opus", "fable"],
+      "description": "haiku = cheap/fast mechanical work; sonnet = balanced default; opus = deep reasoning, architecture, adversarial review; fable = long-horizon synthesis and drafting."
+    },
+
+    "effort": {
+      "enum": ["low", "medium", "high", "xhigh", "max"],
+      "description": "Reasoning budget for the step. Raise it for ambiguity and irreversibility, not for volume."
+    },
+
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model"],
+      "properties": {
+        "model": { "$ref": "#/$defs/model" },
+        "effort": { "$ref": "#/$defs/effort", "default": "medium" },
+        "subagent_type": {
+          "type": "string",
+          "description": "Optional named sub-agent to delegate this step to (e.g. Explore, Plan, general-purpose)."
+        },
+        "isolation": {
+          "enum": ["none", "worktree", "remote"],
+          "default": "none",
+          "description": "worktree gives the step its own git worktree — use for steps that write code in parallel."
+        }
+      }
+    },
+
+    "gate": {
+      "enum": ["none", "human_approval", "verify_green", "audit_pass"],
+      "default": "none",
+      "description": "What must be true before the NEXT step may start. human_approval blocks on an explicit human yes."
+    },
+
+    "status": {
+      "enum": ["pending", "in_progress", "done", "blocked", "skipped"],
+      "default": "pending"
+    },
+
+    "harness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "profile": {
+          "type": "string",
+          "description": "Path to the harness profile doc, e.g. harness/profiles/api.md."
+        },
+        "verify": {
+          "type": "string",
+          "description": "The single green/red command agents and CI both call, e.g. \"make verify\"."
+        },
+        "ci": {
+          "type": "string",
+          "description": "Path to the CI workflow that runs verify on every PR."
+        },
+        "signals": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ordered checks composing verify, e.g. [\"lint\", \"typecheck\", \"test\", \"build\"]. Each becomes a separate step in the generated CI workflow."
+        },
+        "commands": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Per-signal shell command, e.g. {\"test\": \"npm test\", \"build\": \"npm run build\"}. Used by `wf harness ci` to generate the workflow. A signal with no command generates a step that fails until wired."
+        }
+      }
+    },
+
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "repo": {
+          "type": "string",
+          "description": "Target repository as owner/name (a full https URL is normalized to this by `wf github on`)."
+        },
+        "default_branch": {
+          "type": "string",
+          "default": "main",
+          "description": "The repo's protected trunk. Feature work NEVER targets it directly; it receives promotion PRs from the integration branch (/wf-promote)."
+        },
+        "integration_branch": {
+          "type": "string",
+          "default": "develop",
+          "description": "Where feature PRs land (the review step's PR base). Set equal to default_branch for trunk-based flow. Promotion to the trunk goes integration → default via /wf-promote."
+        },
+        "assignee": {
+          "type": "string",
+          "description": "GitHub username assigned to issues opened for features, and pinged in comments."
+        },
+        "reviewers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Usernames requested as reviewers on the feature PRs."
+        },
+        "commit_convention": {
+          "enum": ["conventional", "none"],
+          "default": "conventional",
+          "description": "conventional = Conventional Commits (feat/fix/docs...) generated per task."
+        },
+        "artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "readme": { "type": "string", "default": "README.md" },
+            "changelog": { "type": "string", "default": "CHANGELOG.md" }
+          }
+        },
+        "project": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "GitHub Projects v2 board synced with step status.",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "number": {
+              "type": ["integer", "string"],
+              "description": "The Projects v2 number (github.com/orgs/<org>/projects/<number>)."
+            },
+            "owner": { "type": "string", "description": "Project owner (org or user); defaults to the repo owner." }
+          }
+        },
+        "sync": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "issue_per": { "enum": ["feature", "task"], "default": "feature" },
+            "pr_per": { "enum": ["feature"], "default": "feature" },
+            "comment_on_gate": { "type": "boolean", "default": true },
+            "changelog_on": { "enum": ["audit_pass", "release", "never"], "default": "audit_pass" }
+          }
+        }
+      }
+    },
+
+    "workspace": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role"],
+      "properties": {
+        "role": {
+          "enum": ["hub", "satellite"],
+          "description": "hub = this project owns the pipeline, SDD docs and state; satellite = this project delegates all of that to the hub and keeps only code + local memory/handoff."
+        },
+        "hub": {
+          "type": "string",
+          "description": "satellite only: path to the hub project, relative to this file (e.g. ../users-api)."
+        },
+        "projects": {
+          "type": "array",
+          "description": "hub only: the satellite projects. Their sources compose the hub's context; their repos receive the commits/issues/PRs of features routed to them.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "path"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "path": { "type": "string", "description": "Relative to the hub root, e.g. ../users-web." },
+              "type": { "enum": ["api", "web", "mobile", "cron", "lib", "none"] },
+              "repo": { "type": "string", "description": "owner/name — where this satellite's commits, issues and PRs go." },
+              "stack": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "The satellite's tech stack, e.g. [\"react\", \"next\"]. Plans for features routed here design against it; mirrored in the satellite's own workflow.json."
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "github_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "State recorded by `wf github link`: which GitHub objects a feature maps to.",
+      "properties": {
+        "issue": { "type": "integer" },
+        "pr": { "type": "integer" },
+        "branch": { "type": "string" },
+        "card": { "type": "string", "description": "Projects v2 item id (PVTI_...)." },
+        "merged": {
+          "enum": ["develop", "main"],
+          "description": "How far this feature has landed: its integration-branch merge (develop) or full promotion (main). `wf github pending` reports every feature stuck at develop."
+        }
+      }
+    },
+
+    "step": {
+      "type": "object",
+      "required": ["id", "title", "instructions"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]*$",
+          "description": "Stable, immutable, unique across the whole file. Never reuse an id."
+        },
+        "title": { "type": "string", "minLength": 1 },
+
+        "kind": {
+          "enum": ["stage", "container", "feature", "task", "gate"],
+          "default": "stage",
+          "description": "container = holds dynamically appended children (e.g. features); feature = one SDD feature."
+        },
+
+        "status": { "$ref": "#/$defs/status" },
+
+        "instructions": {
+          "type": "string",
+          "pattern": "^instructions/[a-z0-9]+(-[a-z0-9]+)*\\.md$",
+          "description": "REQUIRED. Markdown instruction file for this step, named instructions/<name>-<otherinfo>.md. This is the step's prompt — the agent reads it before acting."
+        },
+
+        "agent": { "$ref": "#/$defs/agent" },
+
+        "background": {
+          "type": "boolean",
+          "default": false,
+          "description": "true = dispatch as a background sub-agent; the pipeline continues without blocking. Only safe for steps that neither hold a gate nor write files another running step writes."
+        },
+
+        "command": {
+          "type": "string",
+          "description": "Optional slash command that drives this step, e.g. /wf-run spec."
+        },
+
+        "requires": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Step ids that must be `done` first. Enables a DAG, not just a line."
+        },
+
+        "produces": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Artifact paths/globs this step must leave behind. Used to detect a step claimed done but with nothing to show."
+        },
+
+        "gate": { "$ref": "#/$defs/gate" },
+
+        "acceptance": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Checklist that must hold before status may become done."
+        },
+
+        "notes": { "type": "string" },
+        "started_at": { "type": "string" },
+        "completed_at": { "type": "string" },
+
+        "commit_type": {
+          "type": "string",
+          "description": "Conventional Commits type for this step's commit (feat, fix, docs, test, refactor, chore). Defaults to feat for feature tasks."
+        },
+
+        "project": {
+          "type": "string",
+          "description": "Workspace routing: the workspace.projects name whose codebase (and repo) this feature targets. Commits/issues/PRs for it go to that satellite's repo."
+        },
+
+        "delegate": {
+          "type": "string",
+          "description": "External-engine stage: the .claude/commands/<delegate>.md flow this step runs (via instructions/engine-delegate.md). Written by `wf feature add` from the engine manifest."
+        },
+
+        "github": {
+          "$ref": "#/$defs/github_link",
+          "description": "GitHub objects this step (typically a feature) maps to. Written by `wf github link`."
+        },
+
+        "container_for": {
+          "type": "string",
+          "enum": ["features"],
+          "description": "Marks this step as the insertion point for dynamically created steps."
+        },
+
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/step" },
+          "description": "Recursive substeps. Nesting is unbounded: a step's substeps may have their own substeps. A parent is `done` only when every child is done or skipped."
+        }
+      }
+    }
+  }
+}

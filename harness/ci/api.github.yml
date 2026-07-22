@@ -1,0 +1,32 @@
+# CI — static fallback for `api` projects.
+# Prefer `./bin/wf harness ci`, which GENERATES this file from harness.signals so
+# build and test stay in sync with the pipeline. Edit by hand only if not using it.
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    # services:                 # uncomment deps your integration tests need
+    #   postgres:
+    #     image: postgres:16
+    #     env: { POSTGRES_PASSWORD: postgres }
+    #     ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+      # --- toolchain (uncomment what applies) ---
+      # - uses: actions/setup-node@v4
+      #   with: { node-version: '20', cache: 'npm' }
+      # - uses: actions/setup-java@v4
+      #   with: { distribution: 'temurin', java-version: '21', cache: 'maven' }
+      - name: install
+        run: echo "TODO: install deps (npm ci | mvn -B -DskipTests package)"
+      - name: lint
+        run: echo "TODO: lint command"
+      - name: typecheck
+        run: echo "TODO: typecheck command"
+      - name: test
+        run: echo "TODO: test command (npm test | mvn -B test)"
+      - name: build
+        run: echo "TODO: build command (npm run build | mvn -B package)"

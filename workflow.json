@@ -1,0 +1,617 @@
+{
+  "$schema": "./workflow.schema.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "notebox-api",
+    "type": "api",
+    "stack": [
+      "java",
+      "jakarta",
+      "jpa",
+      "cdi",
+      "mysql"
+    ],
+    "language": "en",
+    "code_naming": "english",
+    "comments": {
+      "scope": "minimal",
+      "reference_docs": "javadoc",
+      "api_docs": "openapi"
+    }
+  },
+  "engine": {
+    "name": "default"
+  },
+  "harness": {
+    "enabled": true,
+    "profile": "harness/profiles/api.md",
+    "verify": "mvn -B verify",
+    "ci": ".github/workflows/ci.yml",
+    "signals": [
+      "lint",
+      "typecheck",
+      "test",
+      "build"
+    ],
+    "commands": {
+      "test": "mvn -B test",
+      "build": "mvn -B package",
+      "typecheck": "mvn -B compile",
+      "lint": "echo 'lint: Checkstyle/Spotless not yet wired (tracked as F3); placeholder passes'"
+    }
+  },
+  "github": {
+    "enabled": true,
+    "repo": "codeflow/notebox-api",
+    "default_branch": "main",
+    "assignee": "rafaelsantos",
+    "reviewers": [],
+    "commit_convention": "conventional",
+    "artifacts": {
+      "readme": "README.md",
+      "changelog": "CHANGELOG.md"
+    },
+    "project": {
+      "enabled": false,
+      "owner": ""
+    },
+    "sync": {
+      "issue_per": "feature",
+      "pr_per": "feature",
+      "comment_on_gate": true,
+      "changelog_on": "audit_pass"
+    },
+    "integration_branch": "develop"
+  },
+  "defaults": {
+    "agent": {
+      "model": "sonnet",
+      "effort": "medium"
+    },
+    "background": false,
+    "gate": "none"
+  },
+  "policy": {
+    "render_pipeline_before_response": true,
+    "strict_gates": true,
+    "single_in_progress": true,
+    "escalate_on_constitution_violation": true,
+    "auto_append_features": true,
+    "ask_agent_review": true
+  },
+  "steps": [
+    {
+      "id": "bootstrap",
+      "title": "Bootstrap context",
+      "kind": "stage",
+      "status": "done",
+      "instructions": "instructions/bootstrap-context.md",
+      "agent": {
+        "model": "haiku",
+        "effort": "low"
+      },
+      "produces": [
+        "workflow.json"
+      ],
+      "acceptance": [
+        "project.name, type, stack and language are filled in workflow.json",
+        "harness.enabled decided (true/false) and profile pointed at the right file"
+      ],
+      "started_at": "2026-07-22T13:16:42Z",
+      "completed_at": "2026-07-22T13:16:42Z"
+    },
+    {
+      "id": "definitions",
+      "title": "Intake raw material",
+      "kind": "stage",
+      "status": "done",
+      "instructions": "instructions/definitions-intake.md",
+      "agent": {
+        "model": "haiku",
+        "effort": "low",
+        "subagent_type": "Explore"
+      },
+      "background": true,
+      "requires": [
+        "bootstrap"
+      ],
+      "produces": [
+        "definitions/**",
+        "definitions/processed/**"
+      ],
+      "acceptance": [
+        "Every input in definitions/ is classified and summarized",
+        "Consumed inputs archived to definitions/processed/"
+      ],
+      "notes": "Inbox empty — only the scaffold README.md is present, no raw material to digest. Product intent will be captured directly at the constitution/PRD steps.",
+      "started_at": "2026-07-22T15:24:36Z",
+      "completed_at": "2026-07-22T15:25:47Z"
+    },
+    {
+      "id": "constitution",
+      "title": "Author the guardrails",
+      "kind": "stage",
+      "status": "pending",
+      "instructions": "instructions/constitution-guardrails.md",
+      "agent": {
+        "model": "opus",
+        "effort": "high"
+      },
+      "requires": [
+        "bootstrap"
+      ],
+      "gate": "human_approval",
+      "produces": [
+        "constitution/*.md"
+      ],
+      "acceptance": [
+        "Principles, architecture, compliance and code standards are project-specific, not boilerplate",
+        "Every rule is testable or observable — no vague aspirations"
+      ],
+      "steps": [
+        {
+          "id": "constitution.principles",
+          "title": "Business principles (BR)",
+          "status": "done",
+          "instructions": "instructions/constitution-principles.md",
+          "agent": {
+            "model": "opus",
+            "effort": "high"
+          },
+          "started_at": "2026-07-22T16:01:11Z",
+          "completed_at": "2026-07-22T16:03:01Z"
+        },
+        {
+          "id": "constitution.architecture",
+          "title": "Architecture boundaries",
+          "status": "done",
+          "instructions": "instructions/constitution-architecture.md",
+          "agent": {
+            "model": "opus",
+            "effort": "high"
+          },
+          "started_at": "2026-07-22T16:04:40Z",
+          "completed_at": "2026-07-22T16:04:40Z"
+        },
+        {
+          "id": "constitution.compliance",
+          "title": "Compliance checklist",
+          "status": "done",
+          "instructions": "instructions/constitution-compliance.md",
+          "agent": {
+            "model": "sonnet",
+            "effort": "medium"
+          },
+          "started_at": "2026-07-22T16:04:41Z",
+          "completed_at": "2026-07-22T16:05:28Z"
+        },
+        {
+          "id": "constitution.standards",
+          "title": "Code standards",
+          "status": "done",
+          "instructions": "instructions/constitution-standards.md",
+          "agent": {
+            "model": "sonnet",
+            "effort": "medium"
+          },
+          "started_at": "2026-07-22T16:05:29Z",
+          "completed_at": "2026-07-22T16:06:18Z"
+        }
+      ]
+    },
+    {
+      "id": "prd",
+      "title": "Author the living PRD",
+      "kind": "stage",
+      "status": "done",
+      "instructions": "instructions/prd-authoring.md",
+      "agent": {
+        "model": "opus",
+        "effort": "high"
+      },
+      "requires": [
+        "definitions",
+        "constitution"
+      ],
+      "gate": "human_approval",
+      "produces": [
+        "prd/PRD_v*.md"
+      ],
+      "acceptance": [
+        "Every product claim traces to a definition or an explicit human decision",
+        "Anything uncovered is an Open Question, never an invention"
+      ],
+      "started_at": "2026-07-22T16:35:56Z",
+      "completed_at": "2026-07-22T16:56:31Z"
+    },
+    {
+      "id": "catalogs",
+      "title": "Derive the catalogs",
+      "kind": "stage",
+      "status": "done",
+      "instructions": "instructions/catalogs-sync.md",
+      "agent": {
+        "model": "sonnet",
+        "effort": "medium"
+      },
+      "requires": [
+        "prd"
+      ],
+      "produces": [
+        "catalogs/requirements.md",
+        "catalogs/rules.md",
+        "catalogs/epics.md",
+        "catalogs/open-questions.md"
+      ],
+      "acceptance": [
+        "FR/NFR/BR/US/OQ ids assigned and immutable",
+        "Dropped items marked deprecated, never deleted or renumbered"
+      ],
+      "started_at": "2026-07-22T16:56:53Z",
+      "completed_at": "2026-07-22T16:58:23Z"
+    },
+    {
+      "id": "delivery",
+      "title": "Feature delivery",
+      "kind": "container",
+      "container_for": "features",
+      "status": "pending",
+      "instructions": "instructions/delivery-loop.md",
+      "requires": [
+        "catalogs"
+      ],
+      "acceptance": [
+        "Every User Story in catalogs/epics.md is either delivered or explicitly deferred"
+      ],
+      "steps": [
+        {
+          "id": "feat-001-identity-tenancy",
+          "title": "Identity & multi-tenant isolation (JWT) (US-6.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-001-identity-tenancy.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/001-identity-tenancy/spec.md"
+              ],
+              "started_at": "2026-07-22T17:11:07Z",
+              "completed_at": "2026-07-22T17:15:04Z"
+            },
+            {
+              "id": "feat-001-identity-tenancy.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/001-identity-tenancy/plan.md",
+                "features/001-identity-tenancy/data-model.md"
+              ],
+              "started_at": "2026-07-22T17:17:50Z",
+              "completed_at": "2026-07-22T17:21:10Z"
+            },
+            {
+              "id": "feat-001-identity-tenancy.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/001-identity-tenancy/tasks.md"
+              ],
+              "started_at": "2026-07-22T17:23:35Z",
+              "completed_at": "2026-07-22T17:32:02Z"
+            },
+            {
+              "id": "feat-001-identity-tenancy.implement",
+              "title": "Implement — code + tests",
+              "status": "done",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-001-identity-tenancy.implement.t1",
+                  "title": "T-01 — Project skeleton & Quarkus build",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:27Z",
+                  "completed_at": "2026-07-22T20:27:27Z"
+                },
+                {
+                  "id": "feat-001-identity-tenancy.implement.t2",
+                  "title": "T-02 — Tenant & User entities + Flyway V1",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:45Z",
+                  "completed_at": "2026-07-22T20:27:45Z"
+                },
+                {
+                  "id": "feat-001-identity-tenancy.implement.t3",
+                  "title": "T-03 — JWT filter + request-scoped TenantContext",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:45Z",
+                  "completed_at": "2026-07-22T20:27:46Z"
+                },
+                {
+                  "id": "feat-001-identity-tenancy.implement.t4",
+                  "title": "T-04 — Login endpoint: Argon2id + RS256 JwtIssuer",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:46Z",
+                  "completed_at": "2026-07-22T20:27:46Z"
+                },
+                {
+                  "id": "feat-001-identity-tenancy.implement.t5",
+                  "title": "T-05 — TenantScopedRepository base + UserRepository",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:46Z",
+                  "completed_at": "2026-07-22T20:27:46Z"
+                },
+                {
+                  "id": "feat-001-identity-tenancy.implement.t6",
+                  "title": "T-06 — Error envelope + ExceptionMappers + MessageResolver",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:46Z",
+                  "completed_at": "2026-07-22T20:27:46Z"
+                },
+                {
+                  "id": "feat-001-identity-tenancy.implement.t7",
+                  "title": "T-07 — Identity endpoints + end-to-end isolation tests",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T20:27:47Z",
+                  "completed_at": "2026-07-22T20:27:47Z"
+                }
+              ],
+              "started_at": "2026-07-22T20:27:27Z",
+              "completed_at": "2026-07-22T20:27:47Z"
+            },
+            {
+              "id": "feat-001-identity-tenancy.audit",
+              "title": "Audit — adversarial check",
+              "status": "done",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/001-identity-tenancy/audit.md"
+              ],
+              "started_at": "2026-07-22T20:27:47Z",
+              "completed_at": "2026-07-22T20:27:47Z"
+            },
+            {
+              "id": "feat-001-identity-tenancy.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "in_progress",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green",
+              "started_at": "2026-07-22T20:37:29Z"
+            },
+            {
+              "id": "feat-001-identity-tenancy.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "github": {
+            "issue": 1
+          }
+        },
+        {
+          "id": "feat-002-identity-tenancy-web",
+          "title": "Login & tenant context UI (ADF Fusion theme) (US-6.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-002-identity-tenancy-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/002-identity-tenancy-web/spec.md"
+              ]
+            },
+            {
+              "id": "feat-002-identity-tenancy-web.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/002-identity-tenancy-web/plan.md",
+                "features/002-identity-tenancy-web/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-002-identity-tenancy-web.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/002-identity-tenancy-web/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-002-identity-tenancy-web.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-002-identity-tenancy-web.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/002-identity-tenancy-web/audit.md"
+              ]
+            },
+            {
+              "id": "feat-002-identity-tenancy-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-002-identity-tenancy-web.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "release",
+      "title": "Handoff, roadmap and memory",
+      "kind": "stage",
+      "status": "pending",
+      "instructions": "instructions/release-handoff.md",
+      "agent": {
+        "model": "sonnet",
+        "effort": "medium"
+      },
+      "requires": [
+        "delivery"
+      ],
+      "produces": [
+        "HANDOFF.md",
+        "ROADMAP.md",
+        "MEMORY.md"
+      ],
+      "acceptance": [
+        "A fresh context can resume the project from HANDOFF.md alone",
+        "MEMORY.md records only non-obvious, non-derivable facts"
+      ]
+    }
+  ],
+  "workspace": {
+    "role": "hub",
+    "projects": [
+      {
+        "name": "notebox-web",
+        "path": "../notebox-web",
+        "type": "web",
+        "repo": "codeflow/notebox-web",
+        "stack": [
+          "react",
+          "next"
+        ]
+      }
+    ]
+  }
+}
