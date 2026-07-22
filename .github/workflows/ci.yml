@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: 'temurin', java-version: '21', cache: 'maven' }
       - name: lint
-        run: echo 'lint: Checkstyle/Spotless not yet wired (tracked as F3); placeholder passes'
+        run: echo 'lint placeholder - Checkstyle/Spotless pending (F3)'
       - name: typecheck
         run: mvn -B compile
       - name: test
