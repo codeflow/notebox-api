@@ -63,7 +63,7 @@
       - depends: T-02, T-03, T-07 · parallel: no
       - verify: `./mvnw test -Dtest=AnnotationTypeServiceTest`
 
-- [ ] **T-09 · `AnnotationTypeService`: replace (PUT) + irreversible delete with audit trail**
+- [x] **T-09 · `AnnotationTypeService`: replace (PUT) + irreversible delete with audit trail**
       - files: `application/annotation/AnnotationTypeService.java` (extend), `domain/AuditLog.java`, `infrastructure/persistence/AuditLogRepository.java`, `application/annotation/AnnotationTypeDeleteTest.java`
       - covers: FR-01, BR-05, C-10 · scenarios: "Update reorders fields", "Delete a type is explicit and irreversible" (+ audit entry)
       - notes: PUT replaces the whole definition (orphanRemoval drops removed children); delete writes one `AuditLog` row in the **same** `@Transactional`; `AuditLog` maps to `audit_log` from V2

@@ -13,6 +13,11 @@ public class AnnotationTypeRepository extends TenantScopedRepository<AnnotationT
         return AnnotationType.class;
     }
 
+    /** Removes a managed type; cascade + orphanRemoval delete its fields and options. */
+    public void remove(AnnotationType type) {
+        em.remove(type);
+    }
+
     /** Whether the caller's tenant already has a type with this name (per-tenant uniqueness). */
     public boolean existsByName(String name) {
         Long count = em.createQuery(
