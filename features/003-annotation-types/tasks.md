@@ -14,7 +14,7 @@
       - depends: — · parallel: yes
       - verify: `./mvnw test -Dtest=FieldTypeTest`
 
-- [ ] **T-02 · Persistence schema (V2 migration, all 5 tables) + aggregate entities + tenant-scoped repository**
+- [x] **T-02 · Persistence schema (V2 migration, all 5 tables) + aggregate entities + tenant-scoped repository**
       - files: `resources/db/migration/V2__annotation_types.sql`, `domain/AnnotationType.java`, `domain/TypeField.java`, `domain/FieldOption.java`, `infrastructure/persistence/AnnotationTypeRepository.java`, `infrastructure/persistence/AnnotationTypeRepositoryTest.java`
       - covers: BR-03, FR-01, FR-02, FR-03, AD-03 · scenarios: "Create a type with ordered fields", "Update reorders fields" (persistence side), "A foreign tenant cannot read another tenant's type" (repo-level), secret column persists
       - notes: V2 also creates `image`/`audit_log` tables (entities in T-05/T-09); `@OrderColumn` on fields & options; repo extends `TenantScopedRepository<AnnotationType>`; test fakes tenant via `@InjectMock TenantContext`
