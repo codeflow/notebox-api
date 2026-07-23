@@ -49,7 +49,7 @@
       - depends: T-05 · parallel: yes
       - verify: `./mvnw test -Dtest=ImageResourceTest`
 
-- [ ] **T-07 · Request/response DTOs annotated with built-in + custom constraints**
+- [x] **T-07 · Request/response DTOs annotated with built-in + custom constraints**
       - files: `api/dto/{AnnotationTypeInput,TypeFieldInput,FieldOptionInput,AnnotationTypeDto,TypeFieldDto,FieldOptionDto}.java`, `api/dto/AnnotationTypeDtoTest.java`
       - covers: FR-02, FR-03 (structural) · scenarios: "Reject a type with no name", "Reject a field with no name" (both via `@NotBlank`)
       - notes: records; `@NotBlank`/`@Size(max=120)` on names; the T-04 custom constraints on fields/class; nullable `visibleForViewing`/`secret`; response DTOs carry ids + resolved defaults via `from(entity)`
