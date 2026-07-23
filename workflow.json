@@ -802,8 +802,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T19:15:46Z",
-                  "completed_at": "2026-07-23T21:20:48Z"
+                  "started_at": "2026-07-23T21:58:34Z",
+                  "completed_at": "2026-07-23T21:58:34Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t2",
@@ -815,8 +815,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:24Z",
-                  "completed_at": "2026-07-23T21:22:24Z"
+                  "started_at": "2026-07-23T21:58:35Z",
+                  "completed_at": "2026-07-23T21:58:35Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t3",
@@ -828,8 +828,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:24Z",
-                  "completed_at": "2026-07-23T21:22:24Z"
+                  "started_at": "2026-07-23T21:58:35Z",
+                  "completed_at": "2026-07-23T21:58:35Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t4",
@@ -841,8 +841,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:25Z",
-                  "completed_at": "2026-07-23T21:22:25Z"
+                  "started_at": "2026-07-23T21:58:35Z",
+                  "completed_at": "2026-07-23T21:58:35Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t5",
@@ -854,8 +854,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:25Z",
-                  "completed_at": "2026-07-23T21:22:25Z"
+                  "started_at": "2026-07-23T21:58:36Z",
+                  "completed_at": "2026-07-23T21:58:36Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t6",
@@ -867,8 +867,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:25Z",
-                  "completed_at": "2026-07-23T21:22:25Z"
+                  "started_at": "2026-07-23T21:58:36Z",
+                  "completed_at": "2026-07-23T21:58:36Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t7",
@@ -880,8 +880,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:26Z",
-                  "completed_at": "2026-07-23T21:22:26Z"
+                  "started_at": "2026-07-23T21:58:36Z",
+                  "completed_at": "2026-07-23T21:58:36Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t8",
@@ -893,8 +893,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:26Z",
-                  "completed_at": "2026-07-23T21:22:26Z"
+                  "started_at": "2026-07-23T21:58:37Z",
+                  "completed_at": "2026-07-23T21:58:37Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t9",
@@ -906,8 +906,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:26Z",
-                  "completed_at": "2026-07-23T21:22:26Z"
+                  "started_at": "2026-07-23T21:58:37Z",
+                  "completed_at": "2026-07-23T21:58:37Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t10",
@@ -919,8 +919,8 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:27Z",
-                  "completed_at": "2026-07-23T21:22:27Z"
+                  "started_at": "2026-07-23T21:58:37Z",
+                  "completed_at": "2026-07-23T21:58:37Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t11",
@@ -932,12 +932,12 @@
                     "model": "sonnet",
                     "effort": "high"
                   },
-                  "started_at": "2026-07-23T21:22:54Z",
-                  "completed_at": "2026-07-23T21:28:21Z"
+                  "started_at": "2026-07-23T21:58:38Z",
+                  "completed_at": "2026-07-23T21:58:38Z"
                 }
               ],
-              "started_at": "2026-07-23T21:33:23Z",
-              "completed_at": "2026-07-23T21:33:23Z"
+              "started_at": "2026-07-23T21:58:38Z",
+              "completed_at": "2026-07-23T21:58:38Z"
             },
             {
               "id": "feat-003-annotation-types.audit",
