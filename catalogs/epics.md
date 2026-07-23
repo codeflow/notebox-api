@@ -27,7 +27,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-1.1 | As a tenant member, I want to define an annotation type with an icon and typed fields (incl. list options), so I capture a category of notes consistently. | FR-01, FR-02, FR-03, FR-07 · BR-03, BR-04 | todo | — |
+| US-1.1 | As a tenant member, I want to define an annotation type with an icon and typed fields (incl. list options), so I capture a category of notes consistently. | FR-01, FR-02, FR-03, FR-07 · BR-03, BR-04 | delivered | feat-003-annotation-types (api) — audit **pass with findings** (2026-07-23, @268fbe2); on feature/annotation-types, awaiting publish/review/promotion |
 | US-1.2 | As a tenant member, I want to mark fields "visible for viewing", so listings show only the columns I care about. | FR-02, FR-05 · BR-09 | todo | — |
 
 ## E2 — Annotations

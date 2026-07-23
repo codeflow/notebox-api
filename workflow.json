@@ -942,7 +942,7 @@
             {
               "id": "feat-003-annotation-types.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -952,7 +952,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/003-annotation-types/audit.md"
-              ]
+              ],
+              "started_at": "2026-07-23T22:05:29Z",
+              "completed_at": "2026-07-23T22:05:30Z"
             },
             {
               "id": "feat-003-annotation-types.publish",
