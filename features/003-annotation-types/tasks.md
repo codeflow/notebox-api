@@ -42,7 +42,7 @@
       - depends: T-02, T-03 · parallel: no
       - verify: `./mvnw test -Dtest=ImageServiceTest`
 
-- [ ] **T-06 · Image REST endpoints: raw-binary `POST /api/images` + streaming `GET /api/images/{id}`**
+- [x] **T-06 · Image REST endpoints: raw-binary `POST /api/images` + streaming `GET /api/images/{id}`**
       - files: `api/ImageResource.java`, `api/dto/ImageRefDto.java`, `api/ImageResourceTest.java`
       - covers: FR-07, AD-04, C-01, C-02 · scenarios: "Upload and retrieve a type icon", foreign-tenant image → `ImageNotFoundException` (404)
       - notes: raw body + `Content-Type` header (no multipart); returns `ImageRefDto`; tenant-scoped fetch
