@@ -796,12 +796,14 @@
                   "id": "feat-003-annotation-types.implement.t1",
                   "title": "T-01 — Domain enums FieldType + BadgeColour",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T19:15:46Z",
+                  "completed_at": "2026-07-23T19:28:32Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t2",
@@ -952,7 +954,11 @@
               },
               "gate": "human_approval"
             }
-          ]
+          ],
+          "github": {
+            "issue": 3,
+            "branch": "feature/annotation-types"
+          }
         },
         {
           "id": "feat-004-annotation-types-web",

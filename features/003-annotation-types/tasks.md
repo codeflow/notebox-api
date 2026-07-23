@@ -7,7 +7,7 @@
 > input shape, **dot-namespaced i18n keys** in en+pt. Ordered by dependency, then risk-first. Root
 > package `com.notebox.api`.
 
-- [ ] **T-01 · Domain enums `FieldType` + `BadgeColour` with helper predicates**
+- [x] **T-01 · Domain enums `FieldType` + `BadgeColour` with helper predicates**
       - files: `domain/FieldType.java`, `domain/BadgeColour.java`, `domain/FieldTypeTest.java`
       - covers: BR-04, FR-02, FR-03 · scenarios: "All seven field types are accepted", "Visible-for-viewing default depends on the field type"
       - helpers: `defaultVisibleForViewing()` (D2), `allowsOptions()`, `allowsBadgeColour()` (LIST), `allowsSecret()` (TEXT/FREE_TEXT)
