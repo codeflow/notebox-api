@@ -21,7 +21,7 @@
       - depends: T-01 · parallel: no  *(defines the schema — risk-first)*
       - verify: `./mvnw test -Dtest=AnnotationTypeRepositoryTest`
 
-- [ ] **T-03 · Domain exception hierarchy + `DomainExceptionMapper` + i18n catalog (en/pt, dot-namespaced)**
+- [x] **T-03 · Domain exception hierarchy + `DomainExceptionMapper` + i18n catalog (en/pt, dot-namespaced)**
       - files: `domain/error/DomainException.java` (base, HTTP-free, holds message key + `ErrorCategory`), `domain/error/ErrorCategory.java`, `api/error/DomainExceptionMapper.java`, `resources/messages.properties`, `resources/messages_pt.properties`, `infrastructure/i18n/AnnotationTypeMessageCoverageTest.java`
       - covers: constitution §Errors, C-09 · underpins every specific-exception scenario ("Type name is unique…", not-found, image errors); the code = the dot-namespaced key resolved via `MessageResolver`
       - notes: mapper translates `ErrorCategory` → HTTP (NOT_FOUND→404, CONFLICT→409, INVALID→400) and resolves the localized message; keys `annotation.type.*`, `annotation.field.*`, `annotation.image.*`; coverage test asserts every key present in **en and pt**
