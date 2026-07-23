@@ -41,6 +41,11 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
+        <!-- API contract: OpenAPI generated from JAX-RS annotations (NFR-06) -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+        </dependency>
         <!-- Persistence: Hibernate ORM + MySQL + Flyway -->
         <dependency>
             <groupId>io.quarkus</groupId>

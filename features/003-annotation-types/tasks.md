@@ -77,7 +77,7 @@
       - depends: T-07, T-08, T-09 · parallel: no
       - verify: `./mvnw test -Dtest=AnnotationTypeResourceTest`
 
-- [ ] **T-11 · API docs: add `quarkus-smallrye-openapi` + verify endpoint coverage**
+- [x] **T-11 · API docs: add `quarkus-smallrye-openapi` + verify endpoint coverage**
       - files: `pom.xml`, `api/OpenApiCoverageTest.java`
       - covers: **NFR-06** (contract in OpenAPI, in sync) — *NFR-driven, no Gherkin scenario*
       - notes: the one new extension; OpenAPI generated from JAX-RS annotations; test asserts every new path appears in `/q/openapi`

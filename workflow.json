@@ -803,117 +803,137 @@
                     "effort": "high"
                   },
                   "started_at": "2026-07-23T19:15:46Z",
-                  "completed_at": "2026-07-23T19:28:32Z"
+                  "completed_at": "2026-07-23T21:20:48Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t2",
                   "title": "T-02 — Persistence schema + aggregate entities + tenant-scoped repository",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:24Z",
+                  "completed_at": "2026-07-23T21:22:24Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t3",
                   "title": "T-03 — Domain exception hierarchy + mapper + i18n (en/pt dot-namespaced)",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:24Z",
+                  "completed_at": "2026-07-23T21:22:24Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t4",
                   "title": "T-04 — Custom Bean Validation constraints + violation contract",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:25Z",
+                  "completed_at": "2026-07-23T21:22:25Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t5",
                   "title": "T-05 — Image storage: entity + repository + ImageService + specific exceptions",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:25Z",
+                  "completed_at": "2026-07-23T21:22:25Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t6",
                   "title": "T-06 — Image REST endpoints (upload + serve)",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:25Z",
+                  "completed_at": "2026-07-23T21:22:25Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t7",
                   "title": "T-07 — Request/response DTOs annotated with constraints",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:26Z",
+                  "completed_at": "2026-07-23T21:22:26Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t8",
                   "title": "T-08 — AnnotationTypeService: create/list/get + stateful exceptions",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:26Z",
+                  "completed_at": "2026-07-23T21:22:26Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t9",
                   "title": "T-09 — AnnotationTypeService: replace + delete with audit",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:26Z",
+                  "completed_at": "2026-07-23T21:22:26Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t10",
                   "title": "T-10 — AnnotationTypeResource HTTP CRUD",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:27Z",
+                  "completed_at": "2026-07-23T21:22:27Z"
                 },
                 {
                   "id": "feat-003-annotation-types.implement.t11",
                   "title": "T-11 — API docs: smallrye-openapi + coverage",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-07-23T21:22:54Z",
+                  "completed_at": "2026-07-23T21:28:21Z"
                 }
               ]
             },
