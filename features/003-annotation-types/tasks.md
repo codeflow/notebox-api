@@ -35,7 +35,7 @@
       - depends: T-01 · parallel: yes
       - verify: `./mvnw test -Dtest=ConstraintsTest`
 
-- [ ] **T-05 · Image storage: `Image` entity + repository + `ImageService` + specific exceptions + config**
+- [x] **T-05 · Image storage: `Image` entity + repository + `ImageService` + specific exceptions + config**
       - files: `domain/Image.java`, `domain/error/{ImageTooLargeException,UnsupportedImageTypeException,ImageNotFoundException}.java`, `infrastructure/persistence/ImageRepository.java`, `application/annotation/ImageService.java`, `application/annotation/ImageServiceTest.java`, `resources/application.properties` (image limits)
       - covers: FR-07, AD-04, AD-07, NFR-04, C-07 · scenarios: "Reject an oversize icon", "Reject a disallowed icon format" (+ valid store)
       - notes: `@Lob byte[]` (first BLOB); maps to `image` table from V2; validates `{png,jpeg,gif,webp}` + ≤5 MB before persist, raising the specific exceptions (extend `DomainException` from T-03); `notebox.image.max-bytes=5242880`
