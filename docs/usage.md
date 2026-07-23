@@ -26,6 +26,11 @@ The new project is **engine-agnostic core only** — no `constitution/`, `prd/`,
 (its scaffold), so a Spec Kit project never gets the default engine's folder layout and
 vice versa.
 
+**The README is the product's, not the workflow's.** `wf create` seeds a project README stub
+(name, stack, how to run); `wf init` fills it with the real identity and stops touching it the
+moment you edit it (a `wf:readme-stub` marker controls this). Workflow/process documentation
+lives in `docs/`, never in the project README.
+
 **Multiple repos (api + web + mobile)?** Create a workspace instead — one pipeline in a hub,
 satellites for the other projects: `--satellites` (create), `--connect` (wire existing) or
 `--controller` (dedicated pipeline project). Full model: [`workspace.md`](workspace.md).

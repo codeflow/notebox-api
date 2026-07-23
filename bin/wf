@@ -1877,6 +1877,22 @@ def cmd_init(args):
     if created:
         tops = sorted({c.split(os.sep)[0] for c in created})
         changed.append(f"scaffold materialized ({', '.join(tops)}/)")
+
+    # refresh the project README while it is still the untouched stub
+    readme_path = os.path.join(state()["root"], "README.md")
+    try:
+        with open(readme_path, encoding="utf-8") as fh:
+            is_stub = README_STUB_MARK in fh.read()
+    except OSError:
+        is_stub = True
+    if is_stub:
+        doc2 = load()
+        h2 = doc2.get("harness", {}) or {}
+        verify_cmd = h2.get("verify") if h2.get("enabled") else None
+        with open(readme_path, "w", encoding="utf-8") as fh:
+            fh.write(readme_stub(doc2.get("project", {}).get("name", "project"),
+                                 doc2.get("project", {}), verify_cmd))
+        changed.append("README stub refreshed")
     print("setup applied: " + (", ".join(changed) if changed else "(no changes)"))
     print()
     print(render(load(), color=(False if ("--plain" in args or "--no-color" in args) else None)))
@@ -1928,6 +1944,36 @@ def _create_ignore(src_dir, names):
         elif top and n in sdd:
             skip.add(n)
     return skip
+
+
+# The marker lets `wf init` keep refreshing the stub with real identity — and
+# guarantees a README the human already authored is never touched again.
+README_STUB_MARK = "<!-- wf:readme-stub -->"
+
+
+def readme_stub(name, proj=None, verify=None):
+    proj = proj or {}
+    stack = ", ".join(proj.get("stack") or []) or "_TBD_"
+    lines = [
+        README_STUB_MARK,
+        f"# {name}",
+        "",
+        "_One paragraph: what this project is and who it serves. (Filled as the PRD lands.)_",
+        "",
+        "## Stack",
+        "",
+        f"{stack}",
+        "",
+        "## Running locally",
+        "",
+        f"```\n{verify or '# TBD — see harness/profiles/'}\n```" if verify else "_TBD_",
+        "",
+        "---",
+        "_Developed with the [workflow](docs/usage.md) pipeline — process docs live in `docs/`,",
+        "product truth in `prd/` and `catalogs/`. This file is about the product itself._",
+        "",
+    ]
+    return "\n".join(lines)
 
 
 SATELLITE_CLAUDE_MD = """# CLAUDE.md — {name} (workspace satellite)
@@ -2007,6 +2053,7 @@ def _write_satellite(sat_dir, name, stype, repo, hub_dir, create_new, language="
         "CLAUDE.md": SATELLITE_CLAUDE_MD.format(name=name, hub=hub_rel),
         "MEMORY.md": f"# Memory — {name}\n\nLocal memory index for this satellite. One line per fact.\n",
         "HANDOFF.md": f"# Handoff — {name}\n\nLocal state of THIS project. The pipeline handoff lives in the hub ({hub_rel}/HANDOFF.md).\n",
+        "README.md": readme_stub(name, {"stack": list(stack or [])}),
     }
     for fname, content in seeds.items():
         path = os.path.join(sat_dir, fname)
@@ -2082,6 +2129,11 @@ def cmd_create(args):
     wf_bin = os.path.join(dest, "bin", "wf")
     if os.path.exists(wf_bin):
         os.chmod(wf_bin, 0o755)
+
+    # the template's README documents the TEMPLATE; a new project gets a stub
+    # about ITSELF instead (wf init fills it in; humans own it from then on)
+    with open(os.path.join(dest, "README.md"), "w", encoding="utf-8") as fh:
+        fh.write(readme_stub(name))
 
     git_done = False
     if "--no-git" not in args:

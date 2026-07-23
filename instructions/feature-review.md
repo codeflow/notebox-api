@@ -48,10 +48,21 @@ Chat approval must be explicit ("aprovado", "pode mergear"). A question or "olhe
 
 ## 3. Close out
 
-1. `./bin/wf github link <feature-id> --merged develop` — the feature is now on the integration
+1. **Local sync — ask first.** The merge happened on GitHub; the local clone is now sitting on
+   a dead branch. Ask, one card: **"Fechar a branch local `feature/<slug>` e voltar para a
+   develop?"**
+   - **Yes** → in the repo where the branch lives (the satellite's, for routed features):
+     ```bash
+     git switch develop && git pull origin develop && git branch -d feature/<slug>
+     ```
+     Offer deleting the remote branch too (`git push origin --delete feature/<slug>`), separate
+     yes.
+   - **No** → leave it, but say plainly: every `/wf-next` from now on will flag this stale
+     branch until it is closed (see the wf-next pre-flight).
+2. `./bin/wf github link <feature-id> --merged develop` — the feature is now on the integration
    branch, pending promotion.
-2. Update `catalogs/epics.md`: US → `delivered` (note: on develop). Move the board card.
-3. `wf done` this step, then **run `./bin/wf github pending` and REPORT it in the chat** — every
+3. Update `catalogs/epics.md`: US → `delivered` (note: on develop). Move the board card.
+4. `wf done` this step, then **run `./bin/wf github pending` and REPORT it in the chat** — every
    implementation ends by telling the human which features sit on develop awaiting promotion
    (`/wf-promote <feature>`). This report is not optional.
 

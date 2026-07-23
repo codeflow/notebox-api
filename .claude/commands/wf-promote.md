@@ -41,12 +41,19 @@ Check `gh pr view <N> --json state,reviews,reactionGroups,mergedAt`:
 
 ## 4. Close out
 
-1. For EVERY feature that was on develop (they all rode along):
+1. **Local sync.** The merge advanced `main` on GitHub only; the local clone is behind. Stay on
+   `develop` and update the local trunk ref without switching (one confirmed batch):
+   ```bash
+   git fetch origin main:main && git pull origin develop
+   ```
+   (If the current branch IS main for some reason, a plain `git pull` there instead — but the
+   working position after a promotion is develop, ready for the next feature.)
+2. For EVERY feature that was on develop (they all rode along):
    `./bin/wf github link <feat> --merged main`.
-2. **Confirm the issues auto-closed** (`gh issue view <N>` → closed). One missing a `Closes`
+3. **Confirm the issues auto-closed** (`gh issue view <N>` → closed). One missing a `Closes`
    line in the body? Close it now, with a comment linking the promotion PR.
-3. Update `catalogs/epics.md` notes (delivered → on main) and move board cards.
-4. `./bin/wf github pending` — should now say nothing is pending; report the final state.
+4. Update `catalogs/epics.md` notes (delivered → on main) and move board cards.
+5. `./bin/wf github pending` — should now say nothing is pending; report the final state.
 
 ## Guardrails
 

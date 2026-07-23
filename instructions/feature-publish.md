@@ -33,8 +33,35 @@ gate: verify_green
 - `feature/<slug>` exists on origin, linked in `workflow.json`.
 - The latest Actions run on the branch is **green** — state the run URL in your report.
 
+## First publish of an empty repo — the bootstrap exception
+
+When the remote has no branches yet, there is nothing to PR against — bootstrapping is allowed,
+ONCE, under these rules:
+
+1. The **baseline** commit to the trunk contains only what precedes the feature: scaffolding,
+   SDD documents, project skeleton. **The feature's implementation files never ride in the
+   baseline** — they go to `feature/<slug>`, or the review PR is empty and the flow is theater.
+2. Sequence (one confirmed batch): baseline → trunk · create integration branch from it ·
+   feature branch from the integration branch · push all three.
+3. Say explicitly that this is the bootstrap. From this moment on, the trunk only moves via
+   promotion PRs (`/wf-promote`) — never a direct push again.
+
+## An unconfigured CI signal is NOT yours to fake
+
+If a signal (e.g. `lint`) has no command, the generated CI step fails loudly **by design**.
+Do not replace it with a passing placeholder — a green check that checked nothing is the exact
+lie this pipeline exists to prevent, and a polite label does not fix it. The honest options,
+in order:
+
+1. Wire the real command: `wf harness signal lint "<cmd>"`.
+2. Remove the signal from `harness.signals` and regenerate (`wf harness ci`) — visible absence
+   over fake presence — and open an OQ/follow-up to wire it later.
+
+Choosing between them is the human's call, not yours: present both and wait.
+
 ## Do NOT
 
-- Do not push to `develop` or the trunk — only to `feature/<slug>`.
+- Do not push to `develop` or the trunk — only to `feature/<slug>` (bootstrap excepted, above).
 - Do not proceed on a red or still-running pipeline; waiting is part of this step.
+- Do not neutralize a failing CI step to open the gate — see above.
 - Without GitHub enabled this step is `skip` with a note — there is nowhere to publish.

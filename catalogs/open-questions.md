@@ -113,6 +113,20 @@
 **Suggested path:** <how to resolve>
 **Status:** open.
 
+### OQ-12 — Password-reset flow
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** The login screen has a 'Forgot password?' placeholder link (feat-002) with no backing flow. Needs its own feature: request reset, deliver token, set new password. Deferred by feat-002 spec.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
+### OQ-13 — Remember-me persistence
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** The login screen has a 'Remember me' checkbox (feat-002) that is visual-only. Real behaviour = persist the session beyond token expiry / across tab-close (e.g. localStorage or refresh token), which the feat-002 plan deliberately avoided (chose sessionStorage). Needs its own decision + feature.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -130,6 +144,8 @@
 | 2026-07-22 | OQ-09 resolved: Baseline validation defaults (feature specs may refine): annotation ty… |
 | 2026-07-22 | OQ-10 resolved: NFR numeric targets: cached read p95 < 50 ms; max image upload 5 MB; d… |
 | 2026-07-22 | OQ-11 opened: Tenant & user provisioning mechanism |
+| 2026-07-23 | OQ-12 opened: Password-reset flow |
+| 2026-07-23 | OQ-13 opened: Remember-me persistence |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

@@ -37,7 +37,7 @@
       "test": "mvn -B test",
       "build": "mvn -B package",
       "typecheck": "mvn -B compile",
-      "lint": "echo 'lint: Checkstyle/Spotless not yet wired (tracked as F3); placeholder passes'"
+      "lint": "echo 'lint placeholder - Checkstyle/Spotless pending (F3)'"
     }
   },
   "github": {
@@ -445,29 +445,35 @@
             {
               "id": "feat-001-identity-tenancy.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
               "gate": "verify_green",
-              "started_at": "2026-07-22T20:37:29Z"
+              "started_at": "2026-07-22T20:37:29Z",
+              "completed_at": "2026-07-22T21:00:09Z"
             },
             {
               "id": "feat-001-identity-tenancy.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-07-22T21:00:25Z",
+              "completed_at": "2026-07-22T21:07:17Z"
             }
           ],
           "github": {
-            "issue": 1
+            "issue": 1,
+            "branch": "feature/identity-tenancy",
+            "pr": 2,
+            "merged": "develop"
           }
         },
         {
@@ -480,7 +486,7 @@
             {
               "id": "feat-002-identity-tenancy-web.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -489,12 +495,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/002-identity-tenancy-web/spec.md"
-              ]
+              ],
+              "started_at": "2026-07-22T21:10:32Z",
+              "completed_at": "2026-07-22T21:15:17Z"
             },
             {
               "id": "feat-002-identity-tenancy-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -504,12 +512,14 @@
               "produces": [
                 "features/002-identity-tenancy-web/plan.md",
                 "features/002-identity-tenancy-web/data-model.md"
-              ]
+              ],
+              "started_at": "2026-07-22T21:37:08Z",
+              "completed_at": "2026-07-22T21:37:08Z"
             },
             {
               "id": "feat-002-identity-tenancy-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -518,23 +528,151 @@
               "gate": "human_approval",
               "produces": [
                 "features/002-identity-tenancy-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-07-22T21:57:59Z",
+              "completed_at": "2026-07-22T22:03:33Z"
             },
             {
               "id": "feat-002-identity-tenancy-web.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "opus",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t1",
+                  "title": "T-01 — Scaffold Next.js + TypeScript app, ADF stylesheet & verify harness",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T22:07:48Z",
+                  "completed_at": "2026-07-22T22:15:35Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t2",
+                  "title": "T-02 — i18n provider (en/pt) with never-key resolution & coverage",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-22T22:16:13Z",
+                  "completed_at": "2026-07-22T22:18:05Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t3",
+                  "title": "T-03 — Login field validation (pure)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-22T22:18:05Z",
+                  "completed_at": "2026-07-22T22:21:48Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t4",
+                  "title": "T-04 — TokenStore (sessionStorage persistence seam)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-22T22:22:03Z",
+                  "completed_at": "2026-07-22T22:22:03Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t5",
+                  "title": "T-05 — API client + authFetch (Bearer, no tenant id, Problem->ApiError, 401 signal)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T22:22:03Z",
+                  "completed_at": "2026-07-22T22:24:28Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t6",
+                  "title": "T-06 — AuthProvider + useAuth (session state machine)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T22:24:28Z",
+                  "completed_at": "2026-07-22T22:49:51Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t7",
+                  "title": "T-07 — RouteGuard (redirects + intended-destination preservation)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-22T22:49:51Z",
+                  "completed_at": "2026-07-22T22:51:04Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t8",
+                  "title": "T-08 — LoginForm + /login page (ADF markup, wired validation, in-flight, verbatim error)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-22T22:51:04Z",
+                  "completed_at": "2026-07-22T23:04:39Z"
+                },
+                {
+                  "id": "feat-002-identity-tenancy-web.implement.t9",
+                  "title": "T-09 — (app) chrome: RouteGuard mount + BrandingBar tenant context + home + logout",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "opus",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-22T23:04:39Z",
+                  "completed_at": "2026-07-22T23:08:15Z"
+                }
+              ],
+              "started_at": "2026-07-22T23:08:19Z",
+              "completed_at": "2026-07-22T23:08:19Z"
             },
             {
               "id": "feat-002-identity-tenancy-web.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -543,34 +681,43 @@
               "gate": "audit_pass",
               "produces": [
                 "features/002-identity-tenancy-web/audit.md"
-              ]
+              ],
+              "started_at": "2026-07-22T23:10:52Z",
+              "completed_at": "2026-07-22T23:21:16Z"
             },
             {
               "id": "feat-002-identity-tenancy-web.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-07-23T01:12:37Z",
+              "completed_at": "2026-07-23T01:14:41Z"
             },
             {
               "id": "feat-002-identity-tenancy-web.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-07-23T01:35:39Z",
+              "completed_at": "2026-07-23T12:26:54Z"
             }
           ],
           "project": "notebox-web",
           "github": {
-            "issue": 1
+            "issue": 1,
+            "branch": "feature/identity-tenancy-web",
+            "pr": 2,
+            "merged": "develop"
           }
         }
       ]
