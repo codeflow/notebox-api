@@ -783,7 +783,7 @@
             {
               "id": "feat-003-annotation-types.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -935,7 +935,9 @@
                   "started_at": "2026-07-23T21:22:54Z",
                   "completed_at": "2026-07-23T21:28:21Z"
                 }
-              ]
+              ],
+              "started_at": "2026-07-23T21:33:23Z",
+              "completed_at": "2026-07-23T21:33:23Z"
             },
             {
               "id": "feat-003-annotation-types.audit",
