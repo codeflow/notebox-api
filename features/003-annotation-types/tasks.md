@@ -28,7 +28,7 @@
       - depends: — · parallel: yes
       - verify: `./mvnw test -Dtest=AnnotationTypeMessageCoverageTest`
 
-- [ ] **T-04 · Custom Bean Validation constraints + validators + validation-error contract**
+- [x] **T-04 · Custom Bean Validation constraints + validators + validation-error contract**
       - files: `api/validation/{ValidFieldType,OptionsAllowedForFieldType,BadgeColourAllowed,NumberBoundsValid,SecretAllowedForFieldType}.java` (+ their `ConstraintValidator`s), `api/error/ConstraintViolationMapper.java` (emits `violations[]` with localized messages), i18n message wiring to the request locale, `api/validation/ConstraintsTest.java`
       - covers: AD-07, C-09, BR-04 · scenarios: "Reject an unknown field type", "Reject options on a non-choice field", "Reject a badge colour outside the palette", "Reject a Number field whose min exceeds its max", "Reject Secret on a non-text field"
       - notes: custom constraints preferred over imperative checks; messages are dot-namespaced keys (`annotation.field.type.unknown`, …) interpolated per request locale; the mapper returns the `validation.failed` envelope + per-field violations
