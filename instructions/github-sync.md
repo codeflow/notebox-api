@@ -32,6 +32,22 @@ Always generate the payload with `bin/wf` rather than composing it yourself. Tha
 bodies, commit scopes and PR text consistent, and keeps the checklist in sync with real task
 status.
 
+## Applying the payload's metadata — every field, every time
+
+The payload prints ASSIGNEE / LABELS / MILESTONE / PROJECT / TYPE / REVIEWERS lines. None of
+them is decorative:
+
+| Line | How to apply |
+|---|---|
+| LABELS | **Create missing ones first** — `gh label create <l> --force` is idempotent; a create with a nonexistent label fails. Then `--label a --label b`. |
+| ASSIGNEE | `--assignee <user>`. |
+| MILESTONE | `--milestone "<name>"`. Missing on the repo? Create it (`gh api .../milestones -f title=…`) with confirmation, or drop with a note. |
+| PROJECT | `--project "<title>"` on create, or `gh project item-add` after. |
+| TYPE | Issue Types are org-level, GraphQL-only. Best-effort: `gh api graphql` setting `issueTypeId`; unsupported on the repo → skip with one note, never fail the flow. |
+| REVIEWERS | `--reviewer <user>` on PRs. **`(none configured — ask at submission)` means ASK** — see the review step. GitHub refuses the PR's own author as reviewer: when they match, skip the request with a note (the 👍+approve protocol still covers the approval). |
+| Relationships (issue body) | The generated section links same-US siblings. For true parent/child, `gh api graphql` sub-issue mutation — best-effort. |
+| Development | Filled by linking the branch to the issue — the publish step uses `gh issue develop` (below). |
+
 ## Permission — every outward action is confirmed
 
 Creating an issue, commenting, opening or merging a PR, and pushing are **outward-facing and

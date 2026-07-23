@@ -15,8 +15,17 @@ lives on GitHub — 👍 reaction + approving review — not in the agent's memo
 
 ## 1. Open the PR (first entry into this step)
 
-`./bin/wf github pr <feature-id>` prints TITLE/REPO/BASE/HEAD/BODY — BASE is the integration
-branch. Show the `gh pr create` command, get the yes, run it, `wf github link --pr N`.
+`./bin/wf github pr <feature-id>` prints TITLE/REPO/REVIEWERS/ASSIGNEE/LABELS/MILESTONE/PROJECT/
+BASE/HEAD/BODY — apply EVERY metadata line per `instructions/github-sync.md` (labels created
+first, milestone/project attached, etc.).
+
+**Reviewer resolution.** If REVIEWERS says `(none configured — ask at submission)`, ask with one
+card before creating: *"Quem revisa este PR?"* → options: the assignee (Recommended — usually the
+human themselves) · *leave blank* · type another handle via Other. Whatever the answer, remember:
+GitHub refuses the PR's own author as reviewer — if they match, note it and skip the request;
+the human's approval still arrives via the 👍+approve protocol below.
+
+Show the full `gh pr create` command, get the yes, run it, `wf github link --pr N`.
 The `pull_request` trigger runs build + test on the PR; report the checks status
 (`gh pr checks N`). Then hand over: PR link, three-line summary (what changed, what's risky,
 what the audit flagged), and **stop — the human reviews on GitHub.**
@@ -62,7 +71,14 @@ Chat approval must be explicit ("aprovado", "pode mergear"). A question or "olhe
 2. `./bin/wf github link <feature-id> --merged develop` — the feature is now on the integration
    branch, pending promotion.
 3. Update `catalogs/epics.md`: US → `delivered` (note: on develop). Move the board card.
-4. `wf done` this step, then **run `./bin/wf github pending` and REPORT it in the chat** — every
+4. **Living docs — every feature close, not just the release step:**
+   - `HANDOFF.md`: refresh the cold-start picture — what just landed (on develop), what
+     `wf next` points at now, anything blocked. Two minutes, every time; a stale handoff is
+     worse than none.
+   - `ROADMAP.md`: mark the US delivered (on develop; promotion pending).
+   - `MEMORY.md`: ONLY if this feature produced a durable, non-obvious fact (a decision with
+     its why, a trap discovered, an OQ answer that shapes the future). No routine entries.
+5. `wf done` this step, then **run `./bin/wf github pending` and REPORT it in the chat** — every
    implementation ends by telling the human which features sit on develop awaiting promotion
    (`/wf-promote <feature>`). This report is not optional.
 

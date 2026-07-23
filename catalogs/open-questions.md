@@ -127,6 +127,27 @@
 **Suggested path:** <how to resolve>
 **Status:** open.
 
+### OQ-14 — Type deletion when annotation records exist (block vs cascade)
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** When a member deletes an annotation type that owns records, is the delete blocked while records exist or does it cascade? No records exist until US-2.1/FR-04; feat-003 deletes only empty types. Must be settled before US-2.1 implements record deletion.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
+### OQ-15 — Secret text fields — encryption-at-rest mechanism, key management & PRD/constitution formalization
+**Severity:** 🟡 Important
+**Description:** <what is unknown and why it matters>
+**Impact:** New requirement (human decision 2026-07-23): Text/Free text fields can carry a 'Secret' flag; flagged VALUES are stored encrypted at rest and revealed in cleartext only to an elevated role, with each reveal audited (C-10). DECIDED: applies to Text+Free text; reveal=elevated role+audit. UNDECIDED (blocks US-2.1 value encryption + reveal endpoint): crypto algorithm (e.g. AES-256-GCM), key scope (single app key vs per-tenant), key storage (secret manager/KMS), rotation. Also REQUIRES a PRD v2 (new FR) + constitution update (new AD 'encryption at rest' + compliance C-item + BR) before US-2.1 implements it. feat-003 only adds the type-definition FLAG; encryption/decrypt/reveal + UI masking (field + datatable) are deferred to US-2.1 and the web features.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
+### OQ-16 — feat-001 error-handling/i18n realignment to constitution
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** feat-001 (identity, merged on develop) drifted from constitution 03-code-standards: it uses a single generic ApiException(code,status) with static factories and SCREAMING_SNAKE catalog keys (AUTH_INVALID_CREDENTIALS), instead of the mandated specific domain exceptions (line 84) and dot-namespaced i18n keys (line 25, e.g. annotation.type.name.required). feat-003+ follow the constitution; feat-001 should be realigned (specific exceptions extending a domain base + dot-namespaced keys + unify the ExceptionMapper) as a follow-up refactor. Does not block feat-003.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -146,6 +167,9 @@
 | 2026-07-22 | OQ-11 opened: Tenant & user provisioning mechanism |
 | 2026-07-23 | OQ-12 opened: Password-reset flow |
 | 2026-07-23 | OQ-13 opened: Remember-me persistence |
+| 2026-07-23 | OQ-14 opened: Type deletion when annotation records exist (block vs cascade) |
+| 2026-07-23 | OQ-15 opened: Secret text fields — encryption-at-rest mechanism, key management & PR |
+| 2026-07-23 | OQ-16 opened: feat-001 error-handling/i18n realignment to constitution |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

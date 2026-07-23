@@ -49,6 +49,7 @@ themselves: one cheap call returns the whole pipeline state as a compact banner.
   wf harness ci             generate .github/workflows/ci.yml from the signals
   wf github [status]        show GitHub config and per-feature issue/PR mapping
   wf github on --repo owner/name [--assignee user] [--project N] [--reviewers a,b]
+               [--labels "a,b"] [--milestone "MVP"] [--integration develop] [--branch main]
   wf github off             stop producing issues/PRs/comments/board updates
   wf github link <feature> [--issue N] [--pr N] [--branch B] [--card ID] [--merged develop|main]
   wf github issue|changelog <feature>      print the payload to hand to `gh`
@@ -153,23 +154,23 @@ DEFAULT_ENGINE = {
         "lifecycle": [
             {"key": "spec", "title": "Spec — what and why, in Gherkin",
              "instructions": "instructions/feature-spec.md",
-             "agent": {"model": "opus", "effort": "high"}, "gate": "human_approval",
+             "agent": {"model": "opus", "effort": "high", "subagent_type": "general-purpose"}, "gate": "human_approval",
              "produces": ["spec.md"]},
             {"key": "plan", "title": "Plan — how, with contracts",
              "instructions": "instructions/feature-plan.md",
-             "agent": {"model": "opus", "effort": "high"}, "gate": "human_approval",
+             "agent": {"model": "opus", "effort": "high", "subagent_type": "general-purpose"}, "gate": "human_approval",
              "produces": ["plan.md", "data-model.md"]},
             {"key": "tasks", "title": "Tasks — atomic and verifiable",
              "instructions": "instructions/feature-tasks.md",
-             "agent": {"model": "sonnet", "effort": "medium"}, "gate": "human_approval",
+             "agent": {"model": "sonnet", "effort": "medium", "subagent_type": "general-purpose"}, "gate": "human_approval",
              "produces": ["tasks.md"]},
             {"key": "implement", "title": "Implement — code + tests",
              "instructions": "instructions/feature-implement.md",
-             "agent": {"model": "sonnet", "effort": "high"}, "gate": "verify_green",
+             "agent": {"model": "sonnet", "effort": "high", "subagent_type": "general-purpose"}, "gate": "verify_green",
              "produces": []},
             {"key": "audit", "title": "Audit — adversarial check",
              "instructions": "instructions/feature-audit.md",
-             "agent": {"model": "opus", "effort": "xhigh"}, "gate": "audit_pass",
+             "agent": {"model": "opus", "effort": "xhigh", "subagent_type": "general-purpose"}, "gate": "audit_pass",
              "produces": ["audit.md"]},
             {"key": "review", "title": "Review — pull request & human verdict",
              "instructions": "instructions/feature-review.md",
@@ -1524,6 +1525,31 @@ def repo_of(doc, feat):
     return (doc.get("github") or {}).get("repo")
 
 
+def meta_lines(doc, feat, g, promotion=False):
+    """The metadata block shared by issue and PR payloads: assignee, labels
+    (config base + context), milestone, board project, and the issue Type.
+    Everything here is derived — the agent creates missing labels first
+    (gh label create --force) and applies what the target supports."""
+    us = re.search(r"\(US-([\d.]+)\)", (feat or {}).get("title", "")) if feat else None
+    labels = list(g.get("labels") or [])
+    labels.append("promotion" if promotion else "feature")
+    if us:
+        labels.append(f"us-{us.group(1)}")
+    if feat and feat.get("project"):
+        labels.append(feat["project"])
+    out = []
+    if g.get("assignee"):
+        out.append(f"ASSIGNEE\t{g['assignee']}")
+    out.append("LABELS\t" + ",".join(dict.fromkeys(labels)))
+    if g.get("milestone"):
+        out.append(f"MILESTONE\t{g['milestone']}")
+    proj = g.get("project") or {}
+    if proj.get("enabled") and proj.get("number"):
+        out.append(f"PROJECT\t{proj.get('owner') or g.get('repo', '').split('/')[0]}/{proj['number']}")
+    out.append("TYPE\t" + ("Task" if promotion else "Feature"))
+    return out
+
+
 def tasks_of(feature):
     """(title, done) for each task under the feature's implement step."""
     out = []
@@ -1557,6 +1583,12 @@ def cmd_github(args):
         rev = arg_value(rest, "--reviewers")
         if rev:
             g["reviewers"] = [r.strip() for r in rev.split(",") if r.strip()]
+        lab = arg_value(rest, "--labels")
+        if lab:
+            g["labels"] = [x.strip() for x in lab.split(",") if x.strip()]
+        mil = arg_value(rest, "--milestone")
+        if mil:
+            g["milestone"] = mil
         proj = arg_value(rest, "--project")
         if proj:
             g.setdefault("project", {})["enabled"] = True
@@ -1592,6 +1624,10 @@ def cmd_github(args):
         print(f"project      {('#' + str(proj.get('number'))) if proj.get('enabled') else '(off)'}")
         if g.get("reviewers"):
             print(f"reviewers    {', '.join(g['reviewers'])}")
+        if g.get("labels"):
+            print(f"labels       {', '.join(g['labels'])} (+ contextual: feature/promotion, us-X.Y, routed project)")
+        if g.get("milestone"):
+            print(f"milestone    {g['milestone']}")
         feats = [s for s, _, _ in walk(doc.get("steps", [])) if s.get("kind") == "feature"]
         if feats:
             print("\nfeature                 issue   pr    merged   branch")
@@ -1660,12 +1696,22 @@ def cmd_github(args):
         else:
             lines.append("_Tasks appear here once the `tasks` step decomposes the plan._")
         lines += ["", "---", "_Managed by the workflow pipeline. Do not renumber the step id._"]
+        # Relationships: sibling features of the same US, when their issues exist
+        us_tag = re.search(r"\(US-[\d.]+\)", feat.get("title", ""))
+        if us_tag:
+            sibs = [(s, (s.get("github") or {}).get("issue"))
+                    for s, _, _ in walk(doc.get("steps", []))
+                    if s.get("kind") == "feature" and s is not feat
+                    and us_tag.group(0) in s.get("title", "")]
+            linked = [f"#{n} (`{s['id']}`)" for s, n in sibs if n]
+            if linked:
+                lines += ["", "## Relationships", f"Same user story: {', '.join(linked)}"]
         print(f"TITLE\t{title}")
         repo = repo_of(doc, feat)
         if repo:
             print(f"REPO\t{repo}")
-        if g.get("assignee"):
-            print(f"ASSIGNEE\t{g['assignee']}")
+        for ml in meta_lines(doc, feat, g):
+            print(ml)
         print("BODY")
         print("\n".join(lines))
         return
@@ -1714,12 +1760,14 @@ def cmd_github(args):
             # Closes — the close happens at promotion (develop → trunk).
             keyword = "Closes" if base == g.get("default_branch", "main") else "Refs"
             lines += ["", f"{keyword} #{gh['issue']}"]
-        print(f"TITLE\tfeat({scope}): {title_txt}")
+        promotion = base == g.get("default_branch", "main") and head == g.get("integration_branch")
+        print(f"TITLE\t" + (f"promote({scope}): {title_txt}" if promotion else f"feat({scope}): {title_txt}"))
         repo = repo_of(doc, feat)
         if repo:
             print(f"REPO\t{repo}")
-        if g.get("reviewers"):
-            print(f"REVIEWERS\t{','.join(g['reviewers'])}")
+        print(f"REVIEWERS\t{','.join(g['reviewers']) if g.get('reviewers') else '(none configured — ask at submission)'}")
+        for ml in meta_lines(doc, feat, g, promotion=promotion):
+            print(ml)
         print(f"BASE\t{base}")
         print(f"HEAD\t{head}")
         print("BODY")

@@ -16,6 +16,10 @@ gate: verify_green
 
 1. Resolve the branch name: `feature/<slug>` (the feature's slug; for routed features, work in
    the satellite and use its repo). Record it: `wf github link <feat> --branch feature/<slug>`.
+   **If the feature has a linked issue, create the branch through it** so the issue's
+   *Development* field is populated:
+   `gh issue develop <issue-N> --name feature/<slug> --base <integration-branch>` then
+   `git fetch origin && git switch feature/<slug>`. No issue linked → plain `git switch -c`.
 2. **Propose the git batch** — exact commands, one confirmation:
    - `git switch -c feature/<slug>` off the integration branch (`github.integration_branch`,
      default `develop`; create `develop` from the trunk if it does not exist yet — say so).

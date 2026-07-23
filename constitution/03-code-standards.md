@@ -83,6 +83,16 @@ import jakarta.transaction.Transactional;
 ## Errors & logging
 - **Domain** throws domain exceptions (e.g. `TenantIsolationException`, `AnnotationSchemaException`); it
   never returns HTTP concerns. **`api`** maps exceptions to HTTP responses.
+- **A specific exception type per error condition** — `AnnotationTypeNotFoundException`,
+  `AnnotationTypeNameTakenException`, `ImageTooLargeException`, … — **not** a single catch-all carrying a
+  string code. Specific exceptions extend a domain base (`domain/error/`, HTTP-free) and are translated to
+  status + localized message by an `ExceptionMapper` per family (AD-11 — still one wire shape).
+- **Input validation is declarative Bean Validation** at the `api` edge (AD-07), **preferring custom
+  constraint annotations** (`@SecretAllowedForFieldType`, `@OptionsAllowedForFieldType`,
+  `@BadgeColourAllowed`, `@NumberBoundsValid`, …) over imperative checks. Every constraint message is a
+  **dot-namespaced i18n key** (line 25) resolved to the request locale (en+pt, C-09/BR-08); a validation
+  response carries the per-field violations. **Stateful** checks a constraint cannot express (uniqueness,
+  existence) are specific exceptions raised in `application`.
 - **One error shape** on the wire: a problem response with a stable machine `code` and a **localized**
   `message` resolved through the catalog (AD-05, BR-08). Never leak stack traces, SQL, or entity internals.
 - Exceptions are never swallowed silently. **Structured logging with a correlation id**; never log secrets,

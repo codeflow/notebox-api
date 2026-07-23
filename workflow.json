@@ -45,7 +45,9 @@
     "repo": "codeflow/notebox-api",
     "default_branch": "main",
     "assignee": "rafaelsantos",
-    "reviewers": [],
+    "reviewers": [
+      "rafaelsantos"
+    ],
     "commit_convention": "conventional",
     "artifacts": {
       "readme": "README.md",
@@ -61,7 +63,9 @@
       "comment_on_gate": true,
       "changelog_on": "audit_pass"
     },
-    "integration_branch": "develop"
+    "integration_branch": "develop",
+    "labels": [],
+    "milestone": ""
   },
   "defaults": {
     "agent": {
@@ -719,6 +723,341 @@
             "pr": 2,
             "merged": "develop"
           }
+        },
+        {
+          "id": "feat-003-annotation-types",
+          "title": "Define annotation types with icon and typed fields (US-1.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-003-annotation-types.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/003-annotation-types/spec.md"
+              ],
+              "started_at": "2026-07-23T14:23:39Z",
+              "completed_at": "2026-07-23T15:22:22Z"
+            },
+            {
+              "id": "feat-003-annotation-types.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/003-annotation-types/plan.md",
+                "features/003-annotation-types/data-model.md"
+              ],
+              "started_at": "2026-07-23T16:09:00Z",
+              "completed_at": "2026-07-23T16:36:34Z"
+            },
+            {
+              "id": "feat-003-annotation-types.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/003-annotation-types/tasks.md"
+              ],
+              "started_at": "2026-07-23T18:30:57Z",
+              "completed_at": "2026-07-23T18:54:09Z"
+            },
+            {
+              "id": "feat-003-annotation-types.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-003-annotation-types.implement.t1",
+                  "title": "T-01 — Domain enums FieldType + BadgeColour",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t2",
+                  "title": "T-02 — Persistence schema + aggregate entities + tenant-scoped repository",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t3",
+                  "title": "T-03 — Domain exception hierarchy + mapper + i18n (en/pt dot-namespaced)",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t4",
+                  "title": "T-04 — Custom Bean Validation constraints + violation contract",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t5",
+                  "title": "T-05 — Image storage: entity + repository + ImageService + specific exceptions",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t6",
+                  "title": "T-06 — Image REST endpoints (upload + serve)",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t7",
+                  "title": "T-07 — Request/response DTOs annotated with constraints",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t8",
+                  "title": "T-08 — AnnotationTypeService: create/list/get + stateful exceptions",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t9",
+                  "title": "T-09 — AnnotationTypeService: replace + delete with audit",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t10",
+                  "title": "T-10 — AnnotationTypeResource HTTP CRUD",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-003-annotation-types.implement.t11",
+                  "title": "T-11 — API docs: smallrye-openapi + coverage",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "feat-003-annotation-types.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/003-annotation-types/audit.md"
+              ]
+            },
+            {
+              "id": "feat-003-annotation-types.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-003-annotation-types.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ]
+        },
+        {
+          "id": "feat-004-annotation-types-web",
+          "title": "Annotation type builder UI (US-1.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-004-annotation-types-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/004-annotation-types-web/spec.md"
+              ]
+            },
+            {
+              "id": "feat-004-annotation-types-web.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/004-annotation-types-web/plan.md",
+                "features/004-annotation-types-web/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-004-annotation-types-web.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/004-annotation-types-web/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-004-annotation-types-web.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-004-annotation-types-web.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh",
+                "subagent_type": "general-purpose"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/004-annotation-types-web/audit.md"
+              ]
+            },
+            {
+              "id": "feat-004-annotation-types-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-004-annotation-types-web.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
         }
       ]
     },

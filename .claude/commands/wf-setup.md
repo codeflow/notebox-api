@@ -62,8 +62,12 @@ project name (confirm, don't ask open-ended); do not invent a stack — ask for 
    - *From a GitHub URL…* — the human pastes the repo URL of an SDD tool; the apply phase
      downloads and learns it (see § 4).
    A fresh project has NO SDD folders yet — the chosen engine's scaffold materializes them.
-6. **GitHub** — "Track the work on GitHub (issues, PRs, board)?" → on/off. If on, ask for
-   `owner/name`, the assignee username, and optionally the Projects v2 number.
+6. **GitHub** — "Track the work on GitHub (issues, PRs, board)?" → on/off. If on, collect:
+   `owner/name`; the **assignee** username; the **reviewer** for PRs (default: the human
+   themselves — note that GitHub can't request the PR's author, so when they match the request
+   is skipped and their approval comes via the 👍+approve protocol); an optional **milestone**
+   name for the current cycle; optional base **labels**; optionally the Projects v2 number.
+   Apply via `wf github on --repo … --assignee … --reviewers … --milestone … --labels … --project N`.
 7. **Workspace (satellite projects)** — "Is this product split across several repos
    (e.g. users-web, users-mobile alongside this one)?" → *No — single project (Recommended for
    one repo)* · *Yes — connect existing projects* · *Yes — create new ones*. If yes, collect the

@@ -11,6 +11,11 @@ gate: none
 
 **Goal.** Leave the project resumable by someone — or some context — that was not here.
 
+> This step is the **final comprehensive pass**, not the only writer: HANDOFF/ROADMAP get a
+> small refresh at every feature close (review step) and at every promotion, and MEMORY grows
+> opportunistically whenever a durable decision lands. Here you make them pass the cold-start
+> test as a whole.
+
 ## HANDOFF.md
 
 Written for a reader with zero context. It must answer, without them opening anything else:

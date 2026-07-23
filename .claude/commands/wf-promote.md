@@ -53,7 +53,9 @@ Check `gh pr view <N> --json state,reviews,reactionGroups,mergedAt`:
 3. **Confirm the issues auto-closed** (`gh issue view <N>` → closed). One missing a `Closes`
    line in the body? Close it now, with a comment linking the promotion PR.
 4. Update `catalogs/epics.md` notes (delivered → on main) and move board cards.
-5. `./bin/wf github pending` — should now say nothing is pending; report the final state.
+5. Refresh `ROADMAP.md` (features now on main) and the `HANDOFF.md` state line — promotion is a
+   milestone worth two lines in each.
+6. `./bin/wf github pending` — should now say nothing is pending; report the final state.
 
 ## Guardrails
 

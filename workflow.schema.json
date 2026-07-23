@@ -254,7 +254,16 @@
         "reviewers": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Usernames requested as reviewers on the feature PRs."
+          "description": "Usernames requested as reviewers on the feature PRs. GitHub refuses the PR's own author as reviewer — when that happens the request is skipped with a note and the 👍+approve protocol still applies."
+        },
+        "labels": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Base labels applied to every issue/PR, on top of the contextual ones the payloads add (feature, us-X.Y, the routed project, promotion)."
+        },
+        "milestone": {
+          "type": "string",
+          "description": "Current milestone name; applied to issues and PRs while set. Update per release cycle."
         },
         "commit_convention": {
           "enum": ["conventional", "none"],
