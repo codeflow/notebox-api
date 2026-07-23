@@ -56,7 +56,7 @@
       - depends: T-01, T-04 · parallel: yes
       - verify: `./mvnw test -Dtest=AnnotationTypeDtoTest`
 
-- [ ] **T-08 · `AnnotationTypeService`: create / list / get + stateful specific exceptions**
+- [x] **T-08 · `AnnotationTypeService`: create / list / get + stateful specific exceptions**
       - files: `application/annotation/AnnotationTypeService.java`, `domain/error/{AnnotationTypeNotFoundException,AnnotationTypeNameTakenException}.java`, `application/annotation/AnnotationTypeServiceTest.java`
       - covers: FR-01, FR-02, FR-03, BR-03 · scenarios: "Type name is unique within a tenant" (`AnnotationTypeNameTakenException`), "The same type name may exist in two different tenants", "All seven field types are accepted", visible-default & secret-default resolution, "Mark a Text/Free text field as Secret"
       - notes: `@ApplicationScoped` + `@Transactional`; applies D2 visibility & `secret` default; uniqueness pre-check → `AnnotationTypeNameTakenException`; validates referenced `iconImageId` in-tenant (`ImageNotFoundException`); `get` throws `AnnotationTypeNotFoundException`
