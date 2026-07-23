@@ -82,16 +82,28 @@ type list later gains pagination; orphan-image cleanup policy.
   reversible and keeps the blast radius to one subsystem.
 
 ## Blast radius
-**New — additive, no behavioural change to feat-001:** all `domain`/`application`/`api`/`infrastructure`
-files listed above; `V2__annotation_types.sql`.
+**New — additive:** all `domain`/`application`/`api`/`infrastructure` files listed above;
+`V2__annotation_types.sql`.
 **Modified (additive lines only):**
-- `messages.properties`, `messages_pt.properties` — new error keys (en + pt).
-- `application.properties` — `notebox.image.max-bytes=5242880`, allowed content-types config.
-- `pom.xml` — add **`quarkus-smallrye-openapi`** (NFR-06 contract docs). No other extension: `@Lob`/BLOB
-  uses the existing `quarkus-hibernate-orm`; raw-binary upload uses the existing `quarkus-rest`.
-**Consumers:** `notebox-web` (feat-004) codes against `contracts/rest-api.md`. No existing consumer of the
-API changes (this is net-new surface). Reused unchanged: `TenantScopedRepository`, `TenantContext`,
-`JwtTenantFilter`, `ApiExceptionMapper`, `MessageResolver`, `LocaleResolver`.
+- `messages.properties`, `messages_pt.properties` — new dot-namespaced keys (en + pt).
+- `application.properties` — image limits + body-size config.
+- `pom.xml` — add **`quarkus-smallrye-openapi`** (NFR-06). No other extension: `@Lob`/BLOB uses the
+  existing `quarkus-hibernate-orm`; raw-binary upload uses the existing `quarkus-rest`.
+
+**One feat-001 file changed — a deviation from the original "no feat-001 change" claim, recorded here
+after the audit (F2/F3):** `api/error/ValidationExceptionMapper.java` was **deleted**. It and feat-003's
+new `ConstraintViolationMapper` both mapped `ConstraintViolationException`; the collision made the old
+`VALIDATION_FAILED` shape win, blocking the constitution-mandated `validation.failed` + per-field i18n
+violations. Deleting it unifies validation app-wide. The unified mapper resolves each message
+**defensively** (a non-catalog default message degrades to a plain 400, never a 500), so feat-001's
+endpoints — whose DTOs still use Bean Validation default messages — keep working; migrating those DTOs to
+dot-keys for full per-field localization is tracked in **OQ-16**. This is the forced subset of the OQ-16
+realignment; no feat-001 test regresses, and `notebox-web` does not key on `VALIDATION_FAILED` (grep-checked).
+
+**Consumers:** `notebox-web` (feat-004) codes against `contracts/rest-api.md`. The one behavioural change to
+an existing surface is feat-001's validation-error envelope (now `validation.failed` + violations), verified
+harmless for the current web consumer. Reused unchanged: `TenantScopedRepository`, `TenantContext`,
+`JwtTenantFilter`, `ApiExceptionMapper`, `DomainExceptionMapper`, `MessageResolver`, `LocaleResolver`.
 
 ## Risk
 | Risk | Signal that reveals it |

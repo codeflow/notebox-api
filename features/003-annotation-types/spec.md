@@ -195,7 +195,8 @@ Feature: FR-07 Type and field icon images
     When they set a 200 KB PNG as the icon of type "RabbitMQ"
     Then the icon is stored as a binary with its content type
     And it is retrievable from the dedicated binary endpoint with content type image/png
-    And a thumbnail rendition is available
+    And the response carries the size metadata the client needs to render a thumbnail
+    # Thumbnail downscaling is a notebox-web rendering concern (AD-04); the API serves the original + metadata.
 
   Scenario: Reject an oversize icon
     Given an authenticated member of tenant A
