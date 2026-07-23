@@ -107,7 +107,9 @@ public class AnnotationTypeService {
                         ? input.visibleForViewing()
                         : fieldType.defaultVisibleForViewing());
         field.setSecret(Boolean.TRUE.equals(input.secret()));
-        field.setNumberBounds(input.numberMin(), input.numberMax());
+        if (fieldType == FieldType.NUMBER) {
+            field.setNumberBounds(input.numberMin(), input.numberMax());
+        }
         for (FieldOptionInput option : input.optionsOrEmpty()) {
             BadgeColour colour = option.badgeColour() == null ? null : BadgeColour.valueOf(option.badgeColour());
             field.addOption(new FieldOption(option.label(), colour));

@@ -2,6 +2,7 @@ package com.notebox.api.api.error;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.UUID;
 
 import jakarta.validation.ConstraintViolation;
@@ -42,7 +43,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
                 .toList();
         ValidationProblem problem = new ValidationProblem(
                 "validation.failed",
-                messages.resolve("validation.failed", locale),
+                localize("validation.failed", locale),
                 UUID.randomUUID().toString(),
                 violations);
         return Response.status(Response.Status.BAD_REQUEST).entity(problem).build();
@@ -50,6 +51,19 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
 
     private Violation toViolation(ConstraintViolation<?> violation, Locale locale) {
         String key = violation.getMessage();
-        return new Violation(violation.getPropertyPath().toString(), key, messages.resolve(key, locale));
+        return new Violation(violation.getPropertyPath().toString(), key, localize(key, locale));
+    }
+
+    /**
+     * Resolves a constraint message key to the request locale, degrading gracefully: a constraint that
+     * carries a non-catalog default message (e.g. Bean Validation's own "must not be blank") returns
+     * that text as-is instead of throwing, so no validation failure ever becomes a 500.
+     */
+    private String localize(String key, Locale locale) {
+        try {
+            return messages.resolve(key, locale);
+        } catch (MissingResourceException notACatalogKey) {
+            return key;
+        }
     }
 }
