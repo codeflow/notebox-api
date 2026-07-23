@@ -70,7 +70,7 @@
       - depends: T-08 · parallel: no  *(same service file as T-08)*
       - verify: `./mvnw test -Dtest=AnnotationTypeDeleteTest`
 
-- [ ] **T-10 · `AnnotationTypeResource` — HTTP CRUD (POST/GET/GET{id}/PUT/DELETE), authenticated + tenant-scoped**
+- [x] **T-10 · `AnnotationTypeResource` — HTTP CRUD (POST/GET/GET{id}/PUT/DELETE), authenticated + tenant-scoped**
       - files: `api/AnnotationTypeResource.java`, `api/AnnotationTypeResourceTest.java`
       - covers: FR-01, C-01, C-02 · scenarios: "Create a type with ordered fields" (HTTP), "A foreign tenant cannot read/modify/delete another tenant's type" (404 via `AnnotationTypeNotFoundException`), "Reject an unauthenticated request" (401), delete → 204; plus HTTP round-trip of the T-04 validation violations
       - notes: `@Authenticated`; `@Valid` bodies (triggers the custom constraints); RestAssured tests mint tokens via `TestTokens` + `TestData`
