@@ -959,13 +959,15 @@
             {
               "id": "feat-003-annotation-types.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-07-23T22:07:57Z",
+              "completed_at": "2026-07-23T22:11:27Z"
             },
             {
               "id": "feat-003-annotation-types.review",
