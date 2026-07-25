@@ -21,14 +21,17 @@ import com.notebox.api.domain.AnnotationType;
 import com.notebox.api.domain.AnnotationValue;
 import com.notebox.api.domain.AuditLog;
 import com.notebox.api.domain.FieldOption;
+import com.notebox.api.domain.Role;
 import com.notebox.api.domain.TypeField;
 import com.notebox.api.domain.error.AnnotationRecordFieldUnknownException;
 import com.notebox.api.domain.error.AnnotationRecordNotFoundException;
+import com.notebox.api.domain.error.AnnotationRecordRevealNotSecretException;
 import com.notebox.api.domain.error.AnnotationRecordValueImageNotFoundException;
 import com.notebox.api.domain.error.AnnotationRecordValueOptionUnknownException;
 import com.notebox.api.domain.error.AnnotationRecordValueOutOfBoundsException;
 import com.notebox.api.domain.error.AnnotationRecordValueTypeMismatchException;
 import com.notebox.api.domain.error.AnnotationTypeNotFoundException;
+import com.notebox.api.domain.error.SecretRevealForbiddenException;
 import com.notebox.api.infrastructure.persistence.AnnotationRecordRepository;
 import com.notebox.api.infrastructure.persistence.AnnotationTypeRepository;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
@@ -45,6 +48,7 @@ public class AnnotationRecordService {
 
     private static final String TARGET_ANNOTATION_RECORD = "ANNOTATION_RECORD";
     private static final String ACTION_RECORD_DELETED = "ANNOTATION_RECORD_DELETED";
+    private static final String ACTION_SECRET_REVEALED = "ANNOTATION_RECORD_SECRET_REVEALED";
 
     private final AnnotationRecordRepository records;
     private final AnnotationTypeRepository types;
@@ -100,6 +104,30 @@ public class AnnotationRecordService {
         records.remove(record);
         auditLog.persistInTenant(new AuditLog(
                 tenant.tenantId(), tenant.userId(), ACTION_RECORD_DELETED, TARGET_ANNOTATION_RECORD, id));
+    }
+
+    /**
+     * Reveals the cleartext of one Secret value, gated to the elevated reveal role (Tenant
+     * administrator) and audited (FR-18, BR-10, C-03, C-10, C-12).
+     */
+    @Transactional
+    public String reveal(UUID recordId, UUID fieldId) {
+        if (tenant.role() != Role.ADMIN) {
+            throw new SecretRevealForbiddenException();
+        }
+        AnnotationRecord record = get(recordId);
+        AnnotationValue value = record.getValues().stream()
+                .filter(v -> v.getTypeFieldId().equals(fieldId))
+                .findFirst()
+                .orElseThrow(AnnotationRecordRevealNotSecretException::new);
+        if (!value.isSecret()) {
+            throw new AnnotationRecordRevealNotSecretException();
+        }
+        String cleartext = cipher.decrypt(
+                new EncryptedValue(value.getSecretCiphertext(), value.getSecretIv(), value.getSecretKeyVersion()));
+        auditLog.persistInTenant(new AuditLog(
+                tenant.tenantId(), tenant.userId(), ACTION_SECRET_REVEALED, TARGET_ANNOTATION_RECORD, recordId));
+        return cleartext;
     }
 
     private AnnotationType requireType(UUID typeId) {

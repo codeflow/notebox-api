@@ -41,7 +41,7 @@
       - depends: T-04 · parallel: no  *(same service file)*
       - verify: `./mvnw test -Dtest=AnnotationRecordDeleteTest`
 
-- [ ] **T-06 · Reveal a secret value — ADMIN-gated, decrypts, audited**
+- [x] **T-06 · Reveal a secret value — ADMIN-gated, decrypts, audited**
       - files: `application/annotation/AnnotationRecordService.java` (reveal), `application/annotation/AnnotationRecordRevealTest.java`
       - covers: FR-18, BR-10, C-03, C-10, C-12 · scenarios: "Reveal returns cleartext to the elevated role and is audited", "Reveal is denied to a plain member"
       - notes: require `tenantContext.role()==Role.ADMIN` else `SecretRevealForbiddenException` (403); field must be Secret + hold a value (else `annotation.record.reveal.not_secret`, 400); decrypt via cipher; `AuditLog(ACTION_SECRET_REVEALED, …)`
