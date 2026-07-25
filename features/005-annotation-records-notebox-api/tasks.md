@@ -55,7 +55,7 @@
       - depends: T-01, T-03 · parallel: yes  *(different file from the records service)*
       - verify: `./mvnw test -Dtest=AnnotationTypeDeleteGuardTest`
 
-- [ ] **T-08 · REST resource + DTOs (input/dto/reveal) + masking + OpenAPI + HTTP/tenant-isolation e2e**
+- [x] **T-08 · REST resource + DTOs (input/dto/reveal) + masking + OpenAPI + HTTP/tenant-isolation e2e**
       - files: `api/AnnotationRecordResource.java`, `api/dto/AnnotationRecordInput.java`, `api/dto/AnnotationValueInput.java`, `api/dto/AnnotationRecordDto.java`, `api/dto/AnnotationValueDto.java`, `api/dto/RevealResponse.java`, `api/AnnotationRecordResourceTest.java`, `api/OpenApiCoverageTest.java`
       - covers: FR-04, FR-06, FR-18, NFR-06, NFR-01, C-01, C-02, C-03 · scenarios: "Reject a record with no name", "Ordinary read masks a secret value" (wire), reveal (admin ok / member forbidden), "A member cannot create a record for another tenant's type", "A member cannot read, update, or delete another tenant's record"
       - notes: `@Path("/annotation-records")`, class `@Authenticated`, methods `@Transactional` + `@Valid`; `from(record,type)` orders values by field position, masks secrets; `RevealResponse` cleartext only from `…/reveal`; tokens via `TestTokens`, tenants via `TestData`; extend `OpenApiCoverageTest` for the 5 endpoints

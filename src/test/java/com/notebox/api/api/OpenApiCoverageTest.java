@@ -20,4 +20,16 @@ class OpenApiCoverageTest {
         assertTrue(document.contains("annotation-types"), "annotation-types endpoints missing from OpenAPI");
         assertTrue(document.contains("images"), "image endpoints missing from OpenAPI");
     }
+
+    @Test
+    void openApiDocumentsAnnotationRecordEndpoints() {
+        String document = given().accept("application/json")
+                .when().get("/q/openapi")
+                .then().statusCode(200)
+                .extract().asString();
+
+        assertTrue(document.contains("annotation-records"), "annotation-records endpoints missing from OpenAPI");
+        assertTrue(document.contains("/annotation-records/{id}/values/{fieldId}/reveal"),
+                "reveal endpoint missing from OpenAPI");
+    }
 }
