@@ -13,7 +13,7 @@
       - depends: — · parallel: no  *(defines the schema — risk-first)*
       - verify: `./mvnw test -Dtest=AnnotationRecordRepositoryTest`
 
-- [ ] **T-02 · Secret cipher port + AES-256-GCM impl + versioned-key config**
+- [x] **T-02 · Secret cipher port + AES-256-GCM impl + versioned-key config**
       - files: `application/crypto/SecretValueCipher.java`, `application/crypto/EncryptedValue.java`, `infrastructure/security/AesGcmSecretValueCipher.java`, `resources/application.properties` (crypto keyring), `.env.example`, `infrastructure/security/AesGcmSecretValueCipherTest.java`
       - covers: FR-18, BR-10, AD-14, C-05, C-12 · scenario: "A secret value is stored as ciphertext, never cleartext" (encrypt/decrypt round-trip; ciphertext ≠ plaintext; IV + key-version present)
       - notes: AES-256-GCM, fresh 12-byte IV/value, 128-bit tag; keyring `notebox.crypto.keys.<v>` + `active-key-version`, dev/test default + `%prod` env override (mirror JWT-key pattern); `javax.crypto` used only under `infrastructure/`; fail fast if active key missing
