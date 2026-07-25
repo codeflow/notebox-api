@@ -20,7 +20,7 @@
       - depends: — · parallel: yes
       - verify: `./mvnw test -Dtest=AesGcmSecretValueCipherTest`
 
-- [ ] **T-03 · Domain exceptions + `ErrorCategory.FORBIDDEN` (403) + mapper + i18n keys (en/pt)**
+- [x] **T-03 · Domain exceptions + `ErrorCategory.FORBIDDEN` (403) + mapper + i18n keys (en/pt)**
       - files: `domain/error/ErrorCategory.java` (+FORBIDDEN), `domain/error/AnnotationRecordNotFoundException.java`, `domain/error/SecretRevealForbiddenException.java`, `domain/error/AnnotationTypeHasRecordsException.java`, `api/error/DomainExceptionMapper.java` (+403), `resources/messages.properties`, `resources/messages_pt.properties`, `infrastructure/i18n/AnnotationRecordMessageCoverageTest.java`
       - covers: constitution §Errors, C-09 · underpins the reveal-forbidden, record-not-found, type-has-records, and value-conformance keys
       - notes: keys `annotation.record.*` + `annotation.type.has_records`; mapper adds `FORBIDDEN→403`; coverage test asserts every new key in **en and pt**

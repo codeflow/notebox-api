@@ -1502,13 +1502,15 @@
                   "id": "feat-005-annotation-records-notebox-api.implement.t3",
                   "title": "T-03 — Domain exceptions + ErrorCategory.FORBIDDEN + mapper + i18n keys",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high",
                     "isolation": "worktree"
-                  }
+                  },
+                  "started_at": "2026-07-25T02:36:31Z",
+                  "completed_at": "2026-07-25T12:57:45Z"
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t4",

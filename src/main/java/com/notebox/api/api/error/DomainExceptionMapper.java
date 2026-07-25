@@ -45,6 +45,7 @@ public class DomainExceptionMapper implements ExceptionMapper<DomainException> {
             case NOT_FOUND -> 404;
             case CONFLICT -> 409;
             case INVALID -> 400;
+            case FORBIDDEN -> 403;
         };
     }
 }

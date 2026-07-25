@@ -4,5 +4,6 @@ package com.notebox.api.domain.error;
 public enum ErrorCategory {
     NOT_FOUND,
     CONFLICT,
-    INVALID
+    INVALID,
+    FORBIDDEN
 }
