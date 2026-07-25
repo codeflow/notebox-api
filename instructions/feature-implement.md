@@ -45,7 +45,9 @@ amend the plan.
 ## Routed features — the work happens in the satellite
 
 If the feature step carries a `project` field, the code lives in THAT workspace project, not in
-the hub. Before the first task:
+the hub. **If that satellite ships a design reference (e.g. `design/handoff/`), the UI must match
+it** — read its `README.md` and open its flow HTML in a browser when unsure; never infer pixels
+from the PNG prints. Before the first task:
 
 1. Read the satellite's own `workflow.json` (path in the hub's `workspace.projects[]`). Its
    `harness.verify` is the green/red signal for THIS feature — the hub's verify is for the
