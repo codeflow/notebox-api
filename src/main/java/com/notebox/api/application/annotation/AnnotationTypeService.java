@@ -16,9 +16,11 @@ import com.notebox.api.domain.BadgeColour;
 import com.notebox.api.domain.FieldOption;
 import com.notebox.api.domain.FieldType;
 import com.notebox.api.domain.TypeField;
+import com.notebox.api.domain.error.AnnotationTypeHasRecordsException;
 import com.notebox.api.domain.error.AnnotationTypeNameTakenException;
 import com.notebox.api.domain.error.AnnotationTypeNotFoundException;
 import com.notebox.api.domain.error.ImageNotFoundException;
+import com.notebox.api.infrastructure.persistence.AnnotationRecordRepository;
 import com.notebox.api.infrastructure.persistence.AnnotationTypeRepository;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
 import com.notebox.api.infrastructure.security.TenantContext;
@@ -35,16 +37,19 @@ public class AnnotationTypeService {
     private static final String ACTION_TYPE_DELETED = "ANNOTATION_TYPE_DELETED";
 
     private final AnnotationTypeRepository repository;
+    private final AnnotationRecordRepository records;
     private final AuditLogRepository auditLog;
     private final ImageService images;
     private final TenantContext tenant;
 
     public AnnotationTypeService(
             AnnotationTypeRepository repository,
+            AnnotationRecordRepository records,
             AuditLogRepository auditLog,
             ImageService images,
             TenantContext tenant) {
         this.repository = repository;
+        this.records = records;
         this.auditLog = auditLog;
         this.images = images;
         this.tenant = tenant;
@@ -86,10 +91,16 @@ public class AnnotationTypeService {
         return type;
     }
 
-    /** Deletes an (empty) type irreversibly and records the action in the audit trail (BR-05, C-10). */
+    /**
+     * Deletes an (empty) type irreversibly and records the action in the audit trail (BR-05, C-10).
+     * Blocked while the type still owns records (OQ-14): they must be deleted first.
+     */
     @Transactional
     public void delete(UUID id) {
         AnnotationType type = get(id);
+        if (records.existsByType(id)) {
+            throw new AnnotationTypeHasRecordsException();
+        }
         type.getFields().size(); // initialize children so the cascade delete removes them
         repository.remove(type);
         auditLog.persistInTenant(

@@ -48,7 +48,7 @@
       - depends: T-02, T-03, T-04 · parallel: no  *(same service file)*
       - verify: `./mvnw test -Dtest=AnnotationRecordRevealTest`
 
-- [ ] **T-07 · Type-delete guard (OQ-14) in `AnnotationTypeService`**
+- [x] **T-07 · Type-delete guard (OQ-14) in `AnnotationTypeService`**
       - files: `application/annotation/AnnotationTypeService.java` (guard), `application/annotation/AnnotationTypeDeleteGuardTest.java`
       - covers: OQ-14, BR-05 · scenarios: "Deleting a type that owns records is rejected", "Deleting a type with no records still succeeds"
       - notes: before remove, `if (annotationRecordRepository.existsByType(id)) throw new AnnotationTypeHasRecordsException()` (409 `annotation.type.has_records`); empty-type path unchanged (feat-003 behaviour)
