@@ -19,6 +19,7 @@ import com.notebox.api.application.crypto.SecretValueCipher;
 import com.notebox.api.domain.AnnotationRecord;
 import com.notebox.api.domain.AnnotationType;
 import com.notebox.api.domain.AnnotationValue;
+import com.notebox.api.domain.AuditLog;
 import com.notebox.api.domain.FieldOption;
 import com.notebox.api.domain.TypeField;
 import com.notebox.api.domain.error.AnnotationRecordFieldUnknownException;
@@ -30,6 +31,7 @@ import com.notebox.api.domain.error.AnnotationRecordValueTypeMismatchException;
 import com.notebox.api.domain.error.AnnotationTypeNotFoundException;
 import com.notebox.api.infrastructure.persistence.AnnotationRecordRepository;
 import com.notebox.api.infrastructure.persistence.AnnotationTypeRepository;
+import com.notebox.api.infrastructure.persistence.AuditLogRepository;
 import com.notebox.api.infrastructure.security.TenantContext;
 
 /**
@@ -41,8 +43,12 @@ import com.notebox.api.infrastructure.security.TenantContext;
 @ApplicationScoped
 public class AnnotationRecordService {
 
+    private static final String TARGET_ANNOTATION_RECORD = "ANNOTATION_RECORD";
+    private static final String ACTION_RECORD_DELETED = "ANNOTATION_RECORD_DELETED";
+
     private final AnnotationRecordRepository records;
     private final AnnotationTypeRepository types;
+    private final AuditLogRepository auditLog;
     private final ImageService images;
     private final SecretValueCipher cipher;
     private final TenantContext tenant;
@@ -50,11 +56,13 @@ public class AnnotationRecordService {
     public AnnotationRecordService(
             AnnotationRecordRepository records,
             AnnotationTypeRepository types,
+            AuditLogRepository auditLog,
             ImageService images,
             SecretValueCipher cipher,
             TenantContext tenant) {
         this.records = records;
         this.types = types;
+        this.auditLog = auditLog;
         this.images = images;
         this.cipher = cipher;
         this.tenant = tenant;
@@ -83,6 +91,15 @@ public class AnnotationRecordService {
         record.setName(input.name());
         record.replaceValues(toValues(type, input.valuesOrEmpty()));
         return record;
+    }
+
+    /** Deletes a record irreversibly and records the action in the audit trail (FR-06, BR-05, C-10). */
+    @Transactional
+    public void delete(UUID id) {
+        AnnotationRecord record = get(id);
+        records.remove(record);
+        auditLog.persistInTenant(new AuditLog(
+                tenant.tenantId(), tenant.userId(), ACTION_RECORD_DELETED, TARGET_ANNOTATION_RECORD, id));
     }
 
     private AnnotationType requireType(UUID typeId) {

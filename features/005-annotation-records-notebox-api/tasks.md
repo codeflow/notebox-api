@@ -34,7 +34,7 @@
       - depends: T-01, T-02, T-03 · parallel: no
       - verify: `./mvnw test -Dtest=AnnotationRecordServiceTest`
 
-- [ ] **T-05 · Delete a record — explicit, irreversible, audited**
+- [x] **T-05 · Delete a record — explicit, irreversible, audited**
       - files: `application/annotation/AnnotationRecordService.java` (delete), `application/annotation/AnnotationRecordDeleteTest.java`
       - covers: FR-06, BR-05, C-10 · scenario: "Delete removes the record and audits it"
       - notes: re-fetch via `findByIdInTenant` (404 `annotation.record.not_found`); scoped `remove`; `AuditLog(ACTION_RECORD_DELETED, TARGET_ANNOTATION_RECORD, id)` in the same `@Transactional`
