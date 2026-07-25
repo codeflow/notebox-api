@@ -154,6 +154,13 @@
 **Status:** ✅ resolved (2026-07-24).
 **Decision:** Realign via a dedicated follow-up refactor feature: convert feat-001 (identity) to specific domain exceptions extending a domain base class, dot-namespaced i18n keys (e.g. auth.credentials.invalid) with en+pt entries, and a unified ExceptionMapper matching feat-003+. No functional change; testable in isolation. Scheduled in the delivery backlog; does not block current features. Restores constitution 03-code-standards consistency (no permanent exception granted). — decided by rafaelsantos, 2026-07-24.
 
+### OQ-17 — Type field mutation vs existing records — orphaned annotation values
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** feat-003 type PUT replaces TypeFields with orphanRemoval; editing/removing a field on a type that already owns annotation records (US-2.1) can orphan AnnotationValue.typeFieldId references or delete the field a value points to. Symmetric to OQ-14 (type-delete block). Options: block field removal/retype while values exist, or migrate/null affected values. Out of scope for feat-005; needs its own decision before type editing is exercised against populated types.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -182,6 +189,7 @@
 | 2026-07-24 | OQ-12 resolved: Admin-managed reset: a Tenant administrator resets a member's password… |
 | 2026-07-24 | OQ-13 resolved: localStorage toggle (stays stateless): 'Remember me' checked stores th… |
 | 2026-07-24 | OQ-16 resolved: Realign via a dedicated follow-up refactor feature: convert feat-001 (… |
+| 2026-07-25 | OQ-17 opened: Type field mutation vs existing records — orphaned annotation values |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
