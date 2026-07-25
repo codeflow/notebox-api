@@ -54,8 +54,50 @@
       "changelog": "CHANGELOG.md"
     },
     "project": {
-      "enabled": false,
-      "owner": ""
+      "_note": "This is the HUB's OWN board (notebox-api features). Routed features use their satellite's board — notebox-web's is in notebox-web/workflow.json. bin/wf currently reads this single board for all features (limitation tracked as a follow-up); apply the satellite's board manually for routed github ops.",
+      "enabled": true,
+      "owner": "codeflow",
+      "title": "notebox-api",
+      "number": 3,
+      "project_id": "PVT_kwDOAuNpyc4BeXx1",
+      "url": "https://github.com/orgs/codeflow/projects/3",
+      "status_field_id": "PVTSSF_lADOAuNpyc4BeXx1zhYyhXI",
+      "status_options": {
+        "Todo": "f75ad846",
+        "In Progress": "47fc9ee4",
+        "Done": "98236657"
+      }
+    },
+    "issue_fields": {
+      "_note": "Priority/Effort/dates are NATIVE org issue fields (this org's standard), NOT project custom fields. Read defs: GET /orgs/<owner>/issue-fields. Set on an issue/PR: PATCH /repos/<owner>/<repo>/issues/<n> with body {issue_field_values:[{field_id:<id>, value:'<OptionName-string>'}]}.",
+      "default_priority": "Medium",
+      "fields": {
+        "Priority": {
+          "id": 13227770,
+          "options": [
+            "Urgent",
+            "High",
+            "Medium",
+            "Low"
+          ]
+        },
+        "Effort": {
+          "id": 13227773,
+          "options": [
+            "High",
+            "Medium",
+            "Low"
+          ]
+        },
+        "Start date": {
+          "id": 13227771,
+          "type": "date"
+        },
+        "Target date": {
+          "id": 13227772,
+          "type": "date"
+        }
+      }
     },
     "sync": {
       "issue_per": "feature",
@@ -162,8 +204,8 @@
             "model": "opus",
             "effort": "high"
           },
-          "started_at": "2026-07-22T16:01:11Z",
-          "completed_at": "2026-07-22T16:03:01Z"
+          "started_at": "2026-07-24T23:02:04Z",
+          "completed_at": "2026-07-24T23:02:04Z"
         },
         {
           "id": "constitution.architecture",
@@ -174,8 +216,8 @@
             "model": "opus",
             "effort": "high"
           },
-          "started_at": "2026-07-22T16:04:40Z",
-          "completed_at": "2026-07-22T16:04:40Z"
+          "started_at": "2026-07-24T23:02:04Z",
+          "completed_at": "2026-07-24T23:02:04Z"
         },
         {
           "id": "constitution.compliance",
@@ -186,8 +228,8 @@
             "model": "sonnet",
             "effort": "medium"
           },
-          "started_at": "2026-07-22T16:04:41Z",
-          "completed_at": "2026-07-22T16:05:28Z"
+          "started_at": "2026-07-24T23:02:04Z",
+          "completed_at": "2026-07-24T23:02:04Z"
         },
         {
           "id": "constitution.standards",
@@ -225,8 +267,8 @@
         "Every product claim traces to a definition or an explicit human decision",
         "Anything uncovered is an Open Question, never an invention"
       ],
-      "started_at": "2026-07-22T16:35:56Z",
-      "completed_at": "2026-07-22T16:56:31Z"
+      "started_at": "2026-07-24T23:16:47Z",
+      "completed_at": "2026-07-24T23:44:05Z"
     },
     {
       "id": "catalogs",
@@ -251,8 +293,8 @@
         "FR/NFR/BR/US/OQ ids assigned and immutable",
         "Dropped items marked deprecated, never deleted or renumbered"
       ],
-      "started_at": "2026-07-22T16:56:53Z",
-      "completed_at": "2026-07-22T16:58:23Z"
+      "started_at": "2026-07-25T00:17:23Z",
+      "completed_at": "2026-07-25T00:17:23Z"
     },
     {
       "id": "delivery",
@@ -999,7 +1041,7 @@
             {
               "id": "feat-004-annotation-types-web.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -1009,12 +1051,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/004-annotation-types-web/spec.md"
-              ]
+              ],
+              "started_at": "2026-07-23T22:58:50Z",
+              "completed_at": "2026-07-23T22:58:51Z"
             },
             {
               "id": "feat-004-annotation-types-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -1025,12 +1069,14 @@
               "produces": [
                 "features/004-annotation-types-web/plan.md",
                 "features/004-annotation-types-web/data-model.md"
-              ]
+              ],
+              "started_at": "2026-07-24T00:10:27Z",
+              "completed_at": "2026-07-24T00:10:28Z"
             },
             {
               "id": "feat-004-annotation-types-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -1040,7 +1086,9 @@
               "gate": "human_approval",
               "produces": [
                 "features/004-annotation-types-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-07-24T01:03:05Z",
+              "completed_at": "2026-07-24T01:03:05Z"
             },
             {
               "id": "feat-004-annotation-types-web.implement",
@@ -1052,12 +1100,261 @@
                 "effort": "high",
                 "subagent_type": "general-purpose"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-004-annotation-types-web.implement.t1",
+                  "title": "T-01 — Wire DTO mirrors + Problem.violations + parseProblem extension",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-24T14:02:20Z",
+                  "completed_at": "2026-07-24T14:02:21Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t2",
+                  "title": "T-02 — i18n builder keys (en + pt) + keyset-coverage test",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:21Z",
+                  "completed_at": "2026-07-24T14:02:21Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t3",
+                  "title": "T-03 — Editable view-model (EditableType/Field/Option, fromDto, toInput, D2 seeds)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:21Z",
+                  "completed_at": "2026-07-24T14:02:22Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t4",
+                  "title": "T-04 — Client pre-validation (annotationTypeValidation + validateIconFile)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:22Z",
+                  "completed_at": "2026-07-24T14:02:22Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t5",
+                  "title": "T-05 — Server-error routing (violationRouting)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:22Z",
+                  "completed_at": "2026-07-24T14:02:22Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t6",
+                  "title": "T-06 — annotationTypesClient (list/get/create/replace/remove)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:22Z",
+                  "completed_at": "2026-07-24T14:02:23Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t7",
+                  "title": "T-07 — imagesClient (raw-byte upload + object-URL fetch/revoke)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:23Z",
+                  "completed_at": "2026-07-24T14:02:23Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t8",
+                  "title": "T-08 — MSW handler factories + fixtures",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:23Z",
+                  "completed_at": "2026-07-24T14:02:23Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t9",
+                  "title": "T-09 — AnnotationTypeList (list panel + row actions)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:23Z",
+                  "completed_at": "2026-07-24T14:02:23Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t10",
+                  "title": "T-10 — FieldTypeSelect + VisibleForViewingToggle",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:24Z",
+                  "completed_at": "2026-07-24T14:02:24Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t11",
+                  "title": "T-11 — NumberBoundsEditor + SecretToggle",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:24Z",
+                  "completed_at": "2026-07-24T14:02:24Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t12",
+                  "title": "T-12 — OptionsEditor + OptionRow + BadgeColourPicker",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:24Z",
+                  "completed_at": "2026-07-24T14:02:24Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t13",
+                  "title": "T-13 — FieldIconEditor + IconThumbnail",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:25Z",
+                  "completed_at": "2026-07-24T14:02:25Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t14",
+                  "title": "T-14 — FieldEditor + FieldList (per-type composition + reorder)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-24T14:02:25Z",
+                  "completed_at": "2026-07-24T14:02:25Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t15",
+                  "title": "T-15 — TypeHeaderEditor (type name + type icon)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-24T14:02:25Z",
+                  "completed_at": "2026-07-24T14:02:25Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t16",
+                  "title": "T-16 — DeleteTypeDialog (irreversible confirmation)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-07-24T14:02:26Z",
+                  "completed_at": "2026-07-24T14:02:26Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t17",
+                  "title": "T-17 — TypeBuilderForm (create/edit/serialize-on-save/error routing)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-24T14:02:26Z",
+                  "completed_at": "2026-07-24T14:02:26Z"
+                },
+                {
+                  "id": "feat-004-annotation-types-web.implement.t18",
+                  "title": "T-18 — Routes under (app)/annotation-types/ + integration tests",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-07-24T14:02:26Z",
+                  "completed_at": "2026-07-24T14:02:27Z"
+                }
+              ]
             },
             {
               "id": "feat-004-annotation-types-web.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -1067,10 +1364,123 @@
               "gate": "audit_pass",
               "produces": [
                 "features/004-annotation-types-web/audit.md"
-              ]
+              ],
+              "started_at": "2026-07-24T15:28:44Z",
+              "completed_at": "2026-07-24T15:28:44Z"
             },
             {
               "id": "feat-004-annotation-types-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "done",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green",
+              "started_at": "2026-07-24T16:54:51Z",
+              "completed_at": "2026-07-24T16:54:51Z"
+            },
+            {
+              "id": "feat-004-annotation-types-web.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "done",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "started_at": "2026-07-24T20:03:47Z",
+              "completed_at": "2026-07-24T20:32:38Z"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 4,
+            "branch": "feature/annotation-types-web",
+            "card": "PVTI_lADOAuNpyc4BeXEnzgz_7EY",
+            "pr": 5,
+            "merged": "develop"
+          }
+        },
+        {
+          "id": "feat-005-annotation-records-notebox-api",
+          "title": "Create, edit and delete annotation records of a type, with secret-value encryption and audited reveal (US-2.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-005-annotation-records-notebox-api.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/005-annotation-records-notebox-api/spec.md"
+              ]
+            },
+            {
+              "id": "feat-005-annotation-records-notebox-api.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/005-annotation-records-notebox-api/plan.md",
+                "features/005-annotation-records-notebox-api/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-005-annotation-records-notebox-api.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/005-annotation-records-notebox-api/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-005-annotation-records-notebox-api.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-005-annotation-records-notebox-api.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/005-annotation-records-notebox-api/audit.md"
+              ]
+            },
+            {
+              "id": "feat-005-annotation-records-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
               "status": "pending",
               "instructions": "instructions/feature-publish.md",
@@ -1081,7 +1491,106 @@
               "gate": "verify_green"
             },
             {
-              "id": "feat-004-annotation-types-web.review",
+              "id": "feat-005-annotation-records-notebox-api.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ]
+        },
+        {
+          "id": "feat-006-annotation-records-notebox-web",
+          "title": "Create, edit and delete annotation records of a type, with secret-value encryption and audited reveal (US-2.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-006-annotation-records-notebox-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/006-annotation-records-notebox-web/spec.md"
+              ]
+            },
+            {
+              "id": "feat-006-annotation-records-notebox-web.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/006-annotation-records-notebox-web/plan.md",
+                "features/006-annotation-records-notebox-web/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-006-annotation-records-notebox-web.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/006-annotation-records-notebox-web/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-006-annotation-records-notebox-web.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-006-annotation-records-notebox-web.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/006-annotation-records-notebox-web/audit.md"
+              ]
+            },
+            {
+              "id": "feat-006-annotation-records-notebox-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-006-annotation-records-notebox-web.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
               "status": "pending",
               "instructions": "instructions/feature-review.md",

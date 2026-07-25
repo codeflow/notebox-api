@@ -3,15 +3,15 @@
 > Living backlog, user stories grouped by epic. IDs immutable; deprecate, never reuse. Language: English.
 > Status vocabulary: `todo | speccing | building | delivered | deferred`.
 
-**Last sync with PRD:** v1 (2026-07-22)
+**Last sync with PRD:** v2 (2026-07-24)
 
 ## Epics overview
 
 | ID | Epic | Focus | Status |
 |----|------|-------|--------|
 | E0 | Foundations & Harness | repo, CI/CD, agentic pipeline | todo |
-| E1 | Annotation types | define typed note schemas | todo |
-| E2 | Annotations | typed records + listing/detail | todo |
+| E1 | Annotation types | define typed note schemas | delivered |
+| E2 | Annotations | typed records + listing/detail | speccing |
 | E3 | Groups & navigation | organize items, nav tree | todo |
 | E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | todo |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
@@ -27,15 +27,15 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-1.1 | As a tenant member, I want to define an annotation type with an icon and typed fields (incl. list options), so I capture a category of notes consistently. | FR-01, FR-02, FR-03, FR-07 · BR-03, BR-04 | delivered | feat-003-annotation-types (api) ✔ on develop (PR #4, merged 2026-07-23, audit pass-with-findings), awaiting promotion to main; feat-004-annotation-types-web (notebox-web) — pending |
-| US-1.2 | As a tenant member, I want to mark fields "visible for viewing", so listings show only the columns I care about. | FR-02, FR-05 · BR-09 | todo | — |
+| US-1.1 | As a tenant member, I want to define an annotation type with an icon and typed fields (incl. list options), so I capture a category of notes consistently. | FR-01, FR-02, FR-03, FR-07 · BR-03, BR-04 | delivered | feat-003-annotation-types (api) ✔ on develop (PR #4, merged 2026-07-23, audit pass-with-findings), awaiting promotion to main; feat-004-annotation-types-web (notebox-web) ✔ on develop (PR #5, squash-merged 2026-07-24, audit pass after fixing server-violation routing), awaiting promotion to main |
+| US-1.2 | As a tenant member, I want to mark fields "visible for viewing", so listings show only the columns I care about. | FR-02, FR-05 · BR-09 | deferred | **Deferred into US-2.2 (2026-07-24).** The FR-02 "mark" concern — declaring/updating the `visibleForViewing` flag with per-type defaults and exposing it on read — was already delivered by feat-003 (`AnnotationTypeInput`/`AnnotationTypeDto`). BR-09 makes the flag display-only, so there is no separate API surface. The only residual — a listing that projects visible-field columns (FR-05) — is annotation-record behaviour that needs records (US-2.1) and is already US-2.2's scope. Provisional feat-005/feat-006 were created then removed once this overlap was found. |
 
 ## E2 — Annotations
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06 · BR-03, BR-05 | todo | — |
-| US-2.2 | As a tenant member, I want a listing exposing visible fields plus a detail view exposing all fields, so grid and detail have what they need. | FR-05, FR-07 · BR-09 | todo | — |
+| US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06, FR-18 · BR-03, BR-05, BR-10 | speccing | feat-005-annotation-records-notebox-api (api), feat-006-annotation-records-notebox-web (notebox-web) — spec pending · includes secret-value encryption + audited reveal (FR-18); enforces type-delete-block when records exist (OQ-14) |
+| US-2.2 | As a tenant member, I want a listing exposing visible fields plus a detail view exposing all fields, so grid and detail have what they need. | FR-05, FR-07 · BR-09 | todo | — · **absorbs US-1.2's FR-05 visible-column projection** (the `visibleForViewing` flag itself ships in feat-003); depends on US-2.1 records |
 
 ## E3 — Groups & navigation
 
@@ -69,3 +69,5 @@
 |------|-------------|--------|
 | 2026-07-19 | v1 | Initial creation. |
 | 2026-07-22 | v1 | Derived E1–E6 and US-1.1…US-6.1 from PRD v1; every FR maps to a US and every US to ≥1 FR. |
+| 2026-07-24 | v1 | US-1.2 deferred into US-2.2: its FR-02 "mark visible" concern was already delivered by feat-003; the residual FR-05 visible-column listing needs US-2.1 records and is US-2.2's scope. E1 → delivered. |
+| 2026-07-24 | v2 | Synced to PRD v2: US-2.1 now carries FR-18 (secret-value encryption + audited reveal) and BR-10, plus the OQ-14 type-delete-block rule. |

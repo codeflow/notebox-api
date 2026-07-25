@@ -3,7 +3,7 @@
 > Quick-reference index of canonical Business Rules. Full text lives in
 > `constitution/00-principles.md` — this table only links ids, never restates the rule. Language: English.
 
-**Last sync with PRD:** v1 (2026-07-22)
+**Last sync with PRD:** v2 (2026-07-24)
 
 | ID | Theme | Status | Derived FRs |
 |----|-------|--------|-------------|
@@ -16,6 +16,7 @@
 | BR-07 | Task dates derive from subtasks | ✅ Confirmed | FR-12 |
 | BR-08 | No user-facing text shown untranslated | ✅ Confirmed | FR-15, FR-16 |
 | BR-09 | "Visible for viewing" is presentation, never access control | ✅ Confirmed | FR-05 |
+| BR-10 | Secret field values are confidential at rest | ✅ Confirmed | FR-18 |
 
 ## Rules
 - For details of a BR, read `constitution/00-principles.md`.

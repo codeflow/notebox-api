@@ -48,6 +48,11 @@ Every feature spec copies the items whose **applies when** trigger it hits, and 
 - [ ] **C-11 · Data retention & deletion path** — a defined deletion/anonymization path exists for tenant
   and user data · *applies when:* feature manages accounts, tenants, or offers data removal · *evidence:*
   deletion path documented in the spec.
+- [ ] **C-12 · Encryption at rest for secret values** — values of "Secret"-flagged fields are stored
+  encrypted (AES-256-GCM, master key from the secret manager) and revealed in cleartext only to the elevated
+  reveal role, with each reveal audited · *applies when:* feature stores, updates, or reveals annotation
+  values of Secret-flagged fields · *evidence:* ciphertext-at-rest test (stored bytes ≠ plaintext) + reveal
+  authorization/audit test (BR-10, AD-14, C-05, C-10).
 
 > **Not applicable yet (documented, not kept "just in case"):** no third-party data processors → no DPA
 > item; no payments, health, or minors data in scope → no sector-specific items. Add them only when a

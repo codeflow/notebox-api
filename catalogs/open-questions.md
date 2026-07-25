@@ -111,42 +111,48 @@
 **Description:** <what is unknown and why it matters>
 **Impact:** How tenants and users are created (self-service signup vs admin/seeded provisioning) is unspecified; this feature's auth assumes users already exist. Blocks a future provisioning feature and the end-to-end login flow.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-07-24).
+**Decision:** Admin-managed provisioning with invite: tenants are provisioned by a system operator (DB seed/migration or an internal ops endpoint); within a tenant, the Tenant administrator invites/creates member users. No public self-service signup. Matches the existing Tenant administrator role (OQ-01) and feat-001's assumption that users pre-exist. A dedicated provisioning/invite feature captures this later; not a blocker for the annotation/task core. — decided by rafaelsantos, 2026-07-24.
 
 ### OQ-12 — Password-reset flow
 **Severity:** 🟢 Tactical
 **Description:** <what is unknown and why it matters>
 **Impact:** The login screen has a 'Forgot password?' placeholder link (feat-002) with no backing flow. Needs its own feature: request reset, deliver token, set new password. Deferred by feat-002 spec.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-07-24).
+**Decision:** Admin-managed reset: a Tenant administrator resets a member's password or issues a one-time temporary credential that the member must change on next login. No email/SMTP infra required; consistent with OQ-11's admin-managed provisioning. The 'Forgot password?' link (feat-002) directs the user to contact their admin until/unless self-service is productized. Captured by the future provisioning/identity-admin feature alongside invites (OQ-11). — decided by rafaelsantos, 2026-07-24.
 
 ### OQ-13 — Remember-me persistence
 **Severity:** 🟢 Tactical
 **Description:** <what is unknown and why it matters>
 **Impact:** The login screen has a 'Remember me' checkbox (feat-002) that is visual-only. Real behaviour = persist the session beyond token expiry / across tab-close (e.g. localStorage or refresh token), which the feat-002 plan deliberately avoided (chose sessionStorage). Needs its own decision + feature.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-07-24).
+**Decision:** localStorage toggle (stays stateless): 'Remember me' checked stores the JWT in localStorage (persists across tab close until token expiry); unchecked keeps feat-002's sessionStorage (cleared on tab close). No refresh tokens, no server session — consistent with the stateless JWT AD. Scope is explicit: 'remember' means survive tab-close within the token's lifetime, not indefinite re-authentication. Same web-storage XSS threat model feat-002 already accepts; note it in the web feature. Durable multi-session persistence (refresh tokens) remains a separate future identity feature if ever needed. Web-only change. — decided by rafaelsantos, 2026-07-24.
 
 ### OQ-14 — Type deletion when annotation records exist (block vs cascade)
 **Severity:** 🟢 Tactical
 **Description:** <what is unknown and why it matters>
 **Impact:** When a member deletes an annotation type that owns records, is the delete blocked while records exist or does it cascade? No records exist until US-2.1/FR-04; feat-003 deletes only empty types. Must be settled before US-2.1 implements record deletion.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-07-24).
+**Decision:** Block (RESTRICT): deleting an annotation type is rejected with a specific error (annotation.type.has_records, 409) while any annotation record of that type exists; the member must delete the records first. Preserves BR-05's explicit/irreversible framing and prevents one call from wiping data. feat-003's empty-only delete already conforms; US-2.1 enforces the guard when record deletion lands. — decided by rafaelsantos, 2026-07-24.
 
 ### OQ-15 — Secret text fields — encryption-at-rest mechanism, key management & PRD/constitution formalization
 **Severity:** 🟡 Important
 **Description:** <what is unknown and why it matters>
 **Impact:** New requirement (human decision 2026-07-23): Text/Free text fields can carry a 'Secret' flag; flagged VALUES are stored encrypted at rest and revealed in cleartext only to an elevated role, with each reveal audited (C-10). DECIDED: applies to Text+Free text; reveal=elevated role+audit. UNDECIDED (blocks US-2.1 value encryption + reveal endpoint): crypto algorithm (e.g. AES-256-GCM), key scope (single app key vs per-tenant), key storage (secret manager/KMS), rotation. Also REQUIRES a PRD v2 (new FR) + constitution update (new AD 'encryption at rest' + compliance C-item + BR) before US-2.1 implements it. feat-003 only adds the type-definition FLAG; encryption/decrypt/reveal + UI masking (field + datatable) are deferred to US-2.1 and the web features.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-07-24).
+**Decision:** Secret VALUES (Text/Free text) encrypted at rest with AES-256-GCM: random 96-bit IV per value; ciphertext+IV+auth-tag persisted in MySQL; single application master key sourced from the secret manager (C-05 pattern, as for JWT keys); each ciphertext tagged with a key-version id to allow key rotation without rewriting old rows. Reveal in cleartext only to an elevated role, each reveal audited (C-10). Formalization pending: PRD v2 (new FR) + constitution (new AD 'encryption at rest' + a compliance C-item + a BR). — decided by rafaelsantos, 2026-07-24.
 
 ### OQ-16 — feat-001 error-handling/i18n realignment to constitution
 **Severity:** 🟢 Tactical
 **Description:** <what is unknown and why it matters>
 **Impact:** feat-001 (identity, merged on develop) drifted from constitution 03-code-standards: it uses a single generic ApiException(code,status) with static factories and SCREAMING_SNAKE catalog keys (AUTH_INVALID_CREDENTIALS), instead of the mandated specific domain exceptions (line 84) and dot-namespaced i18n keys (line 25, e.g. annotation.type.name.required). feat-003+ follow the constitution; feat-001 should be realigned (specific exceptions extending a domain base + dot-namespaced keys + unify the ExceptionMapper) as a follow-up refactor. Does not block feat-003.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-07-24).
+**Decision:** Realign via a dedicated follow-up refactor feature: convert feat-001 (identity) to specific domain exceptions extending a domain base class, dot-namespaced i18n keys (e.g. auth.credentials.invalid) with en+pt entries, and a unified ExceptionMapper matching feat-003+. No functional change; testable in isolation. Scheduled in the delivery backlog; does not block current features. Restores constitution 03-code-standards consistency (no permanent exception granted). — decided by rafaelsantos, 2026-07-24.
 
 ## History
 
@@ -170,6 +176,12 @@
 | 2026-07-23 | OQ-14 opened: Type deletion when annotation records exist (block vs cascade) |
 | 2026-07-23 | OQ-15 opened: Secret text fields — encryption-at-rest mechanism, key management & PR |
 | 2026-07-23 | OQ-16 opened: feat-001 error-handling/i18n realignment to constitution |
+| 2026-07-24 | OQ-15 resolved: Secret VALUES (Text/Free text) encrypted at rest with AES-256-GCM: ran… |
+| 2026-07-24 | OQ-11 resolved: Admin-managed provisioning with invite: tenants are provisioned by a s… |
+| 2026-07-24 | OQ-14 resolved: Block (RESTRICT): deleting an annotation type is rejected with a speci… |
+| 2026-07-24 | OQ-12 resolved: Admin-managed reset: a Tenant administrator resets a member's password… |
+| 2026-07-24 | OQ-13 resolved: localStorage toggle (stays stateless): 'Remember me' checked stores th… |
+| 2026-07-24 | OQ-16 resolved: Realign via a dedicated follow-up refactor feature: convert feat-001 (… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

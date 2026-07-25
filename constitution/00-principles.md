@@ -126,5 +126,21 @@ and the feature.
 
 ---
 
-<!-- Next ID: BR-10. Keep IDs immutable; deprecate, never reuse.
+### BR-10 — Secret field values are confidential at rest
+**Rule.** A value entered into a field flagged "Secret" is never persisted in cleartext; it is stored
+encrypted at rest and returned in cleartext only to a caller holding the elevated *reveal* role, and every
+reveal is recorded in the audit trail.
+
+**Because.** Human decision 2026-07-23 (OQ-15): Text and Free-text fields may carry a "Secret" flag for
+sensitive data (credentials, tokens); such values must not be readable from the database or backups, and
+each disclosure must be accountable.
+
+**Violation.** A database dump, backup, or log leak exposes secret values in cleartext, or a caller without
+the reveal role reads a secret with no audit record — breaking both the confidentiality promise and its
+accountability. *(Contrast BR-09: the "visible for viewing" flag is display-only and never a security
+boundary; the "Secret" flag here is a genuine confidentiality control — the two are independent.)*
+
+---
+
+<!-- Next ID: BR-11. Keep IDs immutable; deprecate, never reuse.
      Open gaps that may yield future BRs live in definitions/INTAKE.md §6 (G4–G8, G10). -->
