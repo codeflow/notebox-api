@@ -27,7 +27,7 @@
       - depends: — · parallel: yes
       - verify: `./mvnw test -Dtest=AnnotationRecordMessageCoverageTest`
 
-- [ ] **T-04 · `AnnotationRecordService` — create/read/update with type-conformance validation + secret encryption/masking**
+- [x] **T-04 · `AnnotationRecordService` — create/read/update with type-conformance validation + secret encryption/masking**
       - files: `application/annotation/AnnotationRecordService.java`, `application/annotation/AnnotationRecordServiceTest.java`
       - covers: FR-04, BR-03, FR-18 (encrypt on write / mask on read) · scenarios: "Reject a value for a field the type does not define", "Reject a value whose data does not match the field type", "Reject a Number value outside the field bounds", "Choice value must reference a predefined option", "Multiple choice accepts several predefined options", "Update changes a record's values", "Ordinary read masks a secret value"
       - notes: loads type via `AnnotationTypeRepository.findByIdInTenant`; dispatch on `fieldType`; encrypt Secret values via `SecretValueCipher`; tenant only from `TenantContext`; keys `annotation.record.field.unknown`, `…value.type_mismatch`, `…value.number.out_of_bounds`, `…value.option.unknown`, `…value.image.not_found`
