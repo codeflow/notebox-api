@@ -1414,7 +1414,7 @@
             {
               "id": "feat-005-annotation-records-notebox-api.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "done",
+              "status": "pending",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -1423,9 +1423,7 @@
               "gate": "human_approval",
               "produces": [
                 "features/005-annotation-records-notebox-api/spec.md"
-              ],
-              "started_at": "2026-07-25T00:31:04Z",
-              "completed_at": "2026-07-25T00:37:26Z"
+              ]
             },
             {
               "id": "feat-005-annotation-records-notebox-api.plan",
@@ -1463,7 +1461,7 @@
             {
               "id": "feat-005-annotation-records-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "done",
+              "status": "pending",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -1475,117 +1473,99 @@
                   "id": "feat-005-annotation-records-notebox-api.implement.t1",
                   "title": "T-01 — Schema (V3) + record/value entities + tenant-scoped repository",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  },
-                  "started_at": "2026-07-25T02:22:02Z",
-                  "completed_at": "2026-07-25T02:30:09Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t2",
                   "title": "T-02 — Secret cipher port + AES-256-GCM impl + key config",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high",
                     "isolation": "worktree"
-                  },
-                  "started_at": "2026-07-25T02:31:57Z",
-                  "completed_at": "2026-07-25T02:35:02Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t3",
                   "title": "T-03 — Domain exceptions + ErrorCategory.FORBIDDEN + mapper + i18n keys",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high",
                     "isolation": "worktree"
-                  },
-                  "started_at": "2026-07-25T02:36:31Z",
-                  "completed_at": "2026-07-25T12:57:45Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t4",
                   "title": "T-04 — AnnotationRecordService: create/read/update + conformance + secret encrypt/mask",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  },
-                  "started_at": "2026-07-25T13:41:19Z",
-                  "completed_at": "2026-07-25T15:51:25Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t5",
                   "title": "T-05 — Delete record: explicit, irreversible, audited",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  },
-                  "started_at": "2026-07-25T16:04:35Z",
-                  "completed_at": "2026-07-25T16:09:30Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t6",
                   "title": "T-06 — Reveal secret value: ADMIN-gated, decrypt, audited",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  },
-                  "started_at": "2026-07-25T16:13:37Z",
-                  "completed_at": "2026-07-25T17:43:57Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t7",
                   "title": "T-07 — Type-delete guard (OQ-14) in AnnotationTypeService",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high",
                     "isolation": "worktree"
-                  },
-                  "started_at": "2026-07-25T17:11:30Z",
-                  "completed_at": "2026-07-25T17:43:57Z"
+                  }
                 },
                 {
                   "id": "feat-005-annotation-records-notebox-api.implement.t8",
                   "title": "T-08 — REST resource + DTOs + masking + OpenAPI + e2e/tenant-isolation",
                   "kind": "task",
-                  "status": "done",
+                  "status": "pending",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  },
-                  "started_at": "2026-07-25T17:43:57Z",
-                  "completed_at": "2026-07-25T17:43:57Z"
+                  }
                 }
-              ],
-              "started_at": "2026-07-25T17:43:57Z",
-              "completed_at": "2026-07-25T17:43:58Z"
+              ]
             },
             {
               "id": "feat-005-annotation-records-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "blocked",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -1594,7 +1574,8 @@
               "gate": "audit_pass",
               "produces": [
                 "features/005-annotation-records-notebox-api/audit.md"
-              ]
+              ],
+              "notes": "VERDICT fail — 5 HIGH/4 MEDIUM/5 LOW (see features/005-annotation-records-notebox-api/audit.md). F4 decided 2026-07-25 (PUT: omit preserves secret, clearSecret:true erases + audits, masked echo is no-op) and written into spec+contract. Reopened spec (F4/F5-OQ-17/F12) and implement (F1-F3, F6, F9-F11, F13). PR #6 is a DRAFT — do not merge until re-audit passes."
             },
             {
               "id": "feat-005-annotation-records-notebox-api.publish",

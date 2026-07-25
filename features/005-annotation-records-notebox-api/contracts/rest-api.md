@@ -21,6 +21,18 @@ each method `@Transactional`, request bodies `@Valid`. Tenant is resolved from t
 ## Payloads (JSON records)
 
 ```jsonc
+> **PUT semantics for Secret values — DECIDED (human decision 2026-07-25, audit F4).**
+> A `PUT` replaces the record's name and values, with one exception: a **Secret** field.
+> - Field **omitted** from `values` → the stored ciphertext is **PRESERVED** intact (a rename never
+>   destroys a secret).
+> - Field present with `"text": "<new>"` → the value is **re-encrypted** under the active key version.
+> - Field present with `"clearSecret": true` → the secret is **erased**, and the erasure writes an
+>   **AuditLog** entry (destructive deletion must be explicit and accountable — BR-05, BR-10).
+> - Field present with `"text": null` and no `clearSecret` → **no-op preserve** (this is exactly what a
+>   client echoes back from a masked `GET`; it must NOT be a `type_mismatch` error).
+>
+> Non-secret fields keep plain replace semantics: omitted → value removed.
+
 // AnnotationRecordInput  (POST body has annotationTypeId; PUT body omits it — path id fixes the record)
 {
   "annotationTypeId": "uuid",           // POST only; required

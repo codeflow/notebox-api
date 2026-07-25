@@ -148,6 +148,32 @@ Feature: FR-18 Secret values are encrypted at rest and revealed under audit
     Then the request is rejected with error code annotation.record.secret.reveal.forbidden
     And no cleartext is returned
 
+Feature: FR-18 PUT preserves a secret value unless erasure is explicit (human decision 2026-07-25, audit F4)
+  Scenario: Renaming a record preserves its secret value
+    Given tenant A has a record whose Secret field "API key" holds "s3cr3t-token"
+    When a member of tenant A updates the record's name, omitting "API key" from the values
+    Then the update succeeds
+    And revealing "API key" afterwards still returns "s3cr3t-token"
+
+  Scenario: Echoing back a masked secret value is a no-op, not an error
+    Given tenant A has a record whose Secret field "API key" holds "s3cr3t-token"
+    When a member of tenant A submits an update echoing "API key" exactly as the masked read returned it (text = null, no clearSecret)
+    Then the update succeeds
+    And revealing "API key" afterwards still returns "s3cr3t-token"
+
+  Scenario: Sending a new value re-encrypts the secret
+    Given tenant A has a record whose Secret field "API key" holds "s3cr3t-token"
+    When a member of tenant A updates "API key" to "rotated-token"
+    Then the stored value is ciphertext of the new value under the active key version
+    And revealing "API key" returns "rotated-token"
+
+  Scenario: Erasing a secret requires the explicit flag and is audited
+    Given tenant A has a record whose Secret field "API key" holds "s3cr3t-token"
+    When a member of tenant A updates "API key" with clearSecret = true
+    Then the stored secret is erased
+    And an audit entry records who erased which secret value on which record and when
+    And revealing "API key" afterwards is rejected with error code annotation.record.reveal.not_secret
+
 Feature: OQ-14 Type deletion is blocked while records exist
   Scenario: Deleting a type that owns records is rejected
     Given tenant A has a type "RabbitMQ" with at least one record
@@ -192,7 +218,15 @@ Checklist copied from `constitution/02-compliance.md`, each item marked:
 See **Scope · Out** above — chiefly: the multi-record **listing/detail projection** (FR-05, US-2.2), the
 **web UI** (feat-006), annotation **type** CRUD (feat-003), and **groups/navigation** (E3).
 
-## Open Questions
+## Open Questions / decisions
+
+- **PUT semantics for Secret values — DECIDED (human decision 2026-07-25, raised by audit finding F4).**
+  Omitting a Secret field from a `PUT` **preserves** the stored ciphertext; erasing it requires an
+  explicit `clearSecret: true` and is **audited**; sending a new `text` re-encrypts under the active key
+  version; echoing back the masked `text: null` is a **no-op preserve**, never a `type_mismatch` error.
+  Rationale: BR-05 (destructive deletion is explicit) + BR-10 (accountability), and it makes feat-006's
+  edit form implementable. Contract updated in `contracts/rest-api.md`; 4 new scenarios above.
+
 - **Reveal-role binding — DECIDED (human decision 2026-07-24, at spec approval).** The elevated "reveal role"
   of FR-18 / BR-10 / AD-14 is the **Tenant administrator** (the only elevated persona in the PRD; C-03
   precedent for elevated actions). Not a dedicated secret-reveal permission. The reveal scenarios' "reveal
