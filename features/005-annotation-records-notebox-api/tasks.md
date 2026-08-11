@@ -117,12 +117,26 @@
       - depends: — · parallel: yes
       - verify: proofread — no stale claim survives `grep -i "falta\|94 test\|17/17" HANDOFF.md`
 
+## R3 remediation task (audit Round 3, 2026-08-04)
+
+> Round 3 verified all thirteen R2 findings fixed and guarded (verify green, 131 tests) and fenced them:
+> **do not redo them**. One new finding remains — the R2-02 defect survives in the twin method one level
+> below the one T-09 fixed. T-16 is the only behavioural work left in this feature.
+
+- [x] **T-16 · Duplicate-label-safe option matching in the type PUT (R3-01)**
+      - files: `application/annotation/AnnotationTypeService.java`, `application/annotation/AnnotationTypeEditGuardTest.java`
+      - covers: OQ-17, BR-05, BR-03 · scenario: "Resending an identical type definition preserves every record's values" (duplicate-option-label edge — today the second same-labelled option is orphan-removed and the record's selection becomes a dangling id)
+      - notes: mirror T-09's fix in `updateOptions` (`:167-169`): replace the `putIfAbsent` label map with per-label FIFO queues (`Map<String, Deque<FieldOption>>`), each incoming option polling its label's queue, exactly as `applyFields` (`:113-115`) does for names. No new guard and no new input validation — dropped labels keep the feat-003 replace semantics OQ-17 explicitly defers; only the *identical resend* must stop destroying identity. Tests: `[dev, dev]` SINGLE_CHOICE with a record selecting the **second** option — identical resend preserves both option ids **and** the record's `optionIds` (read through the DTO path, per T-11); dropping one `dev` still removes exactly one option (deferred replace semantics, unchanged)
+      - depends: — · parallel: no  *(behavioural, and shares the file/test with T-09…T-14)*
+      - verify: `mvn -B test -Dtest=AnnotationTypeEditGuardTest`
+
 ## Coverage & sequencing
 - **30/30 spec-v2 scenarios covered:** FR-04 (T-01/T-04/T-08), FR-06 (T-05/T-12), FR-18 core + PUT-secret
-  (T-02/T-04/T-06/T-08/T-12), OQ-14 (T-07/T-10), OQ-17 (T-07 rework/T-09/T-10/T-11), OQ-18 (T-07
+  (T-02/T-04/T-06/T-08/T-12), OQ-14 (T-07/T-10), OQ-17 (T-07 rework/T-09/T-10/T-11/**T-16**), OQ-18 (T-07
   rework/T-10), tenant isolation (T-01/T-08).
-- **Dependency chain:** T-01…T-08 done (R1 + rework). R2: T-09 → T-10, T-11; T-12, T-13, T-15 free;
-  T-14 last (shares files with T-09/T-12).
-- **Parallelisable (worktree):** T-12, T-13, T-15 (file-disjoint). T-09, T-10, T-11, T-14 serial.
-- **Uncovered scenarios:** none — the four post-state/who-when clause gaps the R2 audit named close via
-  T-11/T-12/T-14.
+- **Dependency chain:** T-01…T-08 done (R1 + rework). R2 done: T-09 → T-10, T-11; T-12, T-13, T-15 free;
+  T-14 last (shares files with T-09/T-12). R3: T-16 alone, no dependencies.
+- **Parallelisable (worktree):** T-12, T-13, T-15 (file-disjoint). T-09, T-10, T-11, T-14, T-16 serial.
+- **Uncovered scenarios:** none by omission — the "identical resend preserves every record's values"
+  scenario is *covered but currently red* on the duplicate-option-label input; T-16 closes it. The four
+  post-state/who-when clause gaps the R2 audit named closed via T-11/T-12/T-14.

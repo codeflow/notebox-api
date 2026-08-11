@@ -160,19 +160,22 @@ public class AnnotationTypeService {
 
     /**
      * Label-matched options keep their identity so an unchanged choice value's selection survives
-     * the PUT (OQ-17); dropped labels are removed with feat-003 replace semantics (type-evolution
-     * rules for values referencing them are a deferred future feature).
+     * the PUT (OQ-17). Same-labelled options match in declaration order (FIFO), so an identical
+     * resend cannot orphan a duplicate and dangle the selection pointing at it (audit R3-01);
+     * dropped labels are removed with feat-003 replace semantics (type-evolution rules for values
+     * referencing them are a deferred future feature).
      */
     private void updateOptions(TypeField field, TypeFieldInput input) {
-        Map<String, FieldOption> unmatched = new LinkedHashMap<>();
+        Map<String, Deque<FieldOption>> unmatched = new LinkedHashMap<>();
         for (FieldOption option : field.getOptions()) {
-            unmatched.putIfAbsent(option.getLabel(), option);
+            unmatched.computeIfAbsent(option.getLabel(), label -> new ArrayDeque<>()).add(option);
         }
         List<FieldOption> result = new ArrayList<>();
         for (FieldOptionInput optionInput : input.optionsOrEmpty()) {
             BadgeColour colour =
                     optionInput.badgeColour() == null ? null : BadgeColour.valueOf(optionInput.badgeColour());
-            FieldOption existing = unmatched.remove(optionInput.label());
+            Deque<FieldOption> candidates = unmatched.get(optionInput.label());
+            FieldOption existing = candidates == null ? null : candidates.poll();
             if (existing == null) {
                 result.add(new FieldOption(optionInput.label(), colour));
             } else {

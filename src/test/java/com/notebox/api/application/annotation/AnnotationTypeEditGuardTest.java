@@ -329,4 +329,66 @@ class AnnotationTypeEditGuardTest {
                 () -> typeService.replace(type.getId(), rabbitInput("Dup", textField("Port"))),
                 "the unmatched duplicate counts as a removal and hits the has-records guard");
     }
+
+    /** Creates an `Env [dev, dev]` type whose single record selects the SECOND `dev`. */
+    private UUID setUpDuplicateLabelType(Tenant tenant) {
+        when(tenantContext.tenantId()).thenReturn(tenant.getId());
+        AnnotationType type = typeService.create(rabbitInput("Dup", choiceField("Env", "dev", "dev")));
+        em.flush();
+        AnnotationRecord record = recordService.create(new AnnotationRecordInput(
+                type.getId(), "picks-the-second",
+                List.of(new AnnotationValueInput(
+                        fieldId(type, "Env"), null, null, null,
+                        List.of(type.getFields().get(0).getOptions().get(1).getId())))));
+        em.flush();
+        em.clear();
+        return record.getId();
+    }
+
+    private List<UUID> optionIdsOf(AnnotationType type) {
+        return type.getFields().get(0).getOptions().stream().map(o -> o.getId()).toList();
+    }
+
+    @Test
+    @TestTransaction
+    void replace_identicalDefinitionWithDuplicateOptionLabels_preservesBothOptionsAndTheSelection() {
+        Tenant tenant = data.createTenant();
+        UUID recordId = setUpDuplicateLabelType(tenant);
+        UUID typeId = recordService.get(recordId).getAnnotationTypeId();
+        List<UUID> optionIdsBefore = optionIdsOf(typeService.get(typeId));
+        UUID selectedBefore = optionIdsBefore.get(1);
+        em.clear();
+
+        typeService.replace(typeId, rabbitInput("Dup", choiceField("Env", "dev", "dev")));
+        em.flush();
+        em.clear();
+
+        AnnotationType type = typeService.get(typeId);
+        assertEquals(optionIdsBefore, optionIdsOf(type),
+                "duplicate-labelled options keep their identity positionally (audit R3-01)");
+        AnnotationRecordDto dto = AnnotationRecordDto.from(recordService.get(recordId), type);
+        assertEquals(List.of(selectedBefore), dto.values().get(0).optionIds(),
+                "the selection stays resolvable through the wire read model — no dangling option id");
+        assertTrue(type.getFields().get(0).getOptions().stream()
+                        .anyMatch(o -> o.getId().equals(selectedBefore)),
+                "the selected option still exists on the type, so a client can render its label");
+    }
+
+    @Test
+    @TestTransaction
+    void replace_droppingOneDuplicateOptionLabel_removesExactlyOneOption() {
+        Tenant tenant = data.createTenant();
+        UUID recordId = setUpDuplicateLabelType(tenant);
+        UUID typeId = recordService.get(recordId).getAnnotationTypeId();
+        UUID firstOptionId = optionIdsOf(typeService.get(typeId)).get(0);
+        em.clear();
+
+        typeService.replace(typeId, rabbitInput("Dup", choiceField("Env", "dev")));
+        em.flush();
+        em.clear();
+
+        assertEquals(List.of(firstOptionId), optionIdsOf(typeService.get(typeId)),
+                "dropping one label removes exactly the unmatched option, FIFO order — the deferred "
+                        + "replace semantics of OQ-17, unchanged by R3-01");
+    }
 }
