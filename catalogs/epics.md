@@ -34,7 +34,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06, FR-18 · BR-03, BR-05, BR-10 | speccing | feat-005-annotation-records-notebox-api (api), feat-006-annotation-records-notebox-web (notebox-web) — spec pending · includes secret-value encryption + audited reveal (FR-18); enforces type-delete-block when records exist (OQ-14) |
+| US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06, FR-18 · BR-03, BR-05, BR-10 | building | feat-005-annotation-records-notebox-api (api) — **audit pass 2026-08-11 (Round 4)**, 16/16 tasks, verify green 133 tests; awaiting publish + review · feat-006-annotation-records-notebox-web (notebox-web) — not started. Includes secret-value encryption + audited reveal (FR-18); enforces type-delete-block when records exist (OQ-14) |
 | US-2.2 | As a tenant member, I want a listing exposing visible fields plus a detail view exposing all fields, so grid and detail have what they need. | FR-05, FR-07 · BR-09 | todo | — · **absorbs US-1.2's FR-05 visible-column projection** (the `visibleForViewing` flag itself ships in feat-003); depends on US-2.1 records |
 
 ## E3 — Groups & navigation
@@ -71,3 +71,4 @@
 | 2026-07-22 | v1 | Derived E1–E6 and US-1.1…US-6.1 from PRD v1; every FR maps to a US and every US to ≥1 FR. |
 | 2026-07-24 | v1 | US-1.2 deferred into US-2.2: its FR-02 "mark visible" concern was already delivered by feat-003; the residual FR-05 visible-column listing needs US-2.1 records and is US-2.2's scope. E1 → delivered. |
 | 2026-07-24 | v2 | Synced to PRD v2: US-2.1 now carries FR-18 (secret-value encryption + audited reveal) and BR-10, plus the OQ-14 type-delete-block rule. |
+| 2026-08-11 | v3 | US-2.1 speccing → building: feat-005 (API) passed its audit at Round 4 after three remediation rounds. The story stays `building`, not `delivered` — feat-006 (web) has not started, and US-2.1 is only delivered when both sides ship. |

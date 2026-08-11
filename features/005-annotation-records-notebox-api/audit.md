@@ -1,3 +1,105 @@
+# Audit — Annotation records (feat-005, US-2.1) — ROUND 4
+
+**Step:** `feat-005-annotation-records-notebox-api.audit` (3rd re-run) · **Date:** 2026-08-11
+**Method.** Inline opus/xhigh disposition audit of the R3 remediation (T-16). The delta since Round 3 is
+two commits (`7bec16c` R2 remediation, `0e0acd3` T-16) and, in code terms, **13 lines in one method plus
+62 test lines** — so this round spends its budget on proving the two R3 findings genuinely closed rather
+than re-deriving Round 3's fenced dispositions. Three empirical checks were run:
+
+1. **Wire replay of R3-01** — a throwaway `AuditR4ProbeTest` replayed Round 3's exact HTTP repro against
+   real MySQL (created, run, deleted; tree verified clean, it did **not** enter the verify count).
+2. **Regression proof of the new test** — `updateOptions` was temporarily reverted to the `putIfAbsent`
+   form and `AnnotationTypeEditGuardTest` re-run, to check the new test actually fails on the old code.
+3. **Full `mvn -B verify`** on the committed state.
+
+## Verdict: **PASS**
+
+Both Round 3 findings are closed, the fix is empirically proven at the wire, and its guarding test is
+proven to fail without it. Nothing new survived verification.
+
+### R3 disposition
+| Finding | Fix (located) | Guard |
+|---|---|---|
+| R3-01 `updateOptions` duplicate-label corruption | `AnnotationTypeService.updateOptions` (`:168-171`) now polls per-label FIFO queues (`Map<String, Deque<FieldOption>>`), mirroring `applyFields` (`:113-115`); Javadoc states why | 2 tests in `AnnotationTypeEditGuardTest` + wire probe below |
+| R3-02 `tasks.md` checkboxes lagging `workflow.json` | T-09…T-16 all `[x]`; 0 unticked boxes remain | artifact re-read this round |
+
+### Evidence
+
+**1. R3-01 no longer reproduces over HTTP.** Same input as Round 3 — type `Env probe` with a
+`SINGLE_CHOICE` field carrying options `[dev, dev]`, a record selecting the **second**, then an identical
+resend of the definition:
+
+```
+optionsBefore = [ebadbca4…, d40cf112…]   selected = d40cf112…   (the SECOND)
+PUT identical definition          -> 200
+optionsAfter  = [ebadbca4…, d40cf112…]   identityPreserved = true
+record selection after            = [d40cf112…]  selectionUnchanged = true
+selection resolvable against the type's options  = true
+```
+
+Round 3 recorded the same probe orphan-removing `9d255cbe…` and leaving the record pointing at a deleted
+option. That is gone: both ids are byte-identical across the PUT and the selection still resolves to a
+live option, so a client can render its label and badge. BR-05 is held — no silent destruction.
+
+**2. The guarding test is honest.** With `updateOptions` reverted to `putIfAbsent`,
+`replace_identicalDefinitionWithDuplicateOptionLabels_preservesBothOptionsAndTheSelection` **fails**:
+
+```
+expected: <[6c12669c…, f59b87be…]> but was: <[6c12669c…, 3437573c…]>
+  "duplicate-labelled options keep their identity positionally (audit R3-01)"
+```
+
+The second option is re-minted with a fresh id — precisely the defect. The test is not asserting that the
+code does what it does; it fails on the regression it names. *Noted honestly:* the sibling test
+`replace_droppingOneDuplicateOptionLabel_removesExactlyOneOption` passes on both the old and new code —
+it is a **characterization** test pinning the deferred OQ-17 replace semantics so a future change to them
+has to be deliberate, not a proof of this fix. It is labelled as such in `tasks.md` T-16.
+
+**3. `mvn -B verify` green on the committed tree: 133 tests, 0 failures, 0 errors, 0 skipped**
+(131 at Round 3 + the 2 new). `AnnotationTypeEditGuardTest` 11 → 13.
+
+### Check-by-check
+1. **Traceability — PASS.** The one broken link Round 3 named is repaired: *"Resending an identical type
+   definition preserves every record's values"* (spec `:203`) is now unconditionally true, including the
+   duplicate-label input, at both the service and the wire level. All 30 scenarios map to tests that
+   exercise them.
+2. **Scenario honesty — PASS**, and for the new test *proven* by the revert experiment above rather than
+   asserted. Round 3's assessment of the R2 test tightening stands unchanged (nothing in this delta
+   touches it).
+3. **Constitution — PASS.** BR-05 restored (the last silent-destruction path is closed); BR-03 held.
+   AD-03 clean — T-16 adds no query and no repository call, so nothing new crosses the tenant boundary.
+   `03-code-standards`: the changed Javadoc is present, in English (`project.language`), and states the
+   rule and its audit id; identifiers stay `english` per `code_naming`; one exception type per condition
+   is untouched.
+4. **Compliance — PASS.** T-16 touches no `applies` item's evidence; C-12's stored-column assertion,
+   C-10's audit rows and C-03's role gate are unchanged and still green.
+5. **Scope — PASS.** The T-16 commit is 2 code files (`AnnotationTypeService`,
+   `AnnotationTypeEditGuardTest`) plus `tasks.md`/`workflow.json`. Both code files are named in plan
+   Addendum v2's blast radius, and plan §A already promised the behaviour ("options match **by label** (so
+   choice selections survive identical resends)") — T-16 makes the code honour a promise the approved plan
+   already made, rather than introducing an unplanned design. *Observation, non-blocking:* the plan's
+   reversibility table lists only "Duplicate-name FIFO matching inside `applyFields`"; the option-level
+   twin is equally reversible and is recorded in the human-approved `tasks.md` T-16 row, not in that
+   table. No contradiction, one missing row — left to the human's discretion, not treated as drift.
+6. **Open Questions — PASS.** `wf oq list` reports none pending. T-16 closed no OQ by implementer
+   assumption: the case it does **not** change — dropping an option label while a record selects it — is
+   deferred by the human's own 2026-08-03 decision recorded in spec `:76` ("option-list edits … keep
+   feat-003's existing replace semantics for now") and is now pinned by a characterization test instead of
+   being silently reinterpreted.
+
+### Still out of scope (unchanged, pre-existing)
+`PUT /annotation-types` returns `fields[].id` / `options[].id` as `null` for newly created children (DTO
+built before flush — feat-003). This round's probe therefore reads ids via a follow-up `GET`, exactly as
+Round 3 did. The dead `%prod.quarkus.hibernate-orm.schema-management.strategy` key still warns on every
+build (task chip open).
+
+### Gate
+`audit_pass` **opens**. Next: `publish` (branch is already `feature/annotation-records`, CI on push), then
+`review`. `catalogs/epics.md` US-2.1 moves to `delivered` for the API side; the story is not fully
+delivered until feat-006 ships the web side.
+
+---
+
 # Audit — Annotation records (feat-005, US-2.1) — ROUND 3
 
 **Step:** `feat-005-annotation-records-notebox-api.audit` (2nd re-run) · **Date:** 2026-08-04

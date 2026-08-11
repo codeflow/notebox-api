@@ -1692,7 +1692,7 @@
             {
               "id": "feat-005-annotation-records-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -1702,7 +1702,9 @@
               "produces": [
                 "features/005-annotation-records-notebox-api/audit.md"
               ],
-              "notes": "VERDICT fail R3 — 1 MEDIUM/1 LOW (audit.md Round 3): R3-01 updateOptions still uses putIfAbsent (the R2-02 pattern), so duplicate option labels make an identical type resend orphan an option and dangle the record's choice selection — reproduced over HTTP; R3-02 tasks.md T-09..T-15 checkboxes unticked. All 13 R2 findings verified fixed+guarded; verify green 131 tests. Reopened tasks --cascade for T-16."
+              "notes": "VERDICT fail R3 — 1 MEDIUM/1 LOW (audit.md Round 3): R3-01 updateOptions still uses putIfAbsent (the R2-02 pattern), so duplicate option labels make an identical type resend orphan an option and dangle the record's choice selection — reproduced over HTTP; R3-02 tasks.md T-09..T-15 checkboxes unticked. All 13 R2 findings verified fixed+guarded; verify green 131 tests. Reopened tasks --cascade for T-16.",
+              "started_at": "2026-08-11T14:15:50Z",
+              "completed_at": "2026-08-11T14:24:45Z"
             },
             {
               "id": "feat-005-annotation-records-notebox-api.publish",
