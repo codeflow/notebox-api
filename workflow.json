@@ -1709,30 +1709,35 @@
             {
               "id": "feat-005-annotation-records-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-11T14:26:35Z",
+              "completed_at": "2026-08-11T14:30:29Z"
             },
             {
               "id": "feat-005-annotation-records-notebox-api.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-11T14:52:21Z",
+              "completed_at": "2026-08-11T14:52:21Z"
             }
           ],
           "github": {
             "issue": 5,
             "branch": "feature/annotation-records",
-            "pr": 6
+            "pr": 6,
+            "merged": "develop"
           }
         },
         {

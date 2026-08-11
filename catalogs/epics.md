@@ -34,7 +34,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06, FR-18 · BR-03, BR-05, BR-10 | building | feat-005-annotation-records-notebox-api (api) — **audit pass 2026-08-11 (Round 4)**, 16/16 tasks, verify green 133 tests; awaiting publish + review · feat-006-annotation-records-notebox-web (notebox-web) — not started. Includes secret-value encryption + audited reveal (FR-18); enforces type-delete-block when records exist (OQ-14) |
+| US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06, FR-18 · BR-03, BR-05, BR-10 | building | feat-005-annotation-records-notebox-api (api) — **merged into `develop` 2026-08-11** (PR #6, squash `0f056d7`; audit Round 4 pass, 133 tests green); promotion to `main` pending · feat-006-annotation-records-notebox-web (notebox-web) — not started. Includes secret-value encryption + audited reveal (FR-18); enforces type-delete-block when records exist (OQ-14) |
 | US-2.2 | As a tenant member, I want a listing exposing visible fields plus a detail view exposing all fields, so grid and detail have what they need. | FR-05, FR-07 · BR-09 | todo | — · **absorbs US-1.2's FR-05 visible-column projection** (the `visibleForViewing` flag itself ships in feat-003); depends on US-2.1 records |
 
 ## E3 — Groups & navigation

@@ -26,6 +26,8 @@ This is an index — it does not duplicate canonical sources:
 ### Deferred / dependencies
 - [ ] **Promote** develop → main for feat-001/002/003 (`/wf-promote`).
 - [ ] **US-2.1** annotation records — unblocks Secret value encryption (OQ-15) + type-delete policy (OQ-14).
+      - [x] API side (feat-005) — **merged into `develop` 2026-08-11** (PR #6, squash `0f056d7`); audit Round 4 pass, 133 tests green. Promotion to `main` pending.
+      - [ ] Web side (feat-006, `notebox-web`) — not started; the story is delivered when this ships.
 - [ ] **feat-001 error/i18n realignment** (OQ-16).
 
 ## 4. Open questions
