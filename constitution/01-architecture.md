@@ -201,6 +201,30 @@ Grep-checkable (client confined to infra) + test (tenant-namespaced keys, miss-d
 
 ---
 
+### AD-14 — Encryption at rest for Secret field values
+**Context.** BR-10 requires values of "Secret"-flagged fields to be confidential at rest, while MySQL is
+the sole persistent store (AD-13) and the application already loads signing/secret material from a secret
+manager (C-05) — there is no cloud KMS in the stack.
+**Decision.** A Secret annotation value is encrypted with **AES-256-GCM** — a fresh random 96-bit IV per
+value; the ciphertext, IV, and authentication tag are persisted together. A single **application master
+key** is loaded from the secret manager at runtime (never in the repo or image — C-05). Every ciphertext
+carries a **key-version id** so the master key can rotate without rewriting existing rows (old values
+decrypt under their tagged version). Decryption is performed only to serve a **reveal** to a caller holding
+the elevated reveal role, and each reveal emits an audit entry (C-10). Non-secret values remain stored in
+plaintext.
+**Consequence.** A leaked database or backup never exposes secret cleartext; adds a key-management and
+rotation obligation and a crypto dependency on the secret manager; secret values become opaque, so they
+**cannot be filtered, sorted, or searched server-side**; loss of the master key renders secret values
+unrecoverable (accepted — that is the point of at-rest encryption).
+**Boundary.** All cryptographic operations (encrypt, decrypt, IV generation, master-key access) live only
+in `infrastructure/` behind a crypto port; `domain`/`application` never touch the master key or perform
+crypto, and a Secret value is never written to the database, a log, or the cache in cleartext (reinforces
+NFR-07). A reveal requires both the elevated role and an audit entry. Grep-checkable (crypto client + key
+access confined to `infrastructure/`) + test (encrypt/decrypt round-trip; stored bytes ≠ plaintext; reveal
+without the role denied; reveal emits an audit record).
+
+---
+
 ## Data model (high level)
 
 Tenant-owned aggregate roots (each carries a tenant boundary — AD-03):

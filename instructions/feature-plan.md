@@ -19,6 +19,9 @@ gate: human_approval
    If the feature is **routed to a workspace project** (`project` field on the feature step),
    design against THAT satellite's stack — `workspace.projects[].stack` in `workflow.json` —
    and read that project's sources for its patterns. The hub's stack is irrelevant to it.
+   **If the satellite ships a design reference (e.g. `design/handoff/`), it is the visual source
+   of truth for any UI** — read its `README.md` before designing screens, and open its flow HTML
+   in a browser when a detail is unclear rather than inferring from static prints.
 2. Survey what already exists before designing anything new. Delegate the sweep to an `Explore`
    sub-agent: *"where does this codebase already handle X, and what is the established pattern?"*
    Reusing the existing pattern beats introducing a better one.

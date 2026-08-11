@@ -37,7 +37,7 @@ public class Image implements TenantOwned {
     private long sizeBytes;
 
     @Lob
-    @Column(name = "bytes", nullable = false)
+    @Column(name = "bytes", nullable = false, length = Integer.MAX_VALUE)
     private byte[] bytes;
 
     @Column(name = "created_at", nullable = false, updatable = false)

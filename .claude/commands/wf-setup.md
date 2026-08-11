@@ -78,6 +78,11 @@ project name (confirm, don't ask open-ended); do not invent a stack — ask for 
    directory). The hub keeps the whole pipeline and SDD docs; satellites get only code + a
    minimal `workflow.json` pointing here.
 
+8. **Attribution** — "Include a Claude co-author line in commits and PRs?" → *Yes (default)* /
+   *No*. Applies to every commit and PR, with or without GitHub. On **No**, the apply step sets
+   `includeCoAuthoredBy: false` in `.claude/settings.json`, so no `Co-Authored-By: Claude` trailer
+   and no `🤖 Generated with Claude Code` footer appear anywhere (commits, PR bodies, comments).
+
 ### Round 3 — conventions detail (ONLY if "Customize…" was picked)
 
 One call, 3 cards, each option carrying its concrete example:
@@ -175,6 +180,12 @@ doesn't exist, and connects it when it does — existing files are never overwri
 Creating directories inside the human's filesystem is a visible action — recap the list (paths,
 types, repos) and get a yes **before** running the adds. From then on, features are routed with
 `wf feature add … --project <name>`, and their issues/PRs/commits target that satellite's repo.
+
+**Attribution.** If the human declined the Claude co-author line (Round 2 #8), merge
+`"includeCoAuthoredBy": false` into `.claude/settings.json` — preserve the existing `permissions`
+and `hooks`, only add/flip this one key. For a workspace, apply it in **every** project (hub +
+each satellite), so no commit or PR from any repo carries the attribution. Default (yes) writes
+nothing.
 
 ## 5. Agents — last question before handing off
 

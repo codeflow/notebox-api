@@ -24,4 +24,16 @@ public class AuditLogRepository extends TenantScopedRepository<AuditLog> {
                 .setParameter("target", targetId)
                 .getSingleResult();
     }
+
+    /** Same count restricted to one action label, so tests can assert the entry is the right kind (audit F10). */
+    public long countForTargetAndAction(UUID targetId, String action) {
+        return em.createQuery(
+                        "select count(a) from AuditLog a where a.tenantId = :tenant and a.targetId = :target"
+                                + " and a.action = :action",
+                        Long.class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .setParameter("target", targetId)
+                .setParameter("action", action)
+                .getSingleResult();
+    }
 }
