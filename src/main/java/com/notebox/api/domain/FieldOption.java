@@ -60,4 +60,8 @@ public class FieldOption {
     public BadgeColour getBadgeColour() {
         return badgeColour;
     }
+
+    public void setBadgeColour(BadgeColour badgeColour) {
+        this.badgeColour = badgeColour;
+    }
 }

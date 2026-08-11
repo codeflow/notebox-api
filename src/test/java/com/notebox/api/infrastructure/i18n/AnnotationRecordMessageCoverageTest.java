@@ -22,7 +22,13 @@ class AnnotationRecordMessageCoverageTest {
             "annotation.record.value.image.not_found",
             "annotation.record.secret.reveal.forbidden",
             "annotation.record.reveal.not_secret",
-            "annotation.type.has_records");
+            "annotation.record.value.duplicate_field",
+            "annotation.record.value.required",
+            "annotation.record.name.too_long",
+            "annotation.record.value.too_long",
+            "annotation.type.has_records",
+            "annotation.type.field.has_records",
+            "annotation.type.field.secret_flip.has_values");
 
     @Test
     void everyKey_hasItsOwnValueInEnglishAndPortuguese() throws Exception {

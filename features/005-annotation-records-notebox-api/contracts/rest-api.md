@@ -102,7 +102,19 @@ Uniform `Problem(code, message, correlationId)` envelope; Bean-Validation failur
 | Record not found (or foreign tenant) | `AnnotationRecordNotFoundException(NOT_FOUND)` | 404 | `annotation.record.not_found` |
 | Reveal by a non-ADMIN caller | `SecretRevealForbiddenException(FORBIDDEN)` | **403** | `annotation.record.secret.reveal.forbidden` |
 | Reveal of a non-secret / empty field | service (INVALID) | 400 | `annotation.record.reveal.not_secret` |
+| Duplicate value for the same field (F1) | `@AtMostOneValuePerField` on input | 400 | `annotation.record.value.duplicate_field` |
+| `values` contains a null element (R2-07) | element `@NotNull` on input | 400 | `annotation.record.value.required` |
+| Record name over 120 chars (F2) | `@Size(max=120)` on input | 400 | `annotation.record.name.too_long` |
+| Text/secret value over the column bound (F3) | `AnnotationRecordValueTooLongException(INVALID)` | 400 | `annotation.record.value.too_long` |
 | **Type delete while records exist** | `AnnotationTypeHasRecordsException(CONFLICT)` | 409 | `annotation.type.has_records` |
+| **Field removed/retyped while records exist** (OQ-17) | `AnnotationTypeFieldHasRecordsException(CONFLICT)` | 409 | `annotation.type.field.has_records` |
+| **Secret-flag flip while the field has values** (OQ-18) | `AnnotationTypeFieldSecretFlipException(CONFLICT)` | 409 | `annotation.type.field.secret_flip.has_values` |
+
+**Type PUT semantics (OQ-17, human decision 2026-08-03):** the type update matches incoming fields to
+existing ones and **preserves field identity** (and therefore all record values) for unchanged fields,
+identical resends and type renames; adding a field is allowed; removing or retyping a field while the type
+owns ≥1 record → 409 above. The Secret flag is immutable while the field has values (OQ-18) → 409 above.
+Both keys need en + pt rows (C-09).
 
 **New error category:** `ErrorCategory.FORBIDDEN → 403`, added to the enum and the `DomainExceptionMapper`
 switch (the only taxonomy change; existing `NOT_FOUND/CONFLICT/INVALID` unchanged).

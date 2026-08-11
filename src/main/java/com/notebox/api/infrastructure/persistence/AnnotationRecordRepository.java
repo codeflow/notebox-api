@@ -20,6 +20,17 @@ public class AnnotationRecordRepository extends TenantScopedRepository<Annotatio
         em.remove(record);
     }
 
+    /** True when any record of the caller's tenant holds a value for the given field (OQ-18). */
+    public boolean existsValueForField(UUID typeFieldId) {
+        return em.createQuery(
+                        "select count(v) from AnnotationRecord r join r.values v"
+                                + " where r.tenantId = :tenant and v.typeFieldId = :field",
+                        Long.class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .setParameter("field", typeFieldId)
+                .getSingleResult() > 0;
+    }
+
     /** Whether the caller's tenant has at least one record of the given type (OQ-14 type-delete guard). */
     public boolean existsByType(UUID annotationTypeId) {
         Long count = em.createQuery(

@@ -46,15 +46,24 @@ public class AuditLog implements TenantOwned {
     @Column(name = "at", nullable = false, updatable = false)
     private Instant at;
 
+    @Column(name = "detail", length = 255, updatable = false)
+    private String detail;
+
     protected AuditLog() {
     }
 
     public AuditLog(UUID tenantId, UUID actorUserId, String action, String targetType, UUID targetId) {
+        this(tenantId, actorUserId, action, targetType, targetId, null);
+    }
+
+    public AuditLog(
+            UUID tenantId, UUID actorUserId, String action, String targetType, UUID targetId, String detail) {
         this.tenantId = tenantId;
         this.actorUserId = actorUserId;
         this.action = action;
         this.targetType = targetType;
         this.targetId = targetId;
+        this.detail = detail;
     }
 
     @PrePersist
@@ -94,5 +103,9 @@ public class AuditLog implements TenantOwned {
 
     public Instant getAt() {
         return at;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }

@@ -1,6 +1,7 @@
 package com.notebox.api.application.annotation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -14,10 +15,12 @@ import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.AnnotationValueInput;
 import com.notebox.api.domain.AnnotationRecord;
 import com.notebox.api.domain.AnnotationType;
+import com.notebox.api.domain.AuditLog;
 import com.notebox.api.domain.FieldType;
 import com.notebox.api.domain.Role;
 import com.notebox.api.domain.Tenant;
 import com.notebox.api.domain.TypeField;
+import com.notebox.api.domain.error.AnnotationRecordNotFoundException;
 import com.notebox.api.domain.error.SecretRevealForbiddenException;
 import com.notebox.api.infrastructure.persistence.AnnotationTypeRepository;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
@@ -84,7 +87,34 @@ class AnnotationRecordRevealTest {
         String cleartext = service.reveal(recordId, fieldId);
 
         assertEquals("s3cr3t-token", cleartext);
-        assertEquals(1, auditLog.countForTarget(recordId), "exactly one audit entry for the reveal");
+        assertEquals(1, auditLog.countForTargetAndAction(recordId, "ANNOTATION_RECORD_SECRET_REVEALED"),
+                "exactly one audit entry, labelled as the reveal action");
+        AuditLog entry = em.createQuery(
+                        "select a from AuditLog a where a.targetId = :id and a.action = :action",
+                        AuditLog.class)
+                .setParameter("id", recordId)
+                .setParameter("action", "ANNOTATION_RECORD_SECRET_REVEALED")
+                .getSingleResult();
+        assertEquals("fieldId=" + fieldId, entry.getDetail(),
+                "the audit entry records WHICH value was revealed (audit F6, BR-10)");
+        assertEquals(actor, entry.getActorUserId(), "the entry records WHO revealed (audit R2-05)");
+        assertNotNull(entry.getAt(), "the entry records WHEN");
+    }
+
+    @Test
+    @TestTransaction
+    void reveal_isDeniedToAForeignTenantsAdmin() {
+        Tenant tenantA = data.createTenant();
+        UUID recordId = setUpSecretRecord(tenantA, Role.ADMIN);
+        AnnotationRecord record = service.get(recordId);
+        UUID fieldId = record.getValues().get(0).getTypeFieldId();
+
+        Tenant tenantB = data.createTenant();
+        when(tenantContext.tenantId()).thenReturn(tenantB.getId());
+        when(tenantContext.role()).thenReturn(Role.ADMIN);
+
+        assertThrows(AnnotationRecordNotFoundException.class, () -> service.reveal(recordId, fieldId),
+                "a foreign tenant's ADMIN gets not-found, never the cleartext (C-01)");
     }
 
     @Test

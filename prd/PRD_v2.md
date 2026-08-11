@@ -114,7 +114,14 @@ name unique per tenant; type/field names and field type required; Number fields 
 min/max bounds; image uploads limited to PNG/JPEG/GIF/WebP; task and annotation names required; rich-text
 details optional. **Deleting an annotation type is rejected while it still owns annotation records**
 (block, not cascade — the member deletes the records first) *(decisão humana 2026-07-24, OQ-14; refines
-FR-01)*.
+FR-01)*. **Editing a type's fields while it owns annotation records preserves field identity — and
+therefore all existing values — for unchanged fields and for resends of an identical definition; removing
+or retyping a field while records exist is rejected (block, localized error); adding a new field remains
+allowed** *(decisão humana 2026-08-03, OQ-17; refines FR-01/FR-02 — full type-evolution/migration
+semantics deferred to a dedicated future feature)*. **Changing a field's Secret flag — in either
+direction — is rejected while the field still has values (block, localized error); the values must be
+cleared explicitly first** *(decisão humana 2026-08-03, OQ-18; refines FR-02/FR-18 — guarantees no
+cleartext-at-rest state can form, BR-10)*.
 
 ### 3.2 Non-Functional (NFR)
 | ID | Category | Description | Target | Origin |
@@ -203,6 +210,16 @@ cache-aside (AD-13). **Authentication: stateless signed JWT** (decisão humana 2
 
 ## 8. Assumptions & Open Questions
 See `catalogs/open-questions.md`. **No open questions remain (0 pending).**
+
+**Audit-phase set — opened by the feat-005 audit, both resolved (2026-08-03):**
+- **OQ-17** → type field edits vs existing records: **preserve field identity for unchanged fields /
+  identical resends; block field removal or retype while records exist (localized 409); field additions
+  allowed**. Interim guard ships in feat-005 (symmetric to OQ-14); full type-evolution/migration deferred
+  to a dedicated future feature. *(Refines §3.1 validation baseline.)*
+- **OQ-18** → Secret-flag flip (audit F12): **blocked — in either direction — while the field still has
+  values (localized 409)**; flipping requires the field's values to be cleared explicitly first, so no
+  cleartext-at-rest state can form (BR-10 holds). Migration-on-flip deferred as a possible future feature.
+  *(Refines §3.1 validation baseline.)*
 
 **v1 set — all 10 resolved (2026-07-22):** OQ-01 personas (cross-functional teams); OQ-02 activation/usage
 KPIs; OQ-03 options on field definition; OQ-04 single-membership flat groups; OQ-05 dates by min/max;

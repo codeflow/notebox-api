@@ -155,11 +155,20 @@
 **Decision:** Realign via a dedicated follow-up refactor feature: convert feat-001 (identity) to specific domain exceptions extending a domain base class, dot-namespaced i18n keys (e.g. auth.credentials.invalid) with en+pt entries, and a unified ExceptionMapper matching feat-003+. No functional change; testable in isolation. Scheduled in the delivery backlog; does not block current features. Restores constitution 03-code-standards consistency (no permanent exception granted). — decided by rafaelsantos, 2026-07-24.
 
 ### OQ-17 — Type field mutation vs existing records — orphaned annotation values
-**Severity:** 🟢 Tactical
-**Description:** <what is unknown and why it matters>
-**Impact:** feat-003 type PUT replaces TypeFields with orphanRemoval; editing/removing a field on a type that already owns annotation records (US-2.1) can orphan AnnotationValue.typeFieldId references or delete the field a value points to. Symmetric to OQ-14 (type-delete block). Options: block field removal/retype while values exist, or migrate/null affected values. Out of scope for feat-005; needs its own decision before type editing is exercised against populated types.
-**Suggested path:** <how to resolve>
-**Status:** open.
+**Severity:** 🔴 Blocker *(re-rated from 🟢 Tactical per audit F5, 2026-08-03)*
+**Description:** What must happen to a record's values when the owning type's field set is edited via PUT while records exist? Audit F5 proved the current behavior is destructive on the most innocent input: feat-003's replace generates new TypeField UUIDs on **every** PUT, so even resending an *identical* definition orphans every AnnotationValue of every record of that type (GET returns `values: []`) and flips the type-delete guard to a permanent `409 has_records`. Unknown: whether field edits must be blocked while records exist (symmetric to OQ-14), whether values must be preserved by matching unchanged fields, or whether destruction is acceptable and merely audited.
+**Impact:** feat-003 type PUT replaces TypeFields with orphanRemoval; editing/removing a field on a type that already owns annotation records (US-2.1) can orphan AnnotationValue.typeFieldId references or delete the field a value points to. Symmetric to OQ-14 (type-delete block). Options: block field removal/retype while values exist, or migrate/null affected values. Blocks feat-005's audit (finding F5): the destruction breaks feat-005's own delivered reads, so a decision — including whether feat-005 ships an interim guard — is required before the re-audit.
+**Suggested path:** Human decision, symmetric to OQ-14. Interim (feat-005 scope): block field-set changes on a populated type with a localized 409, or preserve field identity when the definition is unchanged. Long-term: a dedicated type-evolution feature (migrate/null affected values).
+**Status:** ✅ resolved (2026-08-03).
+**Decision:** Guard + preserve unchanged (interim guard ships in feat-005, symmetric to OQ-14): the type PUT matches incoming fields to existing ones and preserves field identity — and therefore all existing values — for unchanged fields and for resends of an identical definition; removing or retyping a field while records exist is rejected with a localized 409; adding a new field remains allowed. Full type-evolution/migration semantics deferred to a dedicated future feature. — decided by rafaelsantos, 2026-08-03.
+
+### OQ-18 — Secret flag flip on a field with existing values — cleartext/ciphertext mismatch
+**Severity:** 🟡 Important
+**Description:** What are the semantics of toggling a field's Secret flag (via the type PUT) when values already exist for that field? Encryption happens at write time, so a flip changes how *future* writes are stored but not how *existing* rows were stored — and today masking keys off the field's flag while reveal keys off the value's stored form, so the two ends of the API disagree after any flip (audit F12).
+**Impact:** Audit F12: reveal keys off ciphertext presence (value.isSecret) while masking keys off the field's Secret flag. Flipping a TEXT field to Secret leaves existing cleartext in text_value while reads mask it and reveal returns 400 — the value is unreadable through any endpoint yet its cleartext stays at rest, a BR-10 hole. Un-flipping leaves ciphertext invisible on read yet still revealable. Needs decided semantics: block the flip while values exist, migrate values on flip (encrypt/decrypt), or align reveal with the field flag and accept the legacy state. Blocks feat-005 spec closure (audit verdict).
+**Suggested path:** Human decision. Options: (a) block the flip while values exist for the field (guard family of OQ-14/OQ-17); (b) migrate on flip — encrypt existing cleartext when Secret turns on, decrypt (ADMIN-gated, audited) when it turns off; (c) key reveal off the field flag only and accept legacy cleartext at rest — conflicts with BR-10.
+**Status:** ✅ resolved (2026-08-03).
+**Decision:** Block the flip while values exist (guard family of OQ-14/OQ-17): the type PUT rejects a Secret-flag change — in either direction — on a field that still has values, with a localized 409; flipping requires the field's values to be cleared explicitly first. No cleartext-at-rest state can form (BR-10 holds); migration-on-flip deferred as a possible future feature. — decided by rafaelsantos, 2026-08-03.
 
 ## History
 
@@ -190,6 +199,9 @@
 | 2026-07-24 | OQ-13 resolved: localStorage toggle (stays stateless): 'Remember me' checked stores th… |
 | 2026-07-24 | OQ-16 resolved: Realign via a dedicated follow-up refactor feature: convert feat-001 (… |
 | 2026-07-25 | OQ-17 opened: Type field mutation vs existing records — orphaned annotation values |
+| 2026-08-03 | OQ-18 opened: Secret flag flip on a field with existing values — cleartext/ciphertex |
+| 2026-08-03 | OQ-17 resolved: Guard + preserve unchanged (interim guard ships in feat-005, symmetric… |
+| 2026-08-03 | OQ-18 resolved: Block the flip while values exist (guard family of OQ-14/OQ-17): the t… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

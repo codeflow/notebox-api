@@ -1,4 +1,188 @@
-# Audit — Annotation records (feat-005, US-2.1)
+# Audit — Annotation records (feat-005, US-2.1) — ROUND 3
+
+**Step:** `feat-005-annotation-records-notebox-api.audit` (2nd re-run) · **Date:** 2026-08-04
+**Method.** Inline opus/xhigh disposition audit of the R2 remediation (T-09…T-15): every R2 finding
+located in the tree with its guarding test, plus an adversarial sweep for defects *introduced* by the
+remediation itself. One empirical HTTP probe against real MySQL (throwaway class, deleted; tree verified
+clean and it did **not** enter the verify count). `mvn -B verify` green: **131 tests, 0 failures, 0
+errors, 0 skipped.**
+
+## Verdict: **FAIL — one defect, in the remediation's own code**
+
+Every R2 finding is genuinely fixed and guarded (dispositions below). The gate fails on a single new
+finding: the R2-02 fix was applied to fields but **not to its exact twin one method below**, and the
+result is silent corruption on the very operation OQ-17 promises is safe.
+
+### Findings
+
+- **R3-01 — MEDIUM · `updateOptions` still carries the R2-02 defect: duplicate option labels break the
+  identical-resend promise.** `AnnotationTypeService.updateOptions` (`:167-169`) still builds its
+  label→option map with `putIfAbsent`, the exact pattern R2-02 condemned and T-09 replaced with FIFO
+  queues in `applyFields` (`:113-115`). Nothing forbids two options with the same label in one field (no
+  input validation, no DB uniqueness). **Empirically reproduced** over HTTP: type `Env SINGLE_CHOICE`
+  with options `[dev, dev]` → ids `40a1990b…`, `9d255cbe…`; record selects the *second*
+  (`9d255cbe…`); an **identical resend** of the definition returns **200** (no guard fires) and the
+  options become `[40a1990b…, <new>]` — `9d255cbe…` is orphan-removed. The record then reads back
+  `optionIds:["9d255cbe…"]`, **a dangling reference to a deleted option**: the selection can no longer
+  be resolved to a label or badge by any client. Violates BR-05 (silent, unaudited destruction) and the
+  spec scenario *"Resending an identical type definition preserves every record's values"*, which is
+  unconditional. Distinct from the option-label *rename/removal* semantics the OQ-17 decision explicitly
+  defers — this input changes nothing at all.
+- **R3-02 — LOW · `tasks.md` checkboxes for T-09…T-15 are still `[ ]`** while `workflow.json` records
+  all seven as `done` and the code ships. `instructions/feature-implement.md` requires ticking the box
+  as part of closing a task; a reader of the artifacts alone sees seven tasks outstanding — the same
+  artifact-vs-reality drift class as R2-01.
+
+### R2 disposition — all fixed and guarded
+| Finding | Fix (located) | Guard |
+|---|---|---|
+| R2-01 plan/tasks stale | plan Addendum v2 (§A shipped design, §B R2 design), data-model V4 section, tasks T-09…T-15 + 30/30 coverage | artifacts re-approved by the human 2026-08-04 |
+| R2-02 duplicate field names | `applyFields` FIFO `Deque<TypeField>` | 2 tests: identical resend preserves both ids; dropping one → 409 |
+| R2-03 raw-row counting | `fieldIdsBefore` identity pin + `AnnotationRecordDto.from(...)` reads | 3 preservation tests |
+| R2-04 guard wire contract | — (test-only) | 3 wire tests: 409 + machine code for all three guards |
+| R2-05 audit who/when | — (test-only) | `getActorUserId` + `getAt` asserted in delete/reveal/erase |
+| R2-06 post-states | — (test-only) | `assertGuardedStateUnchanged` after every guard 409 (×4) |
+| R2-07 `values:[null]` | element `@NotNull` + `annotation.record.value.required` (en+pt) | wire test → 400 + violation code |
+| R2-08 reject-only bounds | — (test-only) | accept-side test at 120 / 4 080 / 65 535 |
+| R2-09 OpenAPI substrings | — (test-only) | whole path-key asserts (`"/api/annotation-records"` etc.) |
+| R2-10 F13 unguarded | — | `optionIds:[null]` → `option.unknown`, not NPE |
+| R2-11 C-12 evidence | — (test-only) | native read: `text_value IS NULL` ∧ ciphertext ≠ plaintext |
+| R2-12 Javadoc | `existsByType` doc restored | — |
+| R2-13/14 HANDOFF | rewritten in English, state-accurate | — |
+
+### Check-by-check
+1. **Traceability — FAIL (one scenario):** all 30 scenarios map to tests; *"Resending an identical type
+   definition preserves every record's values"* is false for the duplicate-label input (R3-01).
+2. **Scenario honesty — PASS.** The R2 weaknesses are genuinely closed: identity is pinned, values are
+   read through the wire model where orphans are invisible, 409s and machine codes are asserted at the
+   wire, audit rows assert who/when/which, bounds are tested on both sides, OpenAPI matches whole path
+   keys, and C-12's claim is now a real stored-column assertion.
+3. **Constitution — FAIL:** BR-05 via R3-01. AD-03 clean (both new queries tenant-scoped); AD-14 clean;
+   03-code-standards clean (Javadoc restored, one exception type per condition, keys in both locales).
+4. **Compliance — PASS.** Every `applies` item's claimed evidence now exists, including C-12.
+5. **Scope — PASS.** Every changed file is accounted for by plan Addendum v2's blast radius.
+6. **Open Questions — PASS.** None pending; OQ-17/OQ-18 decided by the human and recorded in catalog,
+   PRD §3.1/§8 and spec.
+
+### What must be reopened
+`./bin/wf reopen feat-005-annotation-records-notebox-api.tasks --cascade` — the fix needs a task row
+that does not exist (T-09 was scoped to *fields*), and the same pass clears R3-02. Bounded worklist:
+**tasks** — add **T-16** (mirror the FIFO matching in `updateOptions`; tests: duplicate-label identical
+resend preserves both option ids and the record's selection; dropping one label behaves as the deferred
+replace semantics say) and tick T-09…T-15. **implement** — T-16 only. Everything else above is
+fenced: do not redo it.
+
+### Out of scope (unchanged, pre-existing)
+`PUT /annotation-types` returns `fields[].id` / `options[].id` as `null` for newly created children
+(DTO built before flush — feat-003; re-confirmed by this round's probe). The dead
+`%prod.quarkus.hibernate-orm.schema-management.strategy` key still warns on every build (task chip open).
+
+---
+
+# Audit — Annotation records (feat-005, US-2.1) — ROUND 2
+
+**Step:** `feat-005-annotation-records-notebox-api.audit` (re-run) · **Date:** 2026-08-04
+**Method.** Multi-agent adversarial audit (60 agents): 8 parallel dimensions — traceability (all 30
+scenarios), scenario honesty, constitution greps, compliance evidence, prior-finding regression (F1–F14
+one by one), empirical HTTP probes, scope-vs-plan diff, artifact hygiene/OQ — with every candidate
+finding independently verified by a **factual lens** (re-check in the tree, default refute) and a
+**materiality lens** (in-scope + severity honesty) before admission. 5 candidate findings were refuted
+and dropped; notable drops: an option-label-dangle claim (explicitly deferred by the spec's OQ-17/OQ-18
+decision note), a probe-leftover claim (file does not exist), epics stasis (decreed by round 1 itself).
+Empirical probes ran end-to-end over HTTP against a real MySQL 8.4 container (one throwaway test class,
+deleted after the run; tree verified clean). `mvn -B verify` green: **122 tests, 0 failures, 0 skipped.**
+
+## Verdict: **FAIL — narrow**
+
+Round 1's behavioural core is fixed and empirically proven: all six replayed round-1 probes now behave
+(duplicate value → 400 `annotation.record.value.duplicate_field`; 121-char name → 400; 4 081-char secret
+→ 400; PUT omitting a secret → 200 + reveal still returns the original cleartext; **identical type PUT →
+field AND option ids byte-identical, all values and the choice selection survive**; field removal on a
+populated type → 409 `annotation.type.field.has_records`). What fails the gate is narrower: one
+reproducible data-loss bypass in the new OQ-17 guard, the spec→plan→tasks chain broken for the 13 new
+scenarios, and the new guards' wire contract resting on untested assertions.
+
+### Findings
+
+- **R2-01 — HIGH · plan.md / tasks.md / data-model.md were never reworked for spec v2** *(convergent:
+  scope + regression + hygiene dimensions)*. Round 1's mandate ordered reopening "spec (then
+  plan/tasks/implement)"; only spec and implement were redone. `tasks.md` still claims **"17/17 spec
+  scenarios covered · Uncovered scenarios: none"** against a 30-scenario spec; the 13 new scenarios
+  (4×F4, 6×OQ-17, 3×OQ-18) map to **no task**; plan §Blast-radius omits ~10 shipped artifacts including
+  the **one-way `V4__audit_log_detail.sql` schema change** (also absent from data-model.md), the
+  validator package, 3 new exceptions, and the OQ-17 redesign of `AnnotationTypeService` (+88 lines);
+  the exact plan defects F14 named persist verbatim. *Failure scenario:* the next session resumes from
+  artifacts (the pipeline's own rule) and the chain is false for 43% of the spec.
+- **R2-02 — MEDIUM · OQ-17 guard bypassed by duplicate-named fields → silent, unaudited data loss.**
+  `applyFields` tracks existing fields via `putIfAbsent(name, field)`
+  (`AnnotationTypeService.java:107-109`): with two same-named fields (nothing forbids them — no input
+  validation, no `UNIQUE(annotation_type_id, name)` in V2), the second is never matched **and never
+  counted as unmatched**, so any PUT — including an identical resend — orphan-removes it and destroys its
+  values with no 409 and no audit entry. **Empirically reproduced** end-to-end (type `[Port TEXT, Port
+  TEXT]` → record with both values → identical resend → 200, second value gone from every read). If the
+  duplicated field is Secret, the orphaned ciphertext stays revealable via the stale field id. BR-05
+  violation — the destruction class the guard exists to reject.
+- **R2-03 — MEDIUM · OQ-17 preservation tests count raw entity rows, not reachable values.** The three
+  survival tests assert `record.getValues().size()==3` on the raw collection; orphaned values still
+  count. Only the choice leg pins identity via option id. Field re-minting for TEXT/NUMBER would pass
+  all three while every wire read silently loses those values.
+- **R2-04 — MEDIUM · The three conflict guards' wire contract is untested.** OQ-14/17/18 rejections are
+  asserted only as service-level exception types; no test asserts the message key, the CONFLICT
+  category, or **any HTTP 409 anywhere in the suite** — the wire contract feat-006 will code against can
+  regress with everything green.
+- **R2-05 — MEDIUM · The audit-clause "who … and when" is unasserted.** Delete/reveal/erase tests assert
+  count + action + `detail` but never `actorUserId` or `at` — the "who" half of the three spec clauses
+  is unguarded (zero reads of `actorUserId` in src/test).
+- **R2-06 — LOW · Guard-rejection post-state clauses unasserted** ("definition unchanged", "remains
+  readable/masked" — scenarios 23/24/26/27): the service mutates in place before throwing; correctness
+  currently rests on transaction rollback that no test exercises.
+- **R2-07 — LOW · `values:[null]` → NPE → off-envelope 500** (F13's record-side sibling): no element
+  `@NotNull` on `AnnotationRecordInput.values`; the new validator explicitly tolerates null elements;
+  the service then dereferences `input.fieldId()`.
+- **R2-08 — LOW · All three new length bounds are tested reject-side only** (121/4081/65536 rejected;
+  120/4080/65535 never accepted) — silent tightening ships green.
+- **R2-09 — LOW · OpenAPI coverage is substring-satisfiable**: `contains("annotation-records")` is a
+  substring of the reveal path asserted next to it; CRUD endpoints can vanish undetected.
+- **R2-10 — LOW · F13 fixed without a guarding test** — `optionIds:[null]` NPE can silently return.
+- **R2-11 — LOW · C-12's claimed "ciphertext-at-rest (stored bytes ≠ plaintext)" test still absent** as
+  a stored-column assertion (round-1 verified it manually; no test pins it).
+- **R2-12 — LOW · Misplaced Javadoc pair in `AnnotationRecordRepository`** — `existsByType` lost its doc
+  to the newly inserted `existsValueForField` (03-code-standards §Comments).
+- **R2-13 — LOW · HANDOFF.md stale**: edited this cycle yet still asserts "Falta implementar", 94
+  tests, 17 scenarios — all false in the same tree.
+- **R2-14 — LOW · Working-language drift**: HANDOFF.md is Portuguese; `project.language` is `en`
+  (PRD "decisão humana" tags are a pre-existing v1 convention, noted, not new drift).
+
+### Prior findings disposition
+F1–F12 **fixed and guarded** (each located, each with a failing-on-regression test; F4/F5/F12 match the
+recorded human decisions OQ-17/OQ-18 — with the R2-02 edge exception). F13 fixed, unguarded (R2-10).
+F14 partially fixed (spec status/OQ-17 placeholders done; plan/tasks halves untouched → folded into R2-01).
+
+### Check-by-check
+1. **Traceability — FAIL (narrow):** every scenario has a test; R2-05/R2-06 clauses are weaker than
+   their scenarios; spec→plan→tasks broken for 13 scenarios (R2-01).
+2. **Scenario honesty — FAIL:** R2-03/R2-04/R2-08/R2-09; round-1 F10 under-assertions verified tightened.
+3. **Constitution — FAIL:** R2-02 (BR-05/BR-03); AD-03 clean incl. the two new queries; AD-14 clean
+   (crypto confined, AES-256 enforced by test, key-version per value); 03-code-standards clean but R2-12.
+4. **Compliance — pass with R2-11;** all other applies-items' evidence located (incl. the two F8 gaps,
+   now real tests).
+5. **Scope — FAIL:** R2-01. All unplanned files individually justified as remediation; the failure is
+   that no artifact records them.
+6. **Open Questions — PASS:** OQ-17/OQ-18 opened, decided by the human (2026-08-03), recorded in
+   catalog + PRD + spec; nothing closed by implementer assumption.
+
+### What must be reopened
+`./bin/wf reopen feat-005-annotation-records-notebox-api.plan --cascade` — the earliest stale artifact
+is the plan. Bounded worklist: **plan** — add a spec-v2 addendum (blast radius: V4 + validator + 3
+exceptions + type-PUT redesign; reversibility note for the one-way V4). **tasks** — task rows for the
+13 new scenarios' work + corrected coverage claims. **implement** — R2-02 fix (duplicate-name-safe
+matching or a duplicate-name guard), R2-03/R2-04/R2-05 test tightenings; R2-06..R2-13 at implementer
+discretion within the same pass; sync HANDOFF (R2-13/R2-14). Verified-good above does **not** need
+redoing.
+
+---
+
+# Audit — Annotation records (feat-005, US-2.1) — ROUND 1
 
 **Step:** `feat-005-annotation-records-notebox-api.audit` · **Model/effort:** opus/xhigh · **Date:** 2026-07-25
 **Auditor mandate:** try to prove the feature is *not* done. Six checks below plus seven targeted risk

@@ -28,8 +28,16 @@ class OpenApiCoverageTest {
                 .then().statusCode(200)
                 .extract().asString();
 
-        assertTrue(document.contains("annotation-records"), "annotation-records endpoints missing from OpenAPI");
-        assertTrue(document.contains("/annotation-records/{id}/values/{fieldId}/reveal"),
+        assertTrue(hasPathKey(document, "/api/annotation-records"),
+                "record collection path missing from OpenAPI (must be its own path key, not a substring)");
+        assertTrue(hasPathKey(document, "/api/annotation-records/{id}"),
+                "record item path missing from OpenAPI");
+        assertTrue(hasPathKey(document, "/api/annotation-records/{id}/values/{fieldId}/reveal"),
                 "reveal endpoint missing from OpenAPI");
+    }
+
+    /** Matches a whole path KEY (JSON quoted or YAML colon-terminated), never a substring of a longer path. */
+    private static boolean hasPathKey(String document, String path) {
+        return document.contains("\"" + path + "\"") || document.contains(path + ":");
     }
 }

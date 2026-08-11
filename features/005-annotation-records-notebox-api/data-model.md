@@ -86,3 +86,15 @@ Notes: `ON DELETE CASCADE` mirrors JPA `orphanRemoval` at the DB level for defen
 feat-003's `iconImageId` loose-reference choice (survey point 7). `secret_ciphertext` sized for the
 GCM-encrypted form of a bounded secret text value; widen in a later migration if a larger secret type is
 introduced.
+
+## Migration — `V4__audit_log_detail.sql` (v2 addendum, audit F6 — one-way)
+
+```sql
+ALTER TABLE audit_log ADD COLUMN detail VARCHAR(255) NULL;
+```
+
+`audit_log` (feat-003, V2) gains a nullable free-form `detail`: the reveal and clear-secret entries store
+`fieldId=<uuid>` so "who saw / erased WHICH value" is answerable per field (BR-10, C-10). Nullable and
+absent from every pre-existing write path — feat-003 rows and call sites are untouched (the 5-arg
+`AuditLog` constructor delegates with `detail = null`). Entity: `AuditLog.detail`, `@Column(length=255,
+updatable=false)`.

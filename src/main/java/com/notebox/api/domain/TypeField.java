@@ -133,4 +133,10 @@ public class TypeField {
     public void addOption(FieldOption option) {
         this.options.add(option);
     }
+
+    /** Replaces the whole ordered option list (PUT semantics); orphanRemoval deletes the dropped ones. */
+    public void replaceOptions(List<FieldOption> newOptions) {
+        this.options.clear();
+        this.options.addAll(newOptions);
+    }
 }

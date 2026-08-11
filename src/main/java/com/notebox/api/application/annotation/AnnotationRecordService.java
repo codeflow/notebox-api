@@ -1,9 +1,12 @@
 package com.notebox.api.application.annotation;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -29,6 +32,7 @@ import com.notebox.api.domain.error.AnnotationRecordRevealNotSecretException;
 import com.notebox.api.domain.error.AnnotationRecordValueImageNotFoundException;
 import com.notebox.api.domain.error.AnnotationRecordValueOptionUnknownException;
 import com.notebox.api.domain.error.AnnotationRecordValueOutOfBoundsException;
+import com.notebox.api.domain.error.AnnotationRecordValueTooLongException;
 import com.notebox.api.domain.error.AnnotationRecordValueTypeMismatchException;
 import com.notebox.api.domain.error.AnnotationTypeNotFoundException;
 import com.notebox.api.domain.error.SecretRevealForbiddenException;
@@ -49,6 +53,11 @@ public class AnnotationRecordService {
     private static final String TARGET_ANNOTATION_RECORD = "ANNOTATION_RECORD";
     private static final String ACTION_RECORD_DELETED = "ANNOTATION_RECORD_DELETED";
     private static final String ACTION_SECRET_REVEALED = "ANNOTATION_RECORD_SECRET_REVEALED";
+    private static final String ACTION_SECRET_CLEARED = "ANNOTATION_RECORD_SECRET_CLEARED";
+
+    // Storage bounds of V3: text_value TEXT; secret_ciphertext VARBINARY(4096) minus the 16-byte GCM tag.
+    private static final int TEXT_VALUE_MAX_BYTES = 65535;
+    private static final int SECRET_VALUE_MAX_BYTES = 4080;
 
     private final AnnotationRecordRepository records;
     private final AnnotationTypeRepository types;
@@ -87,14 +96,75 @@ public class AnnotationRecordService {
         return records.findByIdInTenant(id).orElseThrow(AnnotationRecordNotFoundException::new);
     }
 
-    /** Replaces a record's name and values (PUT); the record's type never changes. */
+    /**
+     * Replaces a record's name and values (PUT); the record's type never changes. Secret values
+     * follow the decided semantics (human decision 2026-07-25, audit F4): omitted or echoed-masked
+     * ({@code text: null}) → the stored ciphertext is preserved; a new {@code text} → re-encrypted;
+     * {@code clearSecret: true} → erased with an audit entry (BR-05, BR-10).
+     */
     @Transactional
     public AnnotationRecord update(UUID id, AnnotationRecordInput input) {
         AnnotationRecord record = get(id);
         AnnotationType type = requireType(record.getAnnotationTypeId());
         record.setName(input.name());
-        record.replaceValues(toValues(type, input.valuesOrEmpty()));
+        record.replaceValues(toUpdatedValues(type, record, input.valuesOrEmpty()));
         return record;
+    }
+
+    /** Applies the F4 secret-preservation table on top of plain replace semantics for everything else. */
+    private List<AnnotationValue> toUpdatedValues(
+            AnnotationType type, AnnotationRecord record, List<AnnotationValueInput> inputs) {
+        Map<UUID, TypeField> fieldsById =
+                type.getFields().stream().collect(Collectors.toMap(TypeField::getId, Function.identity()));
+        Map<UUID, AnnotationValue> existingByField = record.getValues().stream()
+                .collect(Collectors.toMap(AnnotationValue::getTypeFieldId, Function.identity(), (a, b) -> a));
+        Set<UUID> mentionedFields = new HashSet<>();
+        List<AnnotationValue> values = new ArrayList<>();
+        for (AnnotationValueInput input : inputs) {
+            TypeField field = fieldsById.get(input.fieldId());
+            if (field == null) {
+                throw new AnnotationRecordFieldUnknownException();
+            }
+            mentionedFields.add(field.getId());
+            if (!field.isSecret()) {
+                values.add(toValue(field, input));
+                continue;
+            }
+            AnnotationValue existing = existingByField.get(field.getId());
+            if (input.clearSecretRequested()) {
+                if (existing != null && existing.isSecret()) {
+                    auditLog.persistInTenant(new AuditLog(
+                            tenant.tenantId(), tenant.userId(), ACTION_SECRET_CLEARED,
+                            TARGET_ANNOTATION_RECORD, record.getId(), "fieldId=" + field.getId()));
+                }
+                continue;
+            }
+            if (input.text() == null) {
+                preservedSecret(field, existing).ifPresent(values::add);
+                continue;
+            }
+            values.add(toValue(field, input));
+        }
+        for (AnnotationValue existing : record.getValues()) {
+            TypeField field = fieldsById.get(existing.getTypeFieldId());
+            if (field == null || !field.isSecret() || !existing.isSecret()
+                    || mentionedFields.contains(field.getId())) {
+                continue;
+            }
+            preservedSecret(field, existing).ifPresent(values::add);
+        }
+        return values;
+    }
+
+    /** Carries an existing ciphertext into the replacement value row, byte-identical (audit F4). */
+    private Optional<AnnotationValue> preservedSecret(TypeField field, AnnotationValue existing) {
+        if (existing == null || !existing.isSecret()) {
+            return Optional.empty();
+        }
+        AnnotationValue preserved = new AnnotationValue(field.getId());
+        preserved.setSecret(
+                existing.getSecretCiphertext(), existing.getSecretIv(), existing.getSecretKeyVersion());
+        return Optional.of(preserved);
     }
 
     /** Deletes a record irreversibly and records the action in the audit trail (FR-06, BR-05, C-10). */
@@ -126,7 +196,8 @@ public class AnnotationRecordService {
         String cleartext = cipher.decrypt(
                 new EncryptedValue(value.getSecretCiphertext(), value.getSecretIv(), value.getSecretKeyVersion()));
         auditLog.persistInTenant(new AuditLog(
-                tenant.tenantId(), tenant.userId(), ACTION_SECRET_REVEALED, TARGET_ANNOTATION_RECORD, recordId));
+                tenant.tenantId(), tenant.userId(), ACTION_SECRET_REVEALED, TARGET_ANNOTATION_RECORD, recordId,
+                "fieldId=" + fieldId));
         return cleartext;
     }
 
@@ -155,8 +226,8 @@ public class AnnotationRecordService {
             case TEXT, FREE_TEXT -> applyText(field, input, value);
             case NUMBER -> applyNumber(field, input, value);
             case IMAGE -> applyImage(input, value);
-            case LIST, SINGLE_CHOICE -> applyOptions(field, input, value, 1);
-            case MULTIPLE_CHOICE -> applyOptions(field, input, value, Integer.MAX_VALUE);
+            case LIST, SINGLE_CHOICE -> applyOptions(field, input, value, 1, 1);
+            case MULTIPLE_CHOICE -> applyOptions(field, input, value, 0, Integer.MAX_VALUE);
         }
         return value;
     }
@@ -164,6 +235,10 @@ public class AnnotationRecordService {
     private void applyText(TypeField field, AnnotationValueInput input, AnnotationValue value) {
         if (input.text() == null) {
             throw new AnnotationRecordValueTypeMismatchException();
+        }
+        int utf8Length = input.text().getBytes(StandardCharsets.UTF_8).length;
+        if (utf8Length > (field.isSecret() ? SECRET_VALUE_MAX_BYTES : TEXT_VALUE_MAX_BYTES)) {
+            throw new AnnotationRecordValueTooLongException();
         }
         if (field.isSecret()) {
             EncryptedValue encrypted = cipher.encrypt(input.text());
@@ -197,9 +272,10 @@ public class AnnotationRecordService {
         value.setImageId(imageId);
     }
 
-    private void applyOptions(TypeField field, AnnotationValueInput input, AnnotationValue value, int maxSelected) {
+    private void applyOptions(
+            TypeField field, AnnotationValueInput input, AnnotationValue value, int minSelected, int maxSelected) {
         Set<UUID> optionIds = input.optionIdsOrEmpty();
-        if (optionIds.isEmpty() || optionIds.size() > maxSelected) {
+        if (optionIds.size() < minSelected || optionIds.size() > maxSelected) {
             throw new AnnotationRecordValueTypeMismatchException();
         }
         Set<UUID> known = field.getOptions().stream().map(FieldOption::getId).collect(Collectors.toSet());

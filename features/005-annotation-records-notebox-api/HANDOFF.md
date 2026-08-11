@@ -1,82 +1,43 @@
-# HANDOFF — feat-005 annotation records (retomar aqui)
+# HANDOFF — feat-005 annotation records (resume here)
 
-**Escrito:** 2026-07-25 · **Estado:** audit `fail`, corrigindo. **PR [#6](https://github.com/codeflow/notebox-api/pull/6) é DRAFT — não mergear.**
+**Updated:** 2026-08-04 · **State:** audit R2 remediation (T-09…T-15) implemented; awaiting full
+verify + audit round 3. **PR [#6](https://github.com/codeflow/notebox-api/pull/6) is DRAFT — do not merge.**
 
-## Como retomar
+## How to resume
 
 ```bash
-cd notebox-api && claude      # o hook injeta o pipeline automaticamente
-/wf-status                     # ver estado
-/wf-next                       # continua em feat-005…spec (opus/high)
+cd notebox-api && claude      # the hook injects the pipeline automatically
+/wf-status                     # see the state
+/wf-next                       # continues at the next eligible step
 ```
 
-⚠️ **`mvn -B verify` exige o Docker ligado** (MySQL via Testcontainers/Dev Services). Sem Docker os
-testes `@QuarkusTest` falham com *"Could not find a valid Docker environment"* / *"Failed to start
-quarkus"* — não é defeito de código. `open -a Docker` e espere ~5s. O startup do Quarkus leva ~90s,
-então o `verify` completo demora ~10 min. A CI do GitHub não depende disso (roda em container próprio).
+⚠️ **`mvn -B verify` requires Docker running** (MySQL via Testcontainers/Dev Services). Without it,
+`@QuarkusTest` fails with *"Could not find a valid Docker environment"* — not a code defect.
+`open -a Docker`, wait ~5 s; a full verify takes ~10 min. GitHub CI does not depend on local Docker.
 
-## O que já está pronto e verificado (NÃO refazer)
+## Where things stand
 
-10 commits em `feature/annotation-records`, `mvn -B verify` verde: **94 testes, 0 falhas, 0 skipped**.
-O audit confirmou empiricamente, lendo a linha crua no MySQL:
+- **Round 1 (2026-07-25, verdict fail):** F1–F14 — all behavioural findings **fixed and empirically
+  verified** by the R2 audit's HTTP probes (no 500 envelopes; PUT preserves secrets; identical type PUT
+  preserves field/option identity and every value; guards 409 with machine codes).
+- **Spec v2 approved (2026-08-03/04):** 30 scenarios. Human decisions **OQ-17** (type field edits:
+  preserve unchanged/identical; block removal/retype with records; adds allowed) and **OQ-18**
+  (Secret-flag flip blocked while the field has values) — recorded in the catalog, PRD §3.1/§8, spec.
+- **Round 2 (2026-08-04, verdict fail — narrow):** R2-01…R2-14 in `audit.md` (Round 2 section, top of
+  file). Plan Addendum v2 + tasks T-09…T-15 were approved and **implemented**:
+  duplicate-name-safe FIFO field matching (R2-02), wire 409+code tests for all three guards with
+  post-state re-reads (R2-04/06), field-identity pinning + DTO-path reads in preservation tests (R2-03),
+  who/when audit asserts (R2-05), `values:[null]` → 400 `annotation.record.value.required` (R2-07),
+  accept-side boundary tests, distinct OpenAPI path asserts, `optionIds:[null]` guard test, C-12
+  stored-bytes assertion, Javadoc fix, this file's rewrite (R2-08…R2-14).
 
-- Segredos **são** ciphertext em repouso (`text_value=null`, ciphertext 28B, IV 12B, `key_version=1`).
-- Masking sustenta no wire; gate ADMIN + auditoria do reveal funcionam.
-- Toda query de records é tenant-scoped (**AD-03**); `javax.crypto` só em `infrastructure/security` (**AD-14**).
-- `optionIds` validam contra o campo **dono**; orphanRemoval realmente apaga.
-- 10 chaves i18n novas em `messages.properties` **e** `messages_pt.properties` (**C-09** ✔), **C-05** ✔
-  (chave dev-only, `%prod` lê de env sem fallback).
-- Nenhum dos 17 cenários está sem teste real; nenhum teste é mock/tautologia.
+## What remains
 
-> O `reopen` do `implement` fez cascade em t1–t8. **Não reimplemente do zero** — use a lista abaixo
-> e re-feche com `wf done` os que não têm finding.
-
-## Decisão já tomada (não perguntar de novo)
-
-**F4 — semântica do PUT para valor Secret** *(decisão humana 2026-07-25)* — já escrita em
-`spec.md` (4 cenários novos) e `contracts/rest-api.md`:
-
-| Payload no PUT | Comportamento |
-|---|---|
-| campo **omitido** | **preserva** o ciphertext (rename nunca destrói segredo) |
-| `"text": "<novo>"` | **re-cifra** com a key ativa |
-| `"clearSecret": true` | **apaga** + escreve **AuditLog** (BR-05, BR-10) |
-| `"text": null` sem flag | **no-op preserve** — nunca `type_mismatch` (é o echo do GET mascarado) |
-
-Campos não-secretos mantêm replace puro: omitido → valor removido.
-
-## O que falta corrigir (audit.md tem o cenário de falha concreto de cada um)
-
-### Bloqueadores HIGH
-- **F4** → implementar a tabela acima em `AnnotationRecordService.update` + `AnnotationValueInput`
-  (campo `clearSecret`) + testes dos 4 cenários novos do spec. *(spec já pronto)*
-- **F1** → dois valores com o mesmo `fieldId` → HTTP 500 (`Collectors.toMap` duplicate key).
-  Falta validar a invariante "no máximo um valor por campo" → erro localizado, não 500.
-- **F2** → `name` > 120 chars → HTTP 500. Falta `@Size(max=120)` no `AnnotationRecordInput`
-  (estava especificado em `data-model.md`, nunca foi escrito).
-- **F3** → segredo > ~4080 chars → HTTP 500 (estoura `VARBINARY(4096)`). Decidir: validar tamanho
-  na entrada **ou** alargar a coluna em nova migration.
-- **F5 / OQ-17** → `AnnotationTypeService.replace` gera UUIDs novos de `TypeField` a cada PUT, então
-  uma definição idêntica **orfana os valores de todos os records** (`GET` → `values:[]`) e o delete do
-  tipo passa a dar `409 has_records`. Precisa decisão + guarda provisória. **OQ-17 está subestimado
-  como 🟢 Tactical — reavaliar severidade.**
-
-### MEDIUM / LOW
-- **F6, F9–F11, F13** → em `implement` (F9: `MULTIPLE_CHOICE` 0..n sem código; F8: valores de campo
-  Image sem código/teste).
-- **F12** → decisão de contrato, em `spec`.
-- Cláusulas de cenário não exercidas: delete "and its values are removed" (o teste apaga record sem
-  valores), field-unknown "localized to the caller's locale", create "returns those three values"
-  (só afere `size()==3`).
-
-### Fora do escopo do feat-005, mas sério
-- `%prod.quarkus.hibernate-orm.schema-management.strategy` é **chave não reconhecida no Quarkus 3.15.1**
-  → produção roda **sem validação de schema/entidade**. Foi assim que a divergência de mapeamento do
-  `text_value` (F7) passou batido. Merece issue própria.
-- O PUT de annotation-type retorna `fields[].id = null`.
-
-## Ordem sugerida
-
-1. `/wf-next` → fechar o `spec` (F4 já escrito; decidir F12 e a severidade de OQ-17/F5).
-2. `implement`: F1–F3 (as três 500s, mesma classe de defeito) → F4 → F9/F8 → cláusulas de teste.
-3. `mvn -B verify` verde → re-rodar o **audit** (opus/xhigh) → só então tirar o PR #6 de draft.
+1. Full `mvn -B verify` green after T-09…T-15 (last full run: 122/122 before T-09).
+2. Re-run the **audit** (round 3, opus/xhigh) → on pass, `catalogs/epics.md` → delivered, GitHub
+   comment, then **publish** (take PR #6 out of draft) and **review**.
+3. **All work is uncommitted** on `feature/annotation-records` — a queue of per-task commit proposals
+   awaits the human's confirmation in the session (or "commit as you go").
+4. Out of scope, tracked separately: dead `%prod.quarkus.hibernate-orm.schema-management.strategy`
+   config key (unrecognized in Quarkus 3.15.1 — prod runs without schema validation; task chip open);
+   type PUT returns `fields[].id = null` (feat-003).

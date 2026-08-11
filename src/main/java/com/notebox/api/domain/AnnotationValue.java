@@ -42,7 +42,7 @@ public class AnnotationValue {
     private UUID imageId;
 
     @Lob
-    @Column(name = "text_value")
+    @Column(name = "text_value", length = 65535)
     private String textValue;
 
     @Column(name = "number_value", precision = 38, scale = 10)

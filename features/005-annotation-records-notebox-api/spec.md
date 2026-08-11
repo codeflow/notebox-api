@@ -2,9 +2,9 @@
 
 **ID:** features/005-annotation-records-notebox-api
 **User Story:** US-2.1
-**Version:** v1
-**Status:** Draft
-**Date:** 2026-07-24
+**Version:** v2 — adds F4 PUT-secret semantics (2026-07-25) and OQ-17/OQ-18 type-edit guards (2026-08-03)
+**Status:** Approved (human approval 2026-08-03; v1 approved 2026-07-24, reopened by audit verdict 2026-07-25)
+**Date:** 2026-08-03
 
 ## Origin
 - **User Story:** US-2.1 — *As a tenant member, I want to create/edit/delete annotations of a type, so I record real data.*
@@ -14,6 +14,8 @@
 - **Primary source:** PRD v2 §3.1 (FR-04, FR-06, FR-18), §3 Validation baseline (OQ-09, OQ-14), §4 acceptance (FR-04, FR-18); constitution BR-03/BR-05/BR-10, AD-14, C-12.
 - **Consumes:** feat-003-annotation-types contract — the `AnnotationType` schema (fields with `fieldType` ∈ 7, `numberMin/max`, `secret`, ordered `options` with labels/badge colours). A record's values are validated against that schema.
 - **Refines (OQ-14, 2026-07-24):** deleting an annotation **type** is blocked while it still owns records. feat-003 deletes only empty types; this feature adds the record-existence guard to the type-delete path.
+- **Refines (OQ-17, 2026-08-03, audit F5):** editing a type's fields while records exist **preserves field identity** (and therefore all values) for unchanged fields and identical resends; **removing or retyping a field is blocked** while records exist; adding a field stays allowed. Full type-evolution/migration is a future feature.
+- **Refines (OQ-18, 2026-08-03, audit F12):** a field's **Secret flag cannot change** — in either direction — while the field still has values; the values must be cleared explicitly first (BR-10 can never be violated by a flip).
 
 ## Summary
 A tenant member creates, reads, updates and deletes **annotation records** — instances of an annotation
@@ -50,6 +52,13 @@ it renders no UI, and the multi-record grid/listing projection (FR-05) belongs t
       holding the elevated **reveal role** (grounded as the Tenant administrator — see Open Questions), and
       **every reveal writes an audit entry** (who revealed which value, when).
   - **Type-delete guard (OQ-14):** deleting an annotation type is rejected while it owns ≥1 record.
+  - **Type field-edit guard (OQ-17, audit F5):** editing a type preserves the identity of unchanged fields —
+    resending an identical definition (or renaming the type) never orphans a record's values; **removing or
+    retyping a field while the type owns ≥1 record is rejected** with a localized error; adding a new field
+    remains allowed.
+  - **Secret-flag flip guard (OQ-18, audit F12):** changing a field's Secret flag — in either direction — is
+    rejected while the field still has values; the values must be removed explicitly first, so no
+    cleartext-at-rest state can ever form (BR-10).
   - Localized (en/pt) validation/error messages for every rejection (C-09), with specific domain exceptions
     and dot-namespaced keys per constitution 03-code-standards.
   - OpenAPI documentation for every endpoint (NFR-06).
@@ -60,7 +69,11 @@ it renders no UI, and the multi-record grid/listing projection (FR-05) belongs t
   - The **annotation-record UI** (create/edit form, datatable, masked value with a reveal icon) —
     feat-006-annotation-records-notebox-web.
   - **Annotation types** themselves (CRUD, fields, options, icons) — delivered by feat-003. This feature only
-    *adds* the record-existence guard to the existing type-delete path.
+    *adds* the record-existence guards to the existing type-delete and type-edit paths (OQ-14, OQ-17, OQ-18).
+  - **Full type-evolution / migration semantics** — migrating or nulling values when a field is removed or
+    retyped, encrypt/decrypt migration on a Secret-flag flip, and evolution rules for mutations *inside* a
+    preserved field (option-list edits, Number-bound changes — which keep feat-003's existing replace
+    semantics for now) — deferred to a dedicated future feature *(decisões humanas 2026-08-03, OQ-17/OQ-18)*.
   - **Groups / navigation** placement of records — FR-08/09, E3.
   - **Master-key rotation tooling / KMS** — AD-14 fixes the scheme (single app master key from the secret
     manager, key-version tagged); operational rotation procedure is deploy-time, not a behavioural criterion
@@ -186,6 +199,61 @@ Feature: OQ-14 Type deletion is blocked while records exist
     When a member of tenant A deletes the type "Empty"
     Then the type is deleted (feat-003 behaviour preserved)
 
+Feature: OQ-17 Type field edits preserve values and block destructive changes while records exist (human decision 2026-08-03, audit F5)
+  Scenario: Resending an identical type definition preserves every record's values
+    Given tenant A has a type "RabbitMQ" with fields URL, Port, Environment and a record "prod-broker" holding values for all three
+    When a member of tenant A updates the type "RabbitMQ" resending exactly the same definition
+    Then the update succeeds
+    And reading "prod-broker" still returns its three values
+
+  Scenario: Renaming a type preserves its records' values
+    Given tenant A has a type "RabbitMQ" with a record "prod-broker" holding values
+    When a member of tenant A updates the type changing only its name to "RabbitMQ brokers"
+    Then the update succeeds
+    And reading "prod-broker" still returns its values
+
+  Scenario: Adding a field to a populated type is allowed
+    Given tenant A has a type "RabbitMQ" with at least one record
+    When a member of tenant A updates the type adding a new Text field "VHost"
+    Then the update succeeds
+    And existing records keep their values, with no value for "VHost"
+
+  Scenario: Removing a field is rejected while records exist
+    Given tenant A has a type "RabbitMQ" with field "Port" and at least one record
+    When a member of tenant A updates the type omitting "Port" from the fields
+    Then the request is rejected with error code annotation.type.field.has_records
+    And the type definition and every record's values are unchanged
+
+  Scenario: Changing a field's type is rejected while records exist
+    Given tenant A has a type "RabbitMQ" with a Number field "Port" and at least one record
+    When a member of tenant A updates the type changing "Port" to a Text field
+    Then the request is rejected with error code annotation.type.field.has_records
+    And the type definition and every record's values are unchanged
+
+  Scenario: Removing a field from a type with no records still succeeds
+    Given tenant A has a type "Empty" with field "Port" and no records
+    When a member of tenant A updates the type omitting "Port" from the fields
+    Then the update succeeds (feat-003 behaviour preserved)
+
+Feature: OQ-18 A field's Secret flag cannot change while it holds values (human decision 2026-08-03, audit F12)
+  Scenario: Flagging a field Secret is rejected while it holds values
+    Given tenant A has a type with a Text field "Notes", not Secret, and a record holding Notes="hello"
+    When a member of tenant A updates the type flagging "Notes" as Secret
+    Then the request is rejected with error code annotation.type.field.secret_flip.has_values
+    And "Notes" remains readable on ordinary reads
+
+  Scenario: Un-flagging a Secret field is rejected while it holds values
+    Given tenant A has a type with a Secret Text field "API key" and a record holding an encrypted value for it
+    When a member of tenant A updates the type removing the Secret flag from "API key"
+    Then the request is rejected with error code annotation.type.field.secret_flip.has_values
+    And the stored value remains encrypted at rest and masked on ordinary reads
+
+  Scenario: Flipping the Secret flag succeeds once the field's values are cleared
+    Given tenant A has a type with a Text field "Notes" and no record holds a value for "Notes"
+    When a member of tenant A updates the type flagging "Notes" as Secret
+    Then the update succeeds
+    And a value subsequently written to "Notes" is stored encrypted and masked on ordinary reads
+
 Feature: NFR-01 / C-01 Tenant isolation on records
   Scenario: A member cannot create a record for another tenant's type
     Given tenant B owns a type "RabbitMQ"
@@ -226,6 +294,20 @@ See **Scope · Out** above — chiefly: the multi-record **listing/detail projec
   version; echoing back the masked `text: null` is a **no-op preserve**, never a `type_mismatch` error.
   Rationale: BR-05 (destructive deletion is explicit) + BR-10 (accountability), and it makes feat-006's
   edit form implementable. Contract updated in `contracts/rest-api.md`; 4 new scenarios above.
+
+- **Type field edits vs existing records — DECIDED (human decision 2026-08-03, OQ-17, raised by audit
+  finding F5).** The type update **preserves field identity** — and therefore every record's values — for
+  unchanged fields, identical resends and type renames; **removing or retyping a field while the type owns
+  ≥1 record is rejected** with a localized error; **adding a field remains allowed**. The interim guard
+  ships in this feature (symmetric to OQ-14's delete guard); full type-evolution/migration semantics are a
+  dedicated future feature. Rationale: audit F5 proved the previous behaviour destroyed every value of every
+  record on an *identical* PUT — silent, irreversible data loss on the most innocent input.
+
+- **Secret-flag flip — DECIDED (human decision 2026-08-03, OQ-18, raised by audit finding F12).** Changing
+  a field's Secret flag — in either direction — is **rejected while the field still has values**, with a
+  localized error; the values must be cleared explicitly first. No cleartext-at-rest state can ever form
+  (BR-10 holds structurally). Migration-on-flip (encrypt existing values when flagging, audited decrypt when
+  un-flagging) deferred as a possible future feature.
 
 - **Reveal-role binding — DECIDED (human decision 2026-07-24, at spec approval).** The elevated "reveal role"
   of FR-18 / BR-10 / AD-14 is the **Tenant administrator** (the only elevated persona in the PRD; C-03

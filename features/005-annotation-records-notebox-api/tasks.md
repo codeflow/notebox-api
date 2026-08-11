@@ -62,10 +62,67 @@
       - depends: T-04, T-05, T-06 · parallel: no
       - verify: `./mvnw test -Dtest=AnnotationRecordResourceTest,OpenApiCoverageTest`
 
+## R2 remediation tasks (spec v2 · plan Addendum v2 · audit Round 2, 2026-08-04)
+
+> T-01…T-08 absorbed the R1 remediation in their rework (F1–F4, F6, F7, F11, F13 and the OQ-17/OQ-18
+> guards — see plan §A) and are **done**. The tasks below carry the R2 findings. Risk-first: T-09 is the
+> only behavioural change.
+
+- [x] **T-09 · Duplicate-name-safe field matching in the type PUT (R2-02)**
+      - files: `application/annotation/AnnotationTypeService.java`, `application/annotation/AnnotationTypeEditGuardTest.java`
+      - covers: OQ-17, BR-05, BR-03 · scenario: "Resending an identical type definition preserves every record's values" (duplicate-name edge — today it silently destroys the 2nd same-named field's values)
+      - notes: replace the `putIfAbsent` name map with per-name FIFO queues (`Map<String, Deque<TypeField>>`) per plan §B; leftovers keep flowing into the existing has-records 409. Tests: `[X,X]` type — identical resend preserves BOTH identities/values; resend with one `X` → 409
+      - depends: — · parallel: no  *(behavioural, most likely to invalidate the plan)*
+      - verify: `mvn -B test -Dtest=AnnotationTypeEditGuardTest`
+
+- [x] **T-10 · Guard wire contract: HTTP 409 + machine code for the three guards (R2-04)**
+      - files: `api/AnnotationTypeResourceTest.java` (extend)
+      - covers: OQ-14/17/18, C-09 · scenarios: "Deleting a type that owns records is rejected", "Removing a field is rejected while records exist", "Flagging a field Secret is rejected while it holds values" — the *rejected with error code* clauses at the wire
+      - notes: assert status **409** and body `code` = `annotation.type.has_records` / `annotation.type.field.has_records` / `annotation.type.field.secret_flip.has_values` (no 409 is asserted anywhere in the suite today)
+      - depends: T-09 · parallel: no *(same guard surface)*
+      - verify: `mvn -B test -Dtest=AnnotationTypeResourceTest`
+
+- [x] **T-11 · Preservation tests pin field identity and read through the DTO path (R2-03)**
+      - files: `application/annotation/AnnotationTypeEditGuardTest.java`
+      - covers: OQ-17 · scenarios: the three preservation scenarios ("identical resend", "rename", "add a field")
+      - notes: capture field ids before the PUT and assert equality after; assert value survival via the wire read model, not the raw entity collection (orphans must not count as survivors)
+      - depends: T-09 *(same file)* · parallel: no
+      - verify: `mvn -B test -Dtest=AnnotationTypeEditGuardTest`
+
+- [x] **T-12 · Audit entries assert who and when (R2-05)**
+      - files: `application/annotation/AnnotationRecordDeleteTest.java`, `application/annotation/AnnotationRecordRevealTest.java`, `application/annotation/AnnotationRecordServiceTest.java`
+      - covers: FR-06, FR-18, BR-05, BR-10, C-10 · scenarios: the three "an audit entry records who … and when" clauses (delete, reveal, erase)
+      - notes: assert `actorUserId` equals the stubbed caller and `at` is set, on all three entries
+      - depends: — · parallel: yes
+      - verify: `mvn -B test -Dtest='AnnotationRecordDeleteTest,AnnotationRecordRevealTest,AnnotationRecordServiceTest'`
+
+- [x] **T-13 · `values:[null]` → localized 400 (R2-07)**
+      - files: `api/dto/AnnotationRecordInput.java`, `resources/messages.properties`, `resources/messages_pt.properties`, `infrastructure/i18n/AnnotationRecordMessageCoverageTest.java`, `api/AnnotationRecordResourceTest.java`
+      - covers: constitution §Errors (uniform envelope), C-09 · scenario: envelope integrity (last known off-envelope 500 shape)
+      - notes: element-level `@NotNull` on `values` with new key `annotation.record.value.required` (en+pt, coverage list, contract row already added); wire test posts `values:[null]` → 400 + violation code
+      - depends: — · parallel: yes
+      - verify: `mvn -B test -Dtest='AnnotationRecordMessageCoverageTest,AnnotationRecordResourceTest'`
+
+- [x] **T-14 · Test-honesty bundle: post-states, accept-side bounds, OpenAPI paths, F13 guard, C-12 at-rest assert, Javadoc (R2-06/08/09/10/11/12)**
+      - files: `application/annotation/AnnotationTypeEditGuardTest.java`, `api/AnnotationRecordResourceTest.java`, `api/OpenApiCoverageTest.java`, `application/annotation/AnnotationRecordServiceTest.java`, `infrastructure/persistence/AnnotationRecordRepository.java` (Javadoc only)
+      - covers: the guard post-state clauses (scenarios 23/24/26/27), C-12 evidence, NFR-06
+      - notes: post-state re-reads after guard 409s (fresh TX); accept 120/4 080/65 535; OpenAPI asserts the CRUD paths distinctly (not substrings); `optionIds:[null]` → 400 test; native-read assert `text_value IS NULL` ∧ `secret_ciphertext` ≠ plaintext bytes; restore `existsByType` Javadoc
+      - depends: T-09, T-12 *(shared files)* · parallel: no
+      - verify: `mvn -B test -Dtest='AnnotationType*Test,AnnotationRecord*Test,OpenApiCoverageTest'`
+
+- [x] **T-15 · HANDOFF.md rewritten in English, state-accurate (R2-13/14)**
+      - files: `HANDOFF.md`
+      - covers: audit R2 artifact-hygiene findings; `project.language = en`
+      - notes: drop the stale "falta implementar"/94-tests/17-scenarios claims; reflect R1+R2 state and what remains
+      - depends: — · parallel: yes
+      - verify: proofread — no stale claim survives `grep -i "falta\|94 test\|17/17" HANDOFF.md`
+
 ## Coverage & sequencing
-- **17/17 spec scenarios covered:** FR-04 (T-01/T-04/T-08), FR-06 (T-05), FR-18 (T-02/T-04/T-06/T-08),
-  OQ-14 (T-07), tenant isolation (T-01/T-08).
-- **Dependency chain:** T-01, T-02, T-03 have no deps → T-04 (needs all three) → T-05, T-06 (serial, same
-  service file) → T-08. T-07 branches off T-01+T-03.
-- **Parallelisable (worktree):** T-02, T-03, T-07 (file-disjoint). T-01, T-04, T-05, T-06, T-08 run serially.
-- **Uncovered scenarios:** none.
+- **30/30 spec-v2 scenarios covered:** FR-04 (T-01/T-04/T-08), FR-06 (T-05/T-12), FR-18 core + PUT-secret
+  (T-02/T-04/T-06/T-08/T-12), OQ-14 (T-07/T-10), OQ-17 (T-07 rework/T-09/T-10/T-11), OQ-18 (T-07
+  rework/T-10), tenant isolation (T-01/T-08).
+- **Dependency chain:** T-01…T-08 done (R1 + rework). R2: T-09 → T-10, T-11; T-12, T-13, T-15 free;
+  T-14 last (shares files with T-09/T-12).
+- **Parallelisable (worktree):** T-12, T-13, T-15 (file-disjoint). T-09, T-10, T-11, T-14 serial.
+- **Uncovered scenarios:** none — the four post-state/who-when clause gaps the R2 audit named close via
+  T-11/T-12/T-14.
