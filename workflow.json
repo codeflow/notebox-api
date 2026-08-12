@@ -2151,7 +2151,7 @@
             {
               "id": "feat-007-rich-text-sanitization.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -2160,7 +2160,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/007-rich-text-sanitization/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-12T18:19:55Z",
+              "completed_at": "2026-08-12T18:19:55Z"
             },
             {
               "id": "feat-007-rich-text-sanitization.publish",
