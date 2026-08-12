@@ -15,6 +15,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 import com.notebox.api.api.dto.AnnotationRecordDto;
+import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.AnnotationTypeInput;
 import com.notebox.api.api.dto.AnnotationValueInput;
@@ -52,6 +53,9 @@ class AnnotationTypeEditGuardTest {
 
     @Inject
     EntityManager em;
+
+    @Inject
+    RichTextSanitizer sanitizer;
 
     @InjectMock
     TenantContext tenantContext;
@@ -137,7 +141,7 @@ class AnnotationTypeEditGuardTest {
         assertEquals(fieldIdsBefore, type.getFields().stream().map(f -> f.getId()).toList(),
                 "field identity is pinned — re-minted ids would orphan values invisibly (audit R2-03)");
         AnnotationRecord reloaded = recordService.get(recordId);
-        assertEquals(3, AnnotationRecordDto.from(reloaded, type).values().size(),
+        assertEquals(3, AnnotationRecordDto.from(reloaded, type, sanitizer).values().size(),
                 "all three values stay reachable through the wire read model, not just as raw rows");
         AnnotationValue choice = valueFor(reloaded, fieldId(type, "Environment"));
         assertEquals(Set.of(optionId(type, "Environment", "prod")), choice.getSelectedOptionIds(),
@@ -158,7 +162,7 @@ class AnnotationTypeEditGuardTest {
 
         AnnotationType type = typeService.get(typeId);
         assertEquals("RabbitMQ brokers", type.getName());
-        assertEquals(3, AnnotationRecordDto.from(recordService.get(recordId), type).values().size(),
+        assertEquals(3, AnnotationRecordDto.from(recordService.get(recordId), type, sanitizer).values().size(),
                 "values stay reachable through the wire read model after a rename (audit R2-03)");
     }
 
@@ -177,7 +181,7 @@ class AnnotationTypeEditGuardTest {
 
         AnnotationType type = typeService.get(typeId);
         assertEquals(4, type.getFields().size());
-        assertEquals(3, AnnotationRecordDto.from(recordService.get(recordId), type).values().size(),
+        assertEquals(3, AnnotationRecordDto.from(recordService.get(recordId), type, sanitizer).values().size(),
                 "existing records keep their reachable values, with none for the new field (audit R2-03)");
     }
 
@@ -366,7 +370,7 @@ class AnnotationTypeEditGuardTest {
         AnnotationType type = typeService.get(typeId);
         assertEquals(optionIdsBefore, optionIdsOf(type),
                 "duplicate-labelled options keep their identity positionally (audit R3-01)");
-        AnnotationRecordDto dto = AnnotationRecordDto.from(recordService.get(recordId), type);
+        AnnotationRecordDto dto = AnnotationRecordDto.from(recordService.get(recordId), type, sanitizer);
         assertEquals(List.of(selectedBefore), dto.values().get(0).optionIds(),
                 "the selection stays resolvable through the wire read model — no dangling option id");
         assertTrue(type.getFields().get(0).getOptions().stream()

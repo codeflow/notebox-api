@@ -19,7 +19,7 @@
       - depends: T-01 · parallel: no
       - verify: `mvn -B test -Dtest=AnnotationRecordServiceTest`
 
-- [ ] **T-03 · Read seam — DTO-only sanitization + legacy row + full verify**
+- [x] **T-03 · Read seam — DTO-only sanitization + legacy row + full verify**
       - files: `api/dto/AnnotationRecordDto.java`, `api/dto/AnnotationValueDto.java` (sanitizer parameter), `api/AnnotationRecordResource.java` (3 call sites), `api/AnnotationRecordResourceTest.java`
       - covers: C-08 (output half), INV-S2/S5 · scenarios: "A legacy hostile row cannot reach a client", hostile POST → sanitized 201 body (wire), "Secret values keep their shipped behaviour" (wire — masking/reveal untouched)
       - notes: legacy row planted via native SQL, then GET → inert body **and** a native re-read asserting the stored bytes are unchanged (INV-S5 — the `@Transactional` read must not flush an UPDATE); closes with the hub's **full `mvn -B verify`** (Docker required) proving the existing 133 tests plus the new ones green

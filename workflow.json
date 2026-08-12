@@ -2097,7 +2097,7 @@
             {
               "id": "feat-007-rich-text-sanitization.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2135,14 +2135,18 @@
                   "id": "feat-007-rich-text-sanitization.implement.t3",
                   "title": "T-03 — Read seam: DTO-only sanitization + legacy row + full verify",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-08-12T18:06:26Z",
+                  "completed_at": "2026-08-12T18:18:36Z"
                 }
-              ]
+              ],
+              "started_at": "2026-08-12T18:18:36Z",
+              "completed_at": "2026-08-12T18:18:36Z"
             },
             {
               "id": "feat-007-rich-text-sanitization.audit",
