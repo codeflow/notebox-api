@@ -173,6 +173,16 @@ public class AnnotationRecordService {
     }
 
     /** Deletes a record irreversibly and records the action in the audit trail (FR-06, BR-05, C-10). */
+    /** One page of the tenant's records of a type, newest first (FR-05, NFR-08, OQ-20). */
+    public List<AnnotationRecord> listByType(UUID typeId, int page, int size) {
+        return records.listByTypeInTenant(typeId, page, size);
+    }
+
+    /** Total count behind the page — the pager fact (NFR-08). */
+    public long countByType(UUID typeId) {
+        return records.countByTypeInTenant(typeId);
+    }
+
     @Transactional
     public void delete(UUID id) {
         AnnotationRecord record = get(id);

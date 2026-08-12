@@ -2282,12 +2282,14 @@
                   "id": "feat-008-annotation-listing-notebox-api.implement.t2",
                   "title": "T-02 — forListing factory + PageDto + resource method + i18n",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-08-12T20:45:19Z",
+                  "completed_at": "2026-08-12T20:51:41Z"
                 },
                 {
                   "id": "feat-008-annotation-listing-notebox-api.implement.t3",

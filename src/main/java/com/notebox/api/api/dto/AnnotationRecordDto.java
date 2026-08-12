@@ -33,4 +33,25 @@ public record AnnotationRecordDto(
                 record.getId(), record.getAnnotationTypeId(), record.getName(), record.getCreatedAt(),
                 record.getUpdatedAt(), values);
     }
+
+    /**
+     * Listing row: the same shape, values filtered to visible-for-viewing fields in field order.
+     * The projection is presentation, never access control (BR-09) — the detail read keeps
+     * returning every field. Masking (FR-18) and sanitize-on-read (C-08) are inherited unchanged.
+     */
+    public static AnnotationRecordDto forListing(
+            AnnotationRecord record, AnnotationType type, RichTextSanitizer sanitizer) {
+        Map<UUID, AnnotationValue> valuesByField = record.getValues().stream()
+                .collect(Collectors.toMap(AnnotationValue::getTypeFieldId, Function.identity()));
+        List<AnnotationValueDto> values = new ArrayList<>();
+        for (TypeField field : type.getFields()) {
+            AnnotationValue value = valuesByField.get(field.getId());
+            if (value != null && field.isVisibleForViewing()) {
+                values.add(AnnotationValueDto.from(value, field, sanitizer));
+            }
+        }
+        return new AnnotationRecordDto(
+                record.getId(), record.getAnnotationTypeId(), record.getName(), record.getCreatedAt(),
+                record.getUpdatedAt(), values);
+    }
 }

@@ -12,7 +12,7 @@
       - depends: — · parallel: no  *(the global-config risk lands with its tripwire ahead of everything)*
       - verify: `mvn -B test -Dtest=AnnotationRecordRepositoryTest`
 
-- [ ] **T-02 · `forListing` projection factory + `PageDto` + resource method + i18n keys**
+- [x] **T-02 · `forListing` projection factory + `PageDto` + resource method + i18n keys**
       - files: `api/dto/AnnotationRecordDto.java` (+`forListing`), `api/dto/PageDto.java`, `api/AnnotationRecordResource.java` (+`list`), `resources/messages.properties` + `messages_pt.properties` (2 keys), `infrastructure/i18n/AnnotationRecordMessageCoverageTest.java`
       - covers: FR-05, BR-09, NFR-08, C-09 · scenarios: projection shape (visible fields only, field order), the validation pair ("type id is required", "size above 200 rejected")
       - notes: `forListing` is additive (no signature change — feat-007 audit observation applied) and filters on `isVisibleForViewing`, reusing `AnnotationValueDto.from(..., sanitizer)` untouched; Bean Validation on the query params (`@NotNull`, `@Min(1) @Max(200)`) flowing through the existing mapper; BR-09's display-only nature stated in the factory javadoc
