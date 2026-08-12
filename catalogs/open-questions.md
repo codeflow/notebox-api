@@ -10,7 +10,7 @@
 | Severity | Criterion | IDs |
 |----------|-----------|-----|
 | 🔴 Blocker | blocks planning an entire feature | — |
-| 🟡 Important | blocks details, not the feature | — |
+| 🟡 Important | blocks details, not the feature | OQ-19 |
 | 🟢 Tactical | can wait | — |
 | ✅ Resolved | — | OQ-01 … OQ-10 (all, 2026-07-22) |
 
@@ -170,6 +170,15 @@
 **Status:** ✅ resolved (2026-08-03).
 **Decision:** Block the flip while values exist (guard family of OQ-14/OQ-17): the type PUT rejects a Secret-flag change — in either direction — on a field that still has values, with a localized 409; flipping requires the field's values to be cleared explicitly first. No cleartext-at-rest state can form (BR-10 holds); migration-on-flip deferred as a possible future feature. — decided by rafaelsantos, 2026-08-03.
 
+### OQ-19 — Free text record values: plain text or rich text?
+**Severity:** 🟡 Important
+**Description:** The satellite's design handoff (screen 13, "Annotation create/edit") specifies a **rich editor** for Free text **values** — bold/italic/underline/strike, colour, lists, quote, link, image, inline code and a syntax-highlighted code block with language select. The PRD instead binds rich text (**FR-14**) to **Task details** in US-4.2, and feat-004 deliberately treated "Free text" as a plain field declaration, not an editor. Nothing states which one governs an annotation record's Free text value.
+**Impact:** Material to feat-006 (web half of US-2.1) and to feat-005's storage posture. A rich editor makes stored values carry **markup**, which (a) flips **C-08 rich-text sanitization** from *not applicable* to *applies* for this feature, (b) raises where sanitization happens — feat-005 stores and returns the Free text value verbatim today and specifies no sanitization, so a decision for rich text implies a change on the API side too, and (c) materially changes feat-006's size and its plan. feat-006's spec v1 **assumes plain multi-line text** and is written on that assumption; a rich-text answer requires a spec v2.
+**Suggested path:** Human decision. Options: (a) **plain text now** — Free text values stay plain, the rich editor stays with FR-14/US-4.2 where the PRD put it, and the design's screen 13 is amended; (b) **rich text now** — accept the design, open the sanitization question against C-08 and revisit feat-005's storage/return contract; (c) **plain now, rich later** — ship plain in feat-006 and schedule a dedicated rich-value feature carrying its own sanitization design.
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-11).
+**Decision:** Rich text now, in feat-006: annotation Free-text VALUES are rich text (WYSIWYG HTML — styles, colour, bold, underline, lists, quote, link, inline code, syntax-highlighted code block, embedded images), matching design handoff screen 13. C-08 rich-text sanitization therefore applies to annotation values as it does to task details (FR-14): sanitized on input/output to an allow-list. Since C-08 binds the feature that STORES OR RETURNS rich text, the API side (feat-005, already merged) now carries a sanitization obligation it does not implement — surfaced separately for a scoping decision. feat-006 spec goes to v2. — decided by rafaelsantos, 2026-08-11.
+
 ## History
 
 | Date | Change |
@@ -202,6 +211,7 @@
 | 2026-08-03 | OQ-18 opened: Secret flag flip on a field with existing values — cleartext/ciphertex |
 | 2026-08-03 | OQ-17 resolved: Guard + preserve unchanged (interim guard ships in feat-005, symmetric… |
 | 2026-08-03 | OQ-18 resolved: Block the flip while values exist (guard family of OQ-14/OQ-17): the t… |
+| 2026-08-11 | OQ-19 resolved: Rich text now, in feat-006: annotation Free-text VALUES are rich text … |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

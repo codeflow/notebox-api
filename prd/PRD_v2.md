@@ -121,7 +121,12 @@ allowed** *(decisão humana 2026-08-03, OQ-17; refines FR-01/FR-02 — full type
 semantics deferred to a dedicated future feature)*. **Changing a field's Secret flag — in either
 direction — is rejected while the field still has values (block, localized error); the values must be
 cleared explicitly first** *(decisão humana 2026-08-03, OQ-18; refines FR-02/FR-18 — guarantees no
-cleartext-at-rest state can form, BR-10)*.
+cleartext-at-rest state can form, BR-10)*. **A Free-text field's VALUE is rich text** (WYSIWYG HTML —
+styles, colour, bold, underline, lists, quote, link, inline code, syntax-highlighted code block,
+embedded images), **sanitized on input and output to an allow-list**, exactly as task details are
+*(decisão humana 2026-08-11, OQ-19; refines FR-04 — extends C-08's reach from FR-14 task details to
+annotation values; the API side stores and returns the markup, so the sanitization obligation is the
+API's, with client-side sanitization on render as defence in depth)*.
 
 ### 3.2 Non-Functional (NFR)
 | ID | Category | Description | Target | Origin |
@@ -211,6 +216,14 @@ cache-aside (AD-13). **Authentication: stateless signed JWT** (decisão humana 2
 ## 8. Assumptions & Open Questions
 See `catalogs/open-questions.md`. **No open questions remain (0 pending).**
 
+**Delivery-phase set (cont.) — opened by the feat-006 spec, resolved (2026-08-11):**
+- **OQ-19** → Free-text annotation **values are rich text**, not plain: the record editor is a WYSIWYG
+  matching design screen 13, and the value carries HTML. **C-08 rich-text sanitization therefore applies
+  to annotation values** (input/output allow-list), not only to FR-14 task details. Because C-08 binds
+  whichever feature *stores or returns* the markup, this creates a **sanitization obligation on the
+  already-merged API (feat-005)** that its shipped code does not implement — scoping of that follow-up is
+  pending. *(Refines FR-04; extends C-08.)*
+
 **Audit-phase set — opened by the feat-005 audit, both resolved (2026-08-03):**
 - **OQ-17** → type field edits vs existing records: **preserve field identity for unchanged fields /
   identical resends; block field removal or retype while records exist (localized 409); field additions
@@ -256,7 +269,7 @@ The four deferred items (OQ-11/12/13/16) define **future features**, not new req
 | Isolation | FR-17 + all | NFR-01, C-01/02/03 |
 | i18n | FR-15, FR-16 | NFR-02, C-09 |
 | Images | FR-07 | NFR-04, C-07 |
-| Rich text | FR-14 | C-08 |
+| Rich text | FR-14 (task details), FR-04 (Free-text annotation values — OQ-19) | C-08 |
 | Secret values at rest | FR-18 | AD-14, C-12 (+ C-05 key handling, C-10 reveal audit) |
 | Performance | (reads) | NFR-03, NFR-05 |
 | Contract/observability | all endpoints | NFR-06, NFR-07 |

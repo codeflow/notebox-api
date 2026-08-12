@@ -1750,7 +1750,7 @@
             {
               "id": "feat-006-annotation-records-notebox-web.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -1759,12 +1759,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/006-annotation-records-notebox-web/spec.md"
-              ]
+              ],
+              "started_at": "2026-08-11T15:11:05Z",
+              "completed_at": "2026-08-11T18:26:56Z"
             },
             {
               "id": "feat-006-annotation-records-notebox-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -1774,12 +1776,14 @@
               "produces": [
                 "features/006-annotation-records-notebox-web/plan.md",
                 "features/006-annotation-records-notebox-web/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-11T18:37:37Z",
+              "completed_at": "2026-08-11T18:51:21Z"
             },
             {
               "id": "feat-006-annotation-records-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -1788,23 +1792,204 @@
               "gate": "human_approval",
               "produces": [
                 "features/006-annotation-records-notebox-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-11T20:10:39Z",
+              "completed_at": "2026-08-11T20:10:40Z"
             },
             {
               "id": "feat-006-annotation-records-notebox-web.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t1",
+                  "title": "T-01 — Editor stack dependencies + sanitize.ts dialect + hostile-markup fixtures",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T19:04:57Z",
+                  "completed_at": "2026-08-11T19:07:31Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t2",
+                  "title": "T-02 — RichTextEditor: TipTap wrapper, screen-13 toolbar, dialect serialization",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T19:27:32Z",
+                  "completed_at": "2026-08-11T19:27:32Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t3",
+                  "title": "T-03 — Wire types + annotationRecordsClient + MSW handlers",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-08-11T19:27:33Z",
+                  "completed_at": "2026-08-11T19:28:49Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t4",
+                  "title": "T-04 — EditableRecord view-model + secret state machine",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T19:28:49Z",
+                  "completed_at": "2026-08-11T19:30:36Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t5",
+                  "title": "T-05 — SecretValueField + RevealableValue (mask/reveal/clear/re-mask)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-08-11T19:33:07Z",
+                  "completed_at": "2026-08-11T19:33:07Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t6",
+                  "title": "T-06 — ImageValueField + RichTextValue renderer",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-08-11T19:33:07Z",
+                  "completed_at": "2026-08-11T19:36:13Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t7",
+                  "title": "T-07 — ValueField dispatch + plain controls",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T19:36:13Z",
+                  "completed_at": "2026-08-11T19:37:57Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t8",
+                  "title": "T-08 — RecordForm: orchestration + violations routing",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T19:37:57Z",
+                  "completed_at": "2026-08-11T19:42:15Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t9",
+                  "title": "T-09 — DeleteRecordDialog + delete flow",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-08-11T19:42:15Z",
+                  "completed_at": "2026-08-11T19:43:00Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t10",
+                  "title": "T-10 — Routes + New-record entry + localization completeness + full verify",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T19:43:00Z",
+                  "completed_at": "2026-08-11T19:48:43Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t11",
+                  "title": "T-11 — Suffix-tolerant violation-path routing (F-01)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-11T20:10:40Z",
+                  "completed_at": "2026-08-11T20:11:38Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t12",
+                  "title": "T-12 — Secret empty-revert test through a stateful wrapper (F-02)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-08-11T20:11:38Z",
+                  "completed_at": "2026-08-11T20:12:06Z"
+                },
+                {
+                  "id": "feat-006-annotation-records-notebox-web.implement.t13",
+                  "title": "T-13 — Embedded rich-text image rules tests (F-03)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-08-11T20:12:06Z",
+                  "completed_at": "2026-08-11T20:16:57Z"
+                }
+              ],
+              "started_at": "2026-08-11T20:16:57Z",
+              "completed_at": "2026-08-11T20:16:57Z"
             },
             {
               "id": "feat-006-annotation-records-notebox-web.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -1813,7 +1998,10 @@
               "gate": "audit_pass",
               "produces": [
                 "features/006-annotation-records-notebox-web/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-11T20:17:57Z",
+              "notes": "VERDICT fail R1 — 1 HIGH/1 MEDIUM/1 LOW (audit.md): F-01 violation routing matches only MSW's bare paths while the real mapper emits create.input.*-prefixed property paths, so on-control error scenarios are false in production; F-02 secret empty-revert test never exercises the revert branch; F-03 embedded rich-text image rules untested. Reopened tasks --cascade for T-11..T-13.",
+              "completed_at": "2026-08-11T20:17:57Z"
             },
             {
               "id": "feat-006-annotation-records-notebox-web.publish",
@@ -1838,7 +2026,11 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 6,
+            "branch": "feature/annotation-records"
+          }
         }
       ]
     },
