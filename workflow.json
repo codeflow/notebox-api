@@ -2006,30 +2006,36 @@
             {
               "id": "feat-006-annotation-records-notebox-web.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-12T12:34:33Z",
+              "completed_at": "2026-08-12T12:34:57Z"
             },
             {
               "id": "feat-006-annotation-records-notebox-web.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-12T12:36:18Z",
+              "completed_at": "2026-08-12T12:38:25Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "issue": 6,
-            "branch": "feature/annotation-records"
+            "branch": "feature/annotation-records",
+            "pr": 7,
+            "merged": "develop"
           }
         }
       ]
