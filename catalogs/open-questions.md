@@ -179,6 +179,15 @@
 **Status:** ✅ resolved (2026-08-11).
 **Decision:** Rich text now, in feat-006: annotation Free-text VALUES are rich text (WYSIWYG HTML — styles, colour, bold, underline, lists, quote, link, inline code, syntax-highlighted code block, embedded images), matching design handoff screen 13. C-08 rich-text sanitization therefore applies to annotation values as it does to task details (FR-14): sanitized on input/output to an allow-list. Since C-08 binds the feature that STORES OR RETURNS rich text, the API side (feat-005, already merged) now carries a sanitization obligation it does not implement — surfaced separately for a scoping decision. feat-006 spec goes to v2. — decided by rafaelsantos, 2026-08-11.
 
+### OQ-20 — Record listing sort order
+**Severity:** 🟡 Important
+**Description:** FR-05/NFR-08 define the paginated listing of a type's records (feat-008) but no source names its sort order. Pagination makes the order contractual: an undefined order breaks page stability and makes the grid's pager (design screen 11) non-deterministic.
+**Impact:** Blocks feat-008's plan/implement (tests need a deterministic order; the wire contract must document it). The web grid (feat-009) inherits whatever is decided.
+**Suggested path:** Human decision. Options: (a) **newest first** (`createdAt` desc — recommended: a record just created appears on page 1, matching the create→grid flow of PRD §84); (b) name asc (alphabetical browsing); (c) updated-at desc (recently-touched first, but rows jump pages on edit).
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-12).
+**Decision:** Newest first: the listing is ordered by createdAt descending (ties broken by id for total stability). A just-created record appears at the top of page 1, matching the PRD §84 create-to-grid happy path; rows never move on edit. Applies to feat-008's wire contract and inherited by the feat-009 grid. — decided by rafaelsantos, 2026-08-12.
+
 ## History
 
 | Date | Change |
@@ -212,6 +221,7 @@
 | 2026-08-03 | OQ-17 resolved: Guard + preserve unchanged (interim guard ships in feat-005, symmetric… |
 | 2026-08-03 | OQ-18 resolved: Block the flip while values exist (guard family of OQ-14/OQ-17): the t… |
 | 2026-08-11 | OQ-19 resolved: Rich text now, in feat-006: annotation Free-text VALUES are rich text … |
+| 2026-08-12 | OQ-20 resolved: Newest first: the listing is ordered by createdAt descending (ties bro… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

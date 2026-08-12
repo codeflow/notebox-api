@@ -34,6 +34,8 @@ class OpenApiCoverageTest {
                 "record item path missing from OpenAPI");
         assertTrue(hasPathKey(document, "/api/annotation-records/{id}/values/{fieldId}/reveal"),
                 "reveal endpoint missing from OpenAPI");
+        assertTrue(document.contains("typeId"),
+                "the listing GET's typeId parameter is documented (feat-008, NFR-06)");
     }
 
     /** Matches a whole path KEY (JSON quoted or YAML colon-terminated), never a substring of a longer path. */

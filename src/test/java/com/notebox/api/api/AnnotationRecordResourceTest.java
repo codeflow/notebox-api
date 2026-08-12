@@ -392,4 +392,167 @@ class AnnotationRecordResourceTest {
         assertEquals(hostile, stored,
                 "the read is DTO-only — the transactional GET must not flush a sanitized UPDATE (INV-S5)");
     }
+
+    // --- feat-008: the listing at the wire (FR-05, NFR-08, BR-09, OQ-20) ---
+
+    private static final String LISTING_TYPE_JSON = """
+            {"name":"Servers","fields":[
+              {"name":"URL","fieldType":"TEXT"},
+              {"name":"Description","fieldType":"TEXT","visibleForViewing":false},
+              {"name":"API key","fieldType":"TEXT","secret":true,"visibleForViewing":true},
+              {"name":"Notes","fieldType":"FREE_TEXT","visibleForViewing":true}
+            ]}""";
+
+    private Response createListingType(String token) {
+        return given().header("Authorization", "Bearer " + token)
+                .contentType("application/json").body(LISTING_TYPE_JSON)
+                .when().post("/annotation-types")
+                .then().statusCode(201).extract().response();
+    }
+
+    private String createListingRecord(String token, Response type, String name) {
+        String typeId = type.jsonPath().getString("id");
+        return given().header("Authorization", "Bearer " + token)
+                .contentType("application/json")
+                .body("""
+                        {"annotationTypeId":"%s","name":"%s","values":[
+                          {"fieldId":"%s","text":"amqp://h"},
+                          {"fieldId":"%s","text":"internal note"},
+                          {"fieldId":"%s","text":"s3cr3t"},
+                          {"fieldId":"%s","text":"<p>ok</p>"}]}"""
+                        .formatted(typeId, name,
+                                type.jsonPath().getString("fields[0].id"),
+                                type.jsonPath().getString("fields[1].id"),
+                                type.jsonPath().getString("fields[2].id"),
+                                type.jsonPath().getString("fields[3].id")))
+                .when().post("/annotation-records")
+                .then().statusCode(201).extract().path("id");
+    }
+
+    @Test
+    void list_projectsVisibleFieldsOnly_whileTheDetailReturnsAll() {
+        Tenant tenant = data.createTenant();
+        String token = token(tenant, Role.MEMBER);
+        Response type = createListingType(token);
+        String typeId = type.jsonPath().getString("id");
+        String descriptionId = type.jsonPath().getString("fields[1].id");
+        String recordId = createListingRecord(token, type, "row-1");
+
+        io.restassured.response.Response page = given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records?typeId=" + typeId)
+                .then().statusCode(200)
+                .body("total", equalTo(1))
+                .body("items[0].name", equalTo("row-1"))
+                .extract().response();
+        java.util.List<String> rowFieldIds = page.jsonPath().getList("items[0].values.fieldId");
+        assertFalse(rowFieldIds.contains(descriptionId),
+                "the non-visible field is absent from the row (FR-05 projection)");
+        assertEquals(3, rowFieldIds.size(), "URL + secret + Notes are visible, in field order");
+
+        // BR-09 is display-only: the detail read still returns all four values.
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records/" + recordId)
+                .then().statusCode(200)
+                .body("values.size()", equalTo(4));
+    }
+
+    @Test
+    void list_masksSecretsAndSanitizesLegacyRichTextInRows() throws Exception {
+        Tenant tenant = data.createTenant();
+        String token = token(tenant, Role.MEMBER);
+        Response type = createListingType(token);
+        String typeId = type.jsonPath().getString("id");
+        String secretId = type.jsonPath().getString("fields[2].id");
+        String notesId = type.jsonPath().getString("fields[3].id");
+        String recordId = createListingRecord(token, type, "row-1");
+
+        utx.begin();
+        em.createNativeQuery("update annotation_value set text_value = :v"
+                        + " where annotation_record_id = :id and type_field_id = :field")
+                .setParameter("v", "<p>x</p><script>steal()</script>")
+                .setParameter("id", recordId)
+                .setParameter("field", notesId)
+                .executeUpdate();
+        utx.commit();
+
+        io.restassured.response.Response page = given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records?typeId=" + typeId)
+                .then().statusCode(200).extract().response();
+        String body = page.asString();
+        assertFalse(body.contains("s3cr3t"), "no cleartext secret anywhere in the listing (FR-18)");
+        assertEquals(true,
+                page.jsonPath().getBoolean("items[0].values.find { it.fieldId == '" + secretId + "' }.masked"));
+        assertEquals("<p>x</p>",
+                page.jsonPath().getString("items[0].values.find { it.fieldId == '" + notesId + "' }.text"),
+                "a legacy hostile row is served dialect-clean in listing rows too (C-08)");
+    }
+
+    @Test
+    void list_paginatesNewestFirstWithTotals() {
+        Tenant tenant = data.createTenant();
+        String token = token(tenant, Role.MEMBER);
+        Response type = createListingType(token);
+        String typeId = type.jsonPath().getString("id");
+        for (int i = 1; i <= 3; i++) {
+            createListingRecord(token, type, "row-" + i);
+        }
+
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records?typeId=" + typeId + "&page=0&size=2")
+                .then().statusCode(200)
+                .body("total", equalTo(3))
+                .body("page", equalTo(0))
+                .body("items.size()", equalTo(2))
+                .body("items[0].name", equalTo("row-3"))
+                .body("items[1].name", equalTo("row-2"));
+
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records?typeId=" + typeId + "&page=5&size=2")
+                .then().statusCode(200)
+                .body("total", equalTo(3))
+                .body("items.size()", equalTo(0));
+    }
+
+    @Test
+    void list_rejectsOutOfBoundsSizeAndMissingType() {
+        Tenant tenant = data.createTenant();
+        String token = token(tenant, Role.MEMBER);
+        Response type = createListingType(token);
+        String typeId = type.jsonPath().getString("id");
+
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records?typeId=" + typeId + "&size=500")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("annotation.record.list.size.out_of_bounds"));
+
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("annotation.record.list.type.required"));
+    }
+
+    @Test
+    void list_foreignTenantTypeIsIndistinguishableFromMissing() {
+        Tenant tenantA = data.createTenant();
+        Tenant tenantB = data.createTenant();
+        String tokenB = token(tenantB, Role.MEMBER);
+        Response typeB = createListingType(tokenB);
+        createListingRecord(tokenB, typeB, "b-row");
+
+        String tokenA = token(tenantA, Role.MEMBER);
+        String foreign = given().header("Authorization", "Bearer " + tokenA)
+                .when().get("/annotation-records?typeId=" + typeB.jsonPath().getString("id"))
+                .then().statusCode(404)
+                .body("code", equalTo("annotation.type.not_found"))
+                .extract().asString();
+        String missing = given().header("Authorization", "Bearer " + tokenA)
+                .when().get("/annotation-records?typeId=" + java.util.UUID.randomUUID())
+                .then().statusCode(404)
+                .body("code", equalTo("annotation.type.not_found"))
+                .extract().asString();
+        assertFalse(foreign.contains("b-row"), "no data of tenant B leaks");
+        assertEquals(missing.replaceAll("\"correlationId\":\"[^\"]*\"", ""),
+                foreign.replaceAll("\"correlationId\":\"[^\"]*\"", ""),
+                "foreign and missing are byte-indistinguishable modulo correlation id (C-01)");
+    }
 }

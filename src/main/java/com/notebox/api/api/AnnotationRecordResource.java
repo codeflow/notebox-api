@@ -1,27 +1,35 @@
 package com.notebox.api.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import com.notebox.api.api.dto.AnnotationRecordDto;
+import com.notebox.api.api.dto.PageDto;
 import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.RevealResponse;
 import com.notebox.api.application.annotation.AnnotationRecordService;
 import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.application.annotation.AnnotationTypeService;
 import com.notebox.api.domain.AnnotationRecord;
+import com.notebox.api.domain.AnnotationType;
 import com.notebox.api.domain.AnnotationType;
 
 import io.quarkus.security.Authenticated;
@@ -45,6 +53,24 @@ public class AnnotationRecordResource {
         this.service = service;
         this.typeService = typeService;
         this.sanitizer = sanitizer;
+    }
+
+    /** One page of a type's records, visible fields only, newest first (FR-05, NFR-08, OQ-20). */
+    @GET
+    @Transactional
+    public PageDto<AnnotationRecordDto> list(
+            @QueryParam("typeId")
+            @NotNull(message = "annotation.record.list.type.required") UUID typeId,
+            @QueryParam("page") @DefaultValue("0")
+            @Min(value = 0, message = "annotation.record.list.size.out_of_bounds") int page,
+            @QueryParam("size") @DefaultValue("50")
+            @Min(value = 1, message = "annotation.record.list.size.out_of_bounds")
+            @Max(value = 200, message = "annotation.record.list.size.out_of_bounds") int size) {
+        AnnotationType type = typeService.get(typeId);
+        List<AnnotationRecordDto> items = service.listByType(typeId, page, size).stream()
+                .map(record -> AnnotationRecordDto.forListing(record, type, sanitizer))
+                .toList();
+        return new PageDto<>(items, page, size, service.countByType(typeId));
     }
 
     @POST

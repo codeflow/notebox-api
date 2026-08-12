@@ -14,6 +14,8 @@ class AnnotationRecordMessageCoverageTest {
 
     private static final List<String> KEYS = List.of(
             "annotation.record.name.required",
+            "annotation.record.list.type.required",
+            "annotation.record.list.size.out_of_bounds",
             "annotation.record.not_found",
             "annotation.record.field.unknown",
             "annotation.record.value.type_mismatch",
