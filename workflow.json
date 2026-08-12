@@ -2257,7 +2257,7 @@
             {
               "id": "feat-008-annotation-listing-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2295,14 +2295,18 @@
                   "id": "feat-008-annotation-listing-notebox-api.implement.t3",
                   "title": "T-03 — Wire tests (11 scenarios) + OpenAPI + full verify",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-08-12T20:51:42Z",
+                  "completed_at": "2026-08-12T21:05:58Z"
                 }
-              ]
+              ],
+              "started_at": "2026-08-12T21:05:58Z",
+              "completed_at": "2026-08-12T21:05:59Z"
             },
             {
               "id": "feat-008-annotation-listing-notebox-api.audit",

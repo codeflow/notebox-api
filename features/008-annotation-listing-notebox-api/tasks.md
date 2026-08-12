@@ -19,7 +19,7 @@
       - depends: T-01 · parallel: no
       - verify: `mvn -B test -Dtest=AnnotationRecordMessageCoverageTest`
 
-- [ ] **T-03 · Wire tests — the 11 scenarios end to end + OpenAPI + full verify**
+- [x] **T-03 · Wire tests — the 11 scenarios end to end + OpenAPI + full verify**
       - files: `api/AnnotationRecordResourceTest.java` (extend), `api/OpenApiCoverageTest.java` (+row)
       - covers: all 11 spec scenarios at the wire, NFR-06, C-08/C-12/FR-18 on the new path · scenarios: projection + BR-09 pair (same record, both reads, one test), masked secret row, **sanitized legacy row** (native SQL plant), default-50/total, size-500 → 400 + key, empty page beyond end, newest-first order, foreign-tenant 404 indistinguishability, missing typeId → 400
       - notes: closes with the hub's **full `mvn -B verify`** — which is also T-01's global-config tripwire (all 153 existing tests must stay green)
