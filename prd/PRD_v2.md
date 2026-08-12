@@ -135,7 +135,7 @@ API's, with client-side sanitization on render as defence in depth)*.
 | NFR-02 | Localization | Every user-facing system message key resolves in each supported locale. | 100% key coverage en + pt; catalog-coverage check in CI. | BR-08 + C-09 |
 | NFR-03 | Performance | Cached hot reads (message catalog, type schemas) served from Redis cache-aside. | Cache-hit read **p95 < 50 ms**; measured by load test. *(OQ-10)* | AD-13 |
 | NFR-04 | Integrity / safety | Image uploads are content-type validated and size-bounded before persistence. | **Max 5 MB**; oversize rejected; validation test. *(OQ-10)* | AD-04,AD-07 + C-07 |
-| NFR-08 | Performance / contract | List endpoints (annotations, tasks) are paginated. | Default page size **50**, max **200**. *(OQ-10)* | decisão humana 2026-07-22 |
+| NFR-08 | Performance / contract | List endpoints (annotations, tasks) are paginated. | Default page size **50**, max **200** *(OQ-10)*; record listings ordered **newest first** (`createdAt` desc, id tiebreak) *(decisão humana 2026-08-12, OQ-20)*. | decisão humana 2026-07-22 |
 | NFR-05 | Resilience | A Redis outage or cache miss degrades to MySQL without error. | Fault-injection test: 0 errors on cache unavailability. | AD-13 |
 | NFR-06 | Contract | Every HTTP endpoint is documented in OpenAPI, in sync with the code. | 100% endpoint coverage; contract lint in CI. | 03-standards (api_docs) |
 | NFR-07 | Observability | Structured logging with a correlation id; no secrets/PII/cross-tenant data in logs. | Log review + test; correlation id present on every request. | 01-arch, 02-compliance |
