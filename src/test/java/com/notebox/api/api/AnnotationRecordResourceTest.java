@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.UUID;
@@ -311,5 +312,84 @@ class AnnotationRecordResourceTest {
     void unauthenticatedIsRejected() {
         given().when().get("/annotation-records/" + UUID.randomUUID())
                 .then().statusCode(401);
+    }
+
+    // --- feat-007: C-08 at the wire — write, read and the legacy-row seam ---
+
+    @jakarta.inject.Inject
+    jakarta.persistence.EntityManager em;
+
+    @jakarta.inject.Inject
+    jakarta.transaction.UserTransaction utx;
+
+    private static final String NOTES_TYPE_JSON = """
+            {"name":"Runbook","fields":[{"name":"Notes","fieldType":"FREE_TEXT"}]}""";
+
+    @Test
+    void create_sanitizesHostileRichTextOnTheWire() {
+        Tenant tenant = data.createTenant();
+        String token = token(tenant, Role.MEMBER);
+        Response type = given().header("Authorization", "Bearer " + token)
+                .contentType("application/json").body(NOTES_TYPE_JSON)
+                .when().post("/annotation-types")
+                .then().statusCode(201).extract().response();
+        String typeId = type.jsonPath().getString("id");
+        String notesId = type.jsonPath().getString("fields[0].id");
+
+        String recordId = given().header("Authorization", "Bearer " + token)
+                .contentType("application/json")
+                .body("""
+                        {"annotationTypeId":"%s","name":"r1","values":[
+                          {"fieldId":"%s","text":"<p>before</p><script>steal()</script><p onclick=\\"x()\\">after</p>"}]}"""
+                        .formatted(typeId, notesId))
+                .when().post("/annotation-records")
+                .then().statusCode(201)
+                .body("values[0].text", equalTo("<p>before</p><p>after</p>"))
+                .extract().path("id");
+
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records/" + recordId)
+                .then().statusCode(200)
+                .body("values[0].text", equalTo("<p>before</p><p>after</p>"));
+    }
+
+    @Test
+    void legacyHostileRow_isServedInert_andTheStoredBytesAreUntouched() throws Exception {
+        Tenant tenant = data.createTenant();
+        String token = token(tenant, Role.MEMBER);
+        Response type = given().header("Authorization", "Bearer " + token)
+                .contentType("application/json").body(NOTES_TYPE_JSON)
+                .when().post("/annotation-types")
+                .then().statusCode(201).extract().response();
+        String typeId = type.jsonPath().getString("id");
+        String notesId = type.jsonPath().getString("fields[0].id");
+        String recordId = given().header("Authorization", "Bearer " + token)
+                .contentType("application/json")
+                .body("""
+                        {"annotationTypeId":"%s","name":"r1","values":[
+                          {"fieldId":"%s","text":"<p>ok</p>"}]}""".formatted(typeId, notesId))
+                .when().post("/annotation-records")
+                .then().statusCode(201).extract().path("id");
+
+        // A row written before feat-007 existed: hostile bytes planted straight into the store.
+        String hostile = "<p>x</p><script>steal()</script>";
+        utx.begin();
+        em.createNativeQuery("update annotation_value set text_value = :v where annotation_record_id = :id")
+                .setParameter("v", hostile)
+                .setParameter("id", recordId)
+                .executeUpdate();
+        utx.commit();
+
+        given().header("Authorization", "Bearer " + token)
+                .when().get("/annotation-records/" + recordId)
+                .then().statusCode(200)
+                .body("values[0].text", equalTo("<p>x</p>"));
+
+        Object stored = em.createNativeQuery(
+                        "select text_value from annotation_value where annotation_record_id = :id")
+                .setParameter("id", recordId)
+                .getSingleResult();
+        assertEquals(hostile, stored,
+                "the read is DTO-only — the transactional GET must not flush a sanitized UPDATE (INV-S5)");
     }
 }

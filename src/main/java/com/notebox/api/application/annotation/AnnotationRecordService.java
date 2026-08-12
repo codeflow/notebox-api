@@ -18,11 +18,13 @@ import jakarta.transaction.Transactional;
 import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.AnnotationValueInput;
 import com.notebox.api.application.crypto.EncryptedValue;
+import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.application.crypto.SecretValueCipher;
 import com.notebox.api.domain.AnnotationRecord;
 import com.notebox.api.domain.AnnotationType;
 import com.notebox.api.domain.AnnotationValue;
 import com.notebox.api.domain.AuditLog;
+import com.notebox.api.domain.FieldType;
 import com.notebox.api.domain.FieldOption;
 import com.notebox.api.domain.Role;
 import com.notebox.api.domain.TypeField;
@@ -64,6 +66,7 @@ public class AnnotationRecordService {
     private final AuditLogRepository auditLog;
     private final ImageService images;
     private final SecretValueCipher cipher;
+    private final RichTextSanitizer sanitizer;
     private final TenantContext tenant;
 
     public AnnotationRecordService(
@@ -72,12 +75,14 @@ public class AnnotationRecordService {
             AuditLogRepository auditLog,
             ImageService images,
             SecretValueCipher cipher,
+            RichTextSanitizer sanitizer,
             TenantContext tenant) {
         this.records = records;
         this.types = types;
         this.auditLog = auditLog;
         this.images = images;
         this.cipher = cipher;
+        this.sanitizer = sanitizer;
         this.tenant = tenant;
     }
 
@@ -236,15 +241,20 @@ public class AnnotationRecordService {
         if (input.text() == null) {
             throw new AnnotationRecordValueTypeMismatchException();
         }
-        int utf8Length = input.text().getBytes(StandardCharsets.UTF_8).length;
+        // Rich Free-text is sanitized to the stored dialect BEFORE bounds, so the length rule
+        // applies to what is actually persisted (C-08 input half; secret values are never markup).
+        String text = field.getFieldType() == FieldType.FREE_TEXT && !field.isSecret()
+                ? sanitizer.sanitize(input.text())
+                : input.text();
+        int utf8Length = text.getBytes(StandardCharsets.UTF_8).length;
         if (utf8Length > (field.isSecret() ? SECRET_VALUE_MAX_BYTES : TEXT_VALUE_MAX_BYTES)) {
             throw new AnnotationRecordValueTooLongException();
         }
         if (field.isSecret()) {
-            EncryptedValue encrypted = cipher.encrypt(input.text());
+            EncryptedValue encrypted = cipher.encrypt(text);
             value.setSecret(encrypted.ciphertext(), encrypted.iv(), encrypted.keyVersion());
         } else {
-            value.setTextValue(input.text());
+            value.setTextValue(text);
         }
     }
 

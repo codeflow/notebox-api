@@ -19,6 +19,7 @@ import com.notebox.api.api.dto.AnnotationRecordDto;
 import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.RevealResponse;
 import com.notebox.api.application.annotation.AnnotationRecordService;
+import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.application.annotation.AnnotationTypeService;
 import com.notebox.api.domain.AnnotationRecord;
 import com.notebox.api.domain.AnnotationType;
@@ -37,10 +38,13 @@ public class AnnotationRecordResource {
 
     private final AnnotationRecordService service;
     private final AnnotationTypeService typeService;
+    private final RichTextSanitizer sanitizer;
 
-    public AnnotationRecordResource(AnnotationRecordService service, AnnotationTypeService typeService) {
+    public AnnotationRecordResource(
+            AnnotationRecordService service, AnnotationTypeService typeService, RichTextSanitizer sanitizer) {
         this.service = service;
         this.typeService = typeService;
+        this.sanitizer = sanitizer;
     }
 
     @POST
@@ -84,6 +88,6 @@ public class AnnotationRecordResource {
 
     private AnnotationRecordDto toDto(AnnotationRecord record) {
         AnnotationType type = typeService.get(record.getAnnotationTypeId());
-        return AnnotationRecordDto.from(record, type);
+        return AnnotationRecordDto.from(record, type, sanitizer);
     }
 }
