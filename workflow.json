@@ -2311,7 +2311,7 @@
             {
               "id": "feat-008-annotation-listing-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -2320,7 +2320,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/008-annotation-listing-notebox-api/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-12T21:06:43Z",
+              "completed_at": "2026-08-12T21:06:43Z"
             },
             {
               "id": "feat-008-annotation-listing-notebox-api.publish",
