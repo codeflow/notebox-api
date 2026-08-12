@@ -2037,6 +2037,152 @@
             "pr": 7,
             "merged": "develop"
           }
+        },
+        {
+          "id": "feat-007-rich-text-sanitization",
+          "title": "Sanitize rich Free-text annotation values on input and output (C-08, OQ-19) (US-2.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-007-rich-text-sanitization.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/007-rich-text-sanitization/spec.md"
+              ],
+              "started_at": "2026-08-12T15:06:13Z",
+              "completed_at": "2026-08-12T15:09:33Z"
+            },
+            {
+              "id": "feat-007-rich-text-sanitization.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/007-rich-text-sanitization/plan.md",
+                "features/007-rich-text-sanitization/data-model.md"
+              ],
+              "started_at": "2026-08-12T15:09:33Z",
+              "completed_at": "2026-08-12T17:00:58Z"
+            },
+            {
+              "id": "feat-007-rich-text-sanitization.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/007-rich-text-sanitization/tasks.md"
+              ],
+              "started_at": "2026-08-12T17:00:58Z",
+              "completed_at": "2026-08-12T17:04:04Z"
+            },
+            {
+              "id": "feat-007-rich-text-sanitization.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-007-rich-text-sanitization.implement.t1",
+                  "title": "T-01 — jsoup + RichTextSanitizer port + impl + shared corpus",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-12T17:04:09Z",
+                  "completed_at": "2026-08-12T18:00:38Z"
+                },
+                {
+                  "id": "feat-007-rich-text-sanitization.implement.t2",
+                  "title": "T-02 — Write seam: applyText sanitizes before bounds",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                },
+                {
+                  "id": "feat-007-rich-text-sanitization.implement.t3",
+                  "title": "T-03 — Read seam: DTO-only sanitization + legacy row + full verify",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "feat-007-rich-text-sanitization.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/007-rich-text-sanitization/audit.md"
+              ]
+            },
+            {
+              "id": "feat-007-rich-text-sanitization.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-007-rich-text-sanitization.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "github": {
+            "issue": 7,
+            "branch": "feature/rich-text-sanitization"
+          }
         }
       ]
     },
