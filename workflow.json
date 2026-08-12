@@ -2122,12 +2122,14 @@
                   "id": "feat-007-rich-text-sanitization.implement.t2",
                   "title": "T-02 — Write seam: applyText sanitizes before bounds",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "high"
-                  }
+                  },
+                  "started_at": "2026-08-12T18:00:38Z",
+                  "completed_at": "2026-08-12T18:06:26Z"
                 },
                 {
                   "id": "feat-007-rich-text-sanitization.implement.t3",

@@ -12,7 +12,7 @@
       - depends: — · parallel: no  *(the plan-invalidating risk lives here)*
       - verify: `mvn -B test -Dtest=JsoupRichTextSanitizerTest`
 
-- [ ] **T-02 · Write seam — `applyText` sanitizes non-secret FREE_TEXT before bounds**
+- [x] **T-02 · Write seam — `applyText` sanitizes non-secret FREE_TEXT before bounds**
       - files: `application/annotation/AnnotationRecordService.java` (`applyText`), `application/annotation/AnnotationRecordServiceTest.java`
       - covers: FR-04, C-08 (input half), INV-S1/S6 · scenarios: "An update is sanitized exactly like a create", "Plain TEXT values are not treated as markup", "Secret values keep their shipped behaviour" (service level), "The length bound applies to the stored form"
       - notes: sanitize **before** the length check so `annotation.record.value.too_long` fires on the stored form (existing key — no i18n change); TEXT and secret values must be proven to bypass the sanitizer, not merely assumed

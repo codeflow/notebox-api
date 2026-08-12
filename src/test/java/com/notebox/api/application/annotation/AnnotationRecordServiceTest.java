@@ -500,4 +500,116 @@ class AnnotationRecordServiceTest {
                 .orElseThrow()
                 .getId();
     }
+
+    // --- feat-007: rich Free-text sanitization at the write seam (C-08 input half) ---
+
+    private AnnotationType notesType(Tenant tenant) {
+        AnnotationType type = new AnnotationType(tenant.getId(), "Runbook");
+        type.addField(new TypeField("URL", FieldType.TEXT));
+        type.addField(new TypeField("Notes", FieldType.FREE_TEXT));
+        typeRepository.persistInTenant(type);
+        em.flush();
+        return type;
+    }
+
+    @Test
+    @TestTransaction
+    void create_sanitizesARichFreeTextValueToTheDialect() {
+        Tenant tenant = data.createTenant();
+        when(tenantContext.tenantId()).thenReturn(tenant.getId());
+        AnnotationType type = notesType(tenant);
+
+        AnnotationRecord record = service.create(new AnnotationRecordInput(
+                type.getId(), "r1",
+                List.of(new AnnotationValueInput(
+                        fieldId(type, "Notes"),
+                        "<p>before</p><script>steal()</script><p onclick=\"x()\">after</p>",
+                        null, null, null))));
+
+        assertEquals("<p>before</p><p>after</p>",
+                valueFor(record, fieldId(type, "Notes")).getTextValue(),
+                "the stored form is the sanitized dialect form (INV-S1)");
+    }
+
+    @Test
+    @TestTransaction
+    void update_sanitizesExactlyLikeCreate() {
+        Tenant tenant = data.createTenant();
+        when(tenantContext.tenantId()).thenReturn(tenant.getId());
+        AnnotationType type = notesType(tenant);
+        AnnotationRecord record = service.create(new AnnotationRecordInput(
+                type.getId(), "r1",
+                List.of(new AnnotationValueInput(fieldId(type, "Notes"), "<p>clean</p>", null, null, null))));
+
+        AnnotationRecord updated = service.update(record.getId(), new AnnotationRecordInput(
+                null, "r1",
+                List.of(new AnnotationValueInput(
+                        fieldId(type, "Notes"),
+                        "<img src=\"https://evil.example/p.png\" data-image-id=\"i1\"><iframe></iframe>",
+                        null, null, null))));
+
+        assertEquals("<img data-image-id=\"i1\">",
+                valueFor(updated, fieldId(type, "Notes")).getTextValue(),
+                "update stores the sanitized form: src stripped, iframe dropped");
+    }
+
+    @Test
+    @TestTransaction
+    void create_leavesPlainTextValuesVerbatim() {
+        Tenant tenant = data.createTenant();
+        when(tenantContext.tenantId()).thenReturn(tenant.getId());
+        AnnotationType type = notesType(tenant);
+
+        AnnotationRecord record = service.create(new AnnotationRecordInput(
+                type.getId(), "r1",
+                List.of(new AnnotationValueInput(fieldId(type, "URL"), "<b>not markup</b>", null, null, null))));
+
+        assertEquals("<b>not markup</b>",
+                valueFor(record, fieldId(type, "URL")).getTextValue(),
+                "TEXT is not a markup surface — never sanitized (INV-S6)");
+    }
+
+    @Test
+    @TestTransaction
+    void create_neverSanitizesASecretValue() {
+        Tenant tenant = data.createTenant();
+        when(tenantContext.tenantId()).thenReturn(tenant.getId());
+        when(tenantContext.userId()).thenReturn(java.util.UUID.randomUUID());
+        when(tenantContext.role()).thenReturn(Role.ADMIN);
+        AnnotationType type = rabbitMqType(tenant);
+        String hostileSecret = "<script>alert(1)</script>secret";
+
+        AnnotationRecord record = service.create(new AnnotationRecordInput(
+                type.getId(), "r1",
+                List.of(new AnnotationValueInput(fieldId(type, "API key"), hostileSecret, null, null, null))));
+        em.flush();
+
+        assertEquals(hostileSecret, service.reveal(record.getId(), fieldId(type, "API key")),
+                "secret values are encrypted text, not rendered HTML — stored and revealed verbatim (INV-S6)");
+    }
+
+    @Test
+    @TestTransaction
+    void create_boundsApplyToTheSanitizedForm() {
+        Tenant tenant = data.createTenant();
+        when(tenantContext.tenantId()).thenReturn(tenant.getId());
+        AnnotationType type = notesType(tenant);
+        String hugeAttribute = "a".repeat(70000);
+
+        AnnotationRecord record = service.create(new AnnotationRecordInput(
+                type.getId(), "r1",
+                List.of(new AnnotationValueInput(
+                        fieldId(type, "Notes"),
+                        "<p onclick=\"" + hugeAttribute + "\">x</p>",
+                        null, null, null))));
+
+        assertEquals("<p>x</p>", valueFor(record, fieldId(type, "Notes")).getTextValue(),
+                "the raw input exceeds the column bound but the stored (sanitized) form fits");
+
+        assertThrows(AnnotationRecordValueTooLongException.class, () -> service.create(new AnnotationRecordInput(
+                type.getId(), "r2",
+                List.of(new AnnotationValueInput(
+                        fieldId(type, "Notes"), "<p>" + hugeAttribute + "</p>", null, null, null)))),
+                "a sanitized form over the bound still hits the existing too_long rule");
+    }
 }
