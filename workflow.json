@@ -2530,7 +2530,7 @@
             {
               "id": "feat-010-tasks-notebox-api.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -2539,12 +2539,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/010-tasks-notebox-api/spec.md"
-              ]
+              ],
+              "started_at": "2026-08-13T11:34:01Z",
+              "completed_at": "2026-08-13T11:48:10Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -2554,12 +2556,14 @@
               "produces": [
                 "features/010-tasks-notebox-api/plan.md",
                 "features/010-tasks-notebox-api/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-13T11:48:10Z",
+              "completed_at": "2026-08-13T12:13:28Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -2568,7 +2572,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/010-tasks-notebox-api/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-13T12:13:28Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.implement",
@@ -2579,7 +2584,53 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-010-tasks-notebox-api.implement.t1",
+                  "title": "T-01 — Task aggregate persists: entities, BR-06 math, V5 migration",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-010-tasks-notebox-api.implement.t2",
+                  "title": "T-02 — Tenant-scoped repository, SubtaskChange events, recalculator",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-010-tasks-notebox-api.implement.t3",
+                  "title": "T-03 — TaskService use cases: audited deletes + recompute wiring",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-010-tasks-notebox-api.implement.t4",
+                  "title": "T-04 — Wire contract: resource, DTOs, validators, i18n, OpenAPI coverage",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-010-tasks-notebox-api.audit",
