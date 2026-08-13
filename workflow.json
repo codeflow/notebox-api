@@ -2563,7 +2563,7 @@
             {
               "id": "feat-010-tasks-notebox-api.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -2573,12 +2573,13 @@
               "produces": [
                 "features/010-tasks-notebox-api/tasks.md"
               ],
-              "started_at": "2026-08-13T12:13:28Z"
+              "started_at": "2026-08-13T12:13:28Z",
+              "completed_at": "2026-08-13T12:25:13Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2590,12 +2591,14 @@
                   "id": "feat-010-tasks-notebox-api.implement.t1",
                   "title": "T-01 — Task aggregate persists: entities, BR-06 math, V5 migration",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-13T12:28:11Z",
+                  "completed_at": "2026-08-13T12:35:36Z"
                 },
                 {
                   "id": "feat-010-tasks-notebox-api.implement.t2",
@@ -2630,7 +2633,8 @@
                     "effort": "medium"
                   }
                 }
-              ]
+              ],
+              "started_at": "2026-08-13T12:28:11Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.audit",
@@ -2671,7 +2675,8 @@
           ],
           "github": {
             "issue": 11,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg2Y9Vk"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg2Y9Vk",
+            "branch": "feature/tasks"
           }
         },
         {

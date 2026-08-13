@@ -8,7 +8,7 @@
 > dependencies). No `parallel: yes` anywhere → no worktree isolation. Every task ships its tests;
 > `mvn -B verify` (the harness command) must be green at the end of each task.
 
-- [ ] **T-01 · Task aggregate persists — entities, BR-06 math, V5 migration**
+- [x] **T-01 · Task aggregate persists — entities, BR-06 math, V5 migration** ✔ 2026-08-13, verify green (170 tests)
       - files: `domain/Task.java`, `domain/Subtask.java`, `domain/Priority.java`, `db/migration/V5__tasks.sql`, `test …/domain/TaskTest.java`
       - covers: FR-10 (shape), BR-06 + OQ-22 · scenario: "A non-integer proportion rounds to an integer percent" (pure `percentOf` table: 0/0→0, 1/3→33, 2/3→67, 1/8→13, 1/2→50, 3/3→100)
       - depends: — · parallel: no
