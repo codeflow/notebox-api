@@ -2519,6 +2519,213 @@
             "merged": "develop",
             "card": "PVTI_lADOAuNpyc4BeXEnzg2ToUA"
           }
+        },
+        {
+          "id": "feat-010-tasks-notebox-api",
+          "title": "Tasks with subtasks and derived progress (US-4.1) (US-4.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-010-tasks-notebox-api.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/010-tasks-notebox-api/spec.md"
+              ]
+            },
+            {
+              "id": "feat-010-tasks-notebox-api.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/010-tasks-notebox-api/plan.md",
+                "features/010-tasks-notebox-api/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-010-tasks-notebox-api.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/010-tasks-notebox-api/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-010-tasks-notebox-api.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-010-tasks-notebox-api.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/010-tasks-notebox-api/audit.md"
+              ]
+            },
+            {
+              "id": "feat-010-tasks-notebox-api.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-010-tasks-notebox-api.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "github": {
+            "issue": 11,
+            "card": "PVTI_lADOAuNpyc4BeXx1zg2Y9Vk"
+          }
+        },
+        {
+          "id": "feat-011-tasks-notebox-web",
+          "title": "Tasks with subtasks and derived progress (US-4.1) (US-4.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-011-tasks-notebox-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/011-tasks-notebox-web/spec.md"
+              ]
+            },
+            {
+              "id": "feat-011-tasks-notebox-web.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/011-tasks-notebox-web/plan.md",
+                "features/011-tasks-notebox-web/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-011-tasks-notebox-web.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/011-tasks-notebox-web/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-011-tasks-notebox-web.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-011-tasks-notebox-web.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/011-tasks-notebox-web/audit.md"
+              ]
+            },
+            {
+              "id": "feat-011-tasks-notebox-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-011-tasks-notebox-web.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 10,
+            "card": "PVTI_lADOAuNpyc4BeXEnzg2Y9W4"
+          }
         }
       ]
     },
