@@ -11,7 +11,7 @@
 |----|------|-------|--------|
 | E0 | Foundations & Harness | repo, CI/CD, agentic pipeline | todo |
 | E1 | Annotation types | define typed note schemas | delivered |
-| E2 | Annotations | typed records + listing/detail | speccing |
+| E2 | Annotations | typed records + listing/detail | delivered |
 | E3 | Groups & navigation | organize items, nav tree | todo |
 | E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | todo |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
@@ -35,7 +35,7 @@
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
 | US-2.1 | As a tenant member, I want to create/edit/delete annotations of a type, so I record real data. | FR-04, FR-06, FR-18 · BR-03, BR-05, BR-10 | delivered | feat-005-annotation-records-notebox-api (api) — **merged into `develop` 2026-08-11** (PR #6, squash `0f056d7`; audit Round 4 pass, 133 tests green); promotion to `main` pending · feat-006-annotation-records-notebox-web (notebox-web) — **merged into `develop` 2026-08-12** (PR #7, squash `1f6e34a`; audit Round 2 pass, 277 tests). Both sides delivered **on develop**; promotion to `main` pending. ~~Promotion blocker~~ **closed by feat-007** (rich-text sanitization, merged to develop 2026-08-12, PR #8, squash 060a8d2). Includes secret-value encryption + audited reveal (FR-18); enforces type-delete-block when records exist (OQ-14) |
-| US-2.2 | As a tenant member, I want a listing exposing visible fields plus a detail view exposing all fields, so grid and detail have what they need. | FR-05, FR-07 · BR-09 | building | feat-008-annotation-listing-notebox-api (api) — **merged into `develop` 2026-08-12** (PR #10, squash `c5882d4`; audit pass w/ findings, 161 tests) · feat-009-annotation-listing-notebox-web (notebox-web) — spec next. **absorbs US-1.2's FR-05 visible-column projection** (the `visibleForViewing` flag itself ships in feat-003); depends on US-2.1 records |
+| US-2.2 | As a tenant member, I want a listing exposing visible fields plus a detail view exposing all fields, so grid and detail have what they need. | FR-05, FR-07 · BR-09 | delivered | feat-008-annotation-listing-notebox-api (api) — **merged into `develop` 2026-08-12** (PR #10, squash `c5882d4`; audit pass w/ findings, 161 tests) · feat-009-annotation-listing-notebox-web (notebox-web) — **merged into `develop` 2026-08-12** (PR #9, squash `ad79bfe`; audit Round 1 pass, 300 tests). Both sides delivered **on develop**; promotion to `main` pending. **Absorbs US-1.2's FR-05 visible-column projection** (the `visibleForViewing` flag itself shipped in feat-003) |
 
 ## E3 — Groups & navigation
 
@@ -74,3 +74,4 @@
 | 2026-08-11 | v3 | US-2.1 speccing → building: feat-005 (API) passed its audit at Round 4 after three remediation rounds. The story stays `building`, not `delivered` — feat-006 (web) has not started, and US-2.1 is only delivered when both sides ship. |
 | 2026-08-12 | v4 | US-2.1 building → delivered (on develop): feat-006 (web) merged via PR #7 after audit pass at Round 2. Promotion to `main` gated on scoping the API-side C-08 rich-text sanitization obligation (OQ-19). |
 | 2026-08-12 | v5 | feat-007 (rich-text sanitization) merged to develop via PR #8 — the C-08 promotion blocker on US-2.1 is closed; /wf-promote has no remaining compliance obstacle. |
+| 2026-08-12 | v6 | US-2.2 building → delivered (on develop): feat-009 (web) merged via PR #9 (squash `ad79bfe`) after audit Round 1 pass (300 tests), joining feat-008 (api, PR #10). E2 → delivered — US-1.2's absorbed FR-05 visible-column projection ships with it. Promotion to `main` pending. |

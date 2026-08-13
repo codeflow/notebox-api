@@ -1,34 +1,31 @@
 # ROADMAP — the project
 
 > Executive index of what's delivered, what's next, and where decisions live. Language: English.
-> **Last updated:** 2026-07-23
+> **Last updated:** 2026-08-12
 
 This is an index — it does not duplicate canonical sources:
 - 🔗 Open questions: [`catalogs/open-questions.md`](catalogs/open-questions.md)
 - 🔗 Requirements: [`catalogs/requirements.md`](catalogs/requirements.md)
 - 🔗 Epics & user stories: [`catalogs/epics.md`](catalogs/epics.md)
-- 🔗 PRD: [`prd/PRD_v1.md`](prd/PRD_v1.md)
+- 🔗 PRD: [`prd/PRD_v2.md`](prd/PRD_v2.md)
 
 ## 1. General state
 | Layer | Stack | State |
 |-------|-------|-------|
-| API | Java 17 / Quarkus / Jakarta EE / MySQL | 3 features on `develop`, awaiting promotion to `main` |
-| Web (satellite) | react / next (`notebox-web`) | US-6.1 delivered; US-1.1 web pending |
+| API | Java 17 / Quarkus / Jakarta EE / MySQL | E1, E2, E6 delivered on `develop`; promotion to `main` pending |
+| Web (satellite) | react / next (`notebox-web`) | E1, E2, E6 delivered on `develop`; promotion to `main` pending |
 
 ## 2. Delivered ✅ (on `develop`, promotion to `main` pending)
 - [x] Repo scaffolded with SDD + Harness pipeline (2026-07-19).
-- [x] **US-6.1** identity & multi-tenancy — feat-001 (api) + feat-002 (web) (PR #2).
-- [x] **US-1.1** annotation types (api) — feat-003 (PR #4, 2026-07-23; audit pass-with-findings).
+- [x] **US-6.1** identity & multi-tenancy — feat-001 (api) + feat-002 (web) (PR #2, each repo).
+- [x] **US-1.1** annotation types — feat-003 (api, PR #4, 2026-07-23) + feat-004 (web, PR #5, 2026-07-24).
+- [x] **US-2.1** annotation records — feat-005 (api, PR #6, 2026-08-11) + feat-006 (web, PR #7, 2026-08-12) + feat-007 rich-text sanitization (api, PR #8, closed C-08).
+- [x] **US-2.2** listing & detail — feat-008 (api, PR #10, 2026-08-12) + feat-009 (web, PR #9, 2026-08-12; audit Round 1 pass, 300 tests). Absorbs US-1.2's visible-column projection.
 
 ## 3. Next waves 🌊
-### Wave — E1 Annotation types (in progress)
-- [ ] **feat-004-annotation-types-web** (US-1.1, notebox-web) — the type-builder UI over feat-003's contract. ← next
-### Deferred / dependencies
-- [ ] **Promote** develop → main for feat-001/002/003 (`/wf-promote`).
-- [ ] **US-2.1** annotation records — unblocks Secret value encryption (OQ-15) + type-delete policy (OQ-14).
-      - [x] API side (feat-005) — **merged into `develop` 2026-08-11** (PR #6, squash `0f056d7`); audit Round 4 pass, 133 tests green. Promotion to `main` pending.
-      - [x] Web side (feat-006) — **merged into `develop` 2026-08-12** (PR #7, squash `1f6e34a`); audit Round 2 pass, 277 tests. US-2.1 delivered on develop; promotion gated on the C-08 server-side sanitization scoping (OQ-19).
-- [ ] **feat-001 error/i18n realignment** (OQ-16).
+- [ ] **Promote develop → main** (`/wf-promote`) — nine features stacked, no compliance blockers remaining.
+- [ ] **`release` pipeline step** — final handoff, roadmap and memory close-out.
+- [ ] **E3** groups & navigation (US-3.1), **E4** tasks & subtasks (US-4.1, US-4.2), **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`.
 
 ## 4. Open questions
-➡️ See [`catalogs/open-questions.md`](catalogs/open-questions.md) — single source of truth.
+➡️ See [`catalogs/open-questions.md`](catalogs/open-questions.md) — single source of truth (none pending as of 2026-08-12).
