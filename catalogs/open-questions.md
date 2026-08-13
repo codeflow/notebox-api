@@ -10,9 +10,9 @@
 | Severity | Criterion | IDs |
 |----------|-----------|-----|
 | 🔴 Blocker | blocks planning an entire feature | — |
-| 🟡 Important | blocks details, not the feature | OQ-19 |
+| 🟡 Important | blocks details, not the feature | — |
 | 🟢 Tactical | can wait | — |
-| ✅ Resolved | — | OQ-01 … OQ-10 (all, 2026-07-22) |
+| ✅ Resolved | — | OQ-01 … OQ-22 (latest: OQ-21/OQ-22, 2026-08-13) |
 
 ## List
 
@@ -188,6 +188,24 @@
 **Status:** ✅ resolved (2026-08-12).
 **Decision:** Newest first: the listing is ordered by createdAt descending (ties broken by id for total stability). A just-created record appears at the top of page 1, matching the PRD §84 create-to-grid happy path; rows never move on edit. Applies to feat-008's wire contract and inherited by the feat-009 grid. — decided by rafaelsantos, 2026-08-12.
 
+### OQ-21 — Task listing sort order
+**Severity:** 🟡 Important
+**Description:** NFR-08 paginates the task listing (feat-010) but its ordering is unfixed: the OQ-20 decision ("newest first, `createdAt` desc, id tiebreak") was scoped to **record** listings. Pagination makes order contractual — an undefined order breaks page stability and test determinism.
+**Impact:** Blocks the listing scenario of feat-010's spec and the wire contract its plan must document; feat-011's task list UI inherits the decision.
+**Suggested path:** Human decision. Options: (a) **newest first** (`createdAt` desc, id tiebreak — recommended: mirrors OQ-20, one uniform listing contract across the product); (b) priority desc then recency (urgent work first, but rows jump when priority is edited); (c) name asc.
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-13).
+**Decision:** Newest first, mirroring OQ-20: the task listing is ordered by `createdAt` descending, ties broken by id — one uniform listing contract across the product (records and tasks alike). Applies to feat-010's wire contract; feat-011's task list inherits it. — decided by rafaelsantos, 2026-08-13.
+
+### OQ-22 — Task status representation for non-integer proportions
+**Severity:** 🟡 Important
+**Description:** BR-06 fixes the status *rule* — the proportion of subtasks marked done, 0% with none — but not its wire *representation* when the division is not exact: 1 of 3 done → 33? 33.33? 34? The PRD's only example (2 of 4 → 50%, §4) never exercises a remainder.
+**Impact:** Blocks the derived-status contract detail in feat-010 (tests need an exact expected value; feat-011's progress bar renders whatever the API returns).
+**Suggested path:** Human decision. Options: (a) **integer percent, round half up** (1/3 → 33, 2/3 → 67 — recommended: matches a progress-bar consumer, keeps the contract integer-typed); (b) two-decimal percent (33.33); (c) raw fraction (done/total) letting clients format.
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-13).
+**Decision:** Integer percent, rounded half up: status = round(done ÷ total × 100) with .5 rounding up (1/3 → 33, 2/3 → 67, 1/8 → 13); 0% with no subtasks per BR-06. The wire contract stays integer-typed, matching the progress-bar consumer. — decided by rafaelsantos, 2026-08-13.
+
 ## History
 
 | Date | Change |
@@ -222,6 +240,10 @@
 | 2026-08-03 | OQ-18 resolved: Block the flip while values exist (guard family of OQ-14/OQ-17): the t… |
 | 2026-08-11 | OQ-19 resolved: Rich text now, in feat-006: annotation Free-text VALUES are rich text … |
 | 2026-08-12 | OQ-20 resolved: Newest first: the listing is ordered by createdAt descending (ties bro… |
+| 2026-08-13 | OQ-21 opened: Task listing sort order (feat-010 spec; OQ-20 covered records only) |
+| 2026-08-13 | OQ-22 opened: Task status representation for non-integer proportions (feat-010 spec) |
+| 2026-08-13 | OQ-21 resolved: Newest first mirroring OQ-20 (createdAt desc, id tiebreak) — uniform li… |
+| 2026-08-13 | OQ-22 resolved: Integer percent, rounded half up (1/3 → 33); 0% with no subtasks per BR… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
