@@ -2368,7 +2368,7 @@
             {
               "id": "feat-009-annotation-listing-notebox-web.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -2377,12 +2377,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/009-annotation-listing-notebox-web/spec.md"
-              ]
+              ],
+              "started_at": "2026-08-13T00:41:27Z",
+              "completed_at": "2026-08-13T01:46:53Z"
             },
             {
               "id": "feat-009-annotation-listing-notebox-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -2392,12 +2394,14 @@
               "produces": [
                 "features/009-annotation-listing-notebox-web/plan.md",
                 "features/009-annotation-listing-notebox-web/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-13T01:46:53Z",
+              "completed_at": "2026-08-13T01:51:54Z"
             },
             {
               "id": "feat-009-annotation-listing-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -2406,23 +2410,68 @@
               "gate": "human_approval",
               "produces": [
                 "features/009-annotation-listing-notebox-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-13T01:51:54Z",
+              "completed_at": "2026-08-13T01:53:14Z"
             },
             {
               "id": "feat-009-annotation-listing-notebox-web.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-009-annotation-listing-notebox-web.implement.t1",
+                  "title": "T-01 — list client call + PageDto + plainTextPreview",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-13T01:53:18Z",
+                  "completed_at": "2026-08-13T01:54:30Z"
+                },
+                {
+                  "id": "feat-009-annotation-listing-notebox-web.implement.t2",
+                  "title": "T-02 — RecordGridCell + RecordsGrid (QBE + pager)",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-13T01:54:30Z",
+                  "completed_at": "2026-08-13T01:57:14Z"
+                },
+                {
+                  "id": "feat-009-annotation-listing-notebox-web.implement.t3",
+                  "title": "T-03 — Grid route + navigation + integration + full verify",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "high"
+                  },
+                  "started_at": "2026-08-13T01:57:14Z",
+                  "completed_at": "2026-08-13T02:00:37Z"
+                }
+              ],
+              "started_at": "2026-08-13T02:00:37Z",
+              "completed_at": "2026-08-13T02:00:38Z"
             },
             {
               "id": "feat-009-annotation-listing-notebox-web.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -2431,7 +2480,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/009-annotation-listing-notebox-web/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-13T02:13:32Z",
+              "completed_at": "2026-08-13T02:13:32Z"
             },
             {
               "id": "feat-009-annotation-listing-notebox-web.publish",
@@ -2458,7 +2509,8 @@
           ],
           "project": "notebox-web",
           "github": {
-            "issue": 8
+            "issue": 8,
+            "branch": "feature/annotation-listing-web"
           }
         }
       ]
