@@ -2720,7 +2720,7 @@
             {
               "id": "feat-011-tasks-notebox-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -2731,12 +2731,13 @@
                 "features/011-tasks-notebox-web/plan.md",
                 "features/011-tasks-notebox-web/data-model.md"
               ],
-              "started_at": "2026-08-14T12:12:15Z"
+              "started_at": "2026-08-14T12:12:15Z",
+              "completed_at": "2026-08-14T12:43:05Z"
             },
             {
               "id": "feat-011-tasks-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -2745,7 +2746,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/011-tasks-notebox-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-14T12:43:06Z"
             },
             {
               "id": "feat-011-tasks-notebox-web.implement",
@@ -2756,7 +2758,53 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-011-tasks-notebox-web.implement.t1",
+                  "title": "T-01 — Wire foundation: types with structural guards, tasksClient, viewModel, MSW factories",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-011-tasks-notebox-web.implement.t2",
+                  "title": "T-02 — Navigation chrome: AppNav, the one-line layout insert, regression guards",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-011-tasks-notebox-web.implement.t3",
+                  "title": "T-03 — List and task lifecycle: TasksTable, TaskForm, PriorityLabel, TaskProgress, routes",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-011-tasks-notebox-web.implement.t4",
+                  "title": "T-04 — Detail and subtasks: SubtasksPanel, dialogs, detail route, integration suite",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-011-tasks-notebox-web.audit",
