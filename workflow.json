@@ -2563,7 +2563,7 @@
             {
               "id": "feat-010-tasks-notebox-api.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -2573,12 +2573,13 @@
               "produces": [
                 "features/010-tasks-notebox-api/tasks.md"
               ],
-              "started_at": "2026-08-13T12:13:28Z"
+              "started_at": "2026-08-13T12:13:28Z",
+              "completed_at": "2026-08-13T12:25:13Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2590,52 +2591,62 @@
                   "id": "feat-010-tasks-notebox-api.implement.t1",
                   "title": "T-01 — Task aggregate persists: entities, BR-06 math, V5 migration",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-13T12:28:11Z",
+                  "completed_at": "2026-08-13T12:35:36Z"
                 },
                 {
                   "id": "feat-010-tasks-notebox-api.implement.t2",
                   "title": "T-02 — Tenant-scoped repository, SubtaskChange events, recalculator",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-13T12:40:26Z",
+                  "completed_at": "2026-08-13T12:44:38Z"
                 },
                 {
                   "id": "feat-010-tasks-notebox-api.implement.t3",
                   "title": "T-03 — TaskService use cases: audited deletes + recompute wiring",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-14T02:13:26Z",
+                  "completed_at": "2026-08-14T02:19:01Z"
                 },
                 {
                   "id": "feat-010-tasks-notebox-api.implement.t4",
                   "title": "T-04 — Wire contract: resource, DTOs, validators, i18n, OpenAPI coverage",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-14T02:21:58Z",
+                  "completed_at": "2026-08-14T02:29:51Z"
                 }
-              ]
+              ],
+              "started_at": "2026-08-13T12:28:11Z",
+              "completed_at": "2026-08-14T02:29:51Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -2644,7 +2655,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/010-tasks-notebox-api/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-14T02:34:44Z",
+              "completed_at": "2026-08-14T02:48:57Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.publish",
@@ -2671,7 +2684,8 @@
           ],
           "github": {
             "issue": 11,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg2Y9Vk"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg2Y9Vk",
+            "branch": "feature/tasks"
           }
         },
         {

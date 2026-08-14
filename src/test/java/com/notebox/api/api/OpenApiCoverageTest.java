@@ -38,6 +38,23 @@ class OpenApiCoverageTest {
                 "the listing GET's typeId parameter is documented (feat-008, NFR-06)");
     }
 
+    @Test
+    void openApiDocumentsTaskEndpoints() {
+        String document = given().accept("application/json")
+                .when().get("/q/openapi")
+                .then().statusCode(200)
+                .extract().asString();
+
+        assertTrue(hasPathKey(document, "/api/tasks"),
+                "task collection path missing from OpenAPI (feat-010, NFR-06)");
+        assertTrue(hasPathKey(document, "/api/tasks/{id}"),
+                "task item path missing from OpenAPI");
+        assertTrue(hasPathKey(document, "/api/tasks/{id}/subtasks"),
+                "subtask collection path missing from OpenAPI");
+        assertTrue(hasPathKey(document, "/api/tasks/{id}/subtasks/{subtaskId}"),
+                "subtask item path missing from OpenAPI");
+    }
+
     /** Matches a whole path KEY (JSON quoted or YAML colon-terminated), never a substring of a longer path. */
     private static boolean hasPathKey(String document, String path) {
         return document.contains("\"" + path + "\"") || document.contains(path + ":");
