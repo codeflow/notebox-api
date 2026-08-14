@@ -367,6 +367,75 @@ class TaskResourceTest {
     }
 
     @Test
+    void listTasks_pageAndSizeParams_driveTheQuery() {
+        String auth = newActorAuth();
+        for (int i = 0; i < 5; i++) {
+            createTask(auth, "t" + i, "LOW");
+        }
+
+        // Newest first over t0..t4 is t4,t3 | t2,t1 | t0 — page 1 of size 2 must be exactly t2,t1
+        // (audit finding 1: a hardcoded service.list(0, 50) must fail here).
+        given().header("Authorization", auth)
+                .when().get("/tasks?page=1&size=2")
+                .then().statusCode(200)
+                .body("items", hasSize(2))
+                .body("items[0].name", equalTo("t2"))
+                .body("items[1].name", equalTo("t1"))
+                .body("total", equalTo(5));
+
+        given().header("Authorization", auth)
+                .when().get("/tasks?size=3")
+                .then().statusCode(200)
+                .body("items", hasSize(3))
+                .body("items[0].name", equalTo("t4"));
+    }
+
+    @Test
+    void listTasks_negativePageOrZeroSize_rejected() {
+        String auth = newActorAuth();
+
+        given().header("Authorization", auth)
+                .when().get("/tasks?page=-1")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.list.size.out_of_bounds"));
+
+        given().header("Authorization", auth)
+                .when().get("/tasks?size=0")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.list.size.out_of_bounds"));
+    }
+
+    @Test
+    void subtaskDates_acceptedAndRoundTripUnswapped() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Migrate broker", "HIGH");
+
+        // Accept path of the date pair (audit finding 2: a validator rejecting every pair,
+        // or a start/end transposition in mapping or DTO, must fail here).
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Cutover\", \"startDate\": \"2026-09-01\", \"endDate\": \"2026-09-10\"}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].startDate", equalTo("2026-09-01"))
+                .body("subtasks[0].endDate", equalTo("2026-09-10"));
+
+        // PUT-replace on dates: a single boundary date is legal, the omitted one clears.
+        String subtaskId = given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().extract().path("subtasks[0].id");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Cutover\", \"startDate\": \"2026-10-01\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId)
+                .then().statusCode(200)
+                .body("subtasks[0].startDate", equalTo("2026-10-01"))
+                .body("subtasks[0].endDate", equalTo(null));
+    }
+
+    @Test
     void createTask_duplicateName_allowed() {
         String auth = newActorAuth();
         createTask(auth, "Migrate broker", "HIGH");
