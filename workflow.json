@@ -2646,7 +2646,7 @@
             {
               "id": "feat-010-tasks-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -2655,7 +2655,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/010-tasks-notebox-api/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-14T02:34:44Z",
+              "completed_at": "2026-08-14T02:48:57Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.publish",

@@ -47,7 +47,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | speccing | feat-010-tasks-notebox-api (api, issue #11) + feat-011-tasks-notebox-web (notebox-web, issue #10) — created 2026-08-13; API first, web consumes its `contracts/` |
+| US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | building | feat-010-tasks-notebox-api (api, issue #11) — **audit PASS w/ findings 2026-08-13** (both important findings closed same-day by test hardening; 212 tests), publish/PR next · feat-011-tasks-notebox-web (notebox-web, issue #10) — spec next, consumes feat-010 `contracts/tasks.md` |
 | US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | todo | — |
 
 ## E5 — Internationalization
@@ -76,3 +76,4 @@
 | 2026-08-12 | v5 | feat-007 (rich-text sanitization) merged to develop via PR #8 — the C-08 promotion blocker on US-2.1 is closed; /wf-promote has no remaining compliance obstacle. |
 | 2026-08-12 | v6 | US-2.2 building → delivered (on develop): feat-009 (web) merged via PR #9 (squash `ad79bfe`) after audit Round 1 pass (300 tests), joining feat-008 (api, PR #10). E2 → delivered — US-1.2's absorbed FR-05 visible-column projection ships with it. Promotion to `main` pending. |
 | 2026-08-13 | v7 | US-4.1 todo → speccing: feature pair created (feat-010 api, feat-011 web; issues #11/#10) after US-4.1 was chosen over US-3.1 — FR-09's nav tree serves tasks, so tasks ship first to keep US-3.1's contract non-speculative. E4 → speccing. |
+| 2026-08-13 | v8 | US-4.1 speccing → building: feat-010 (API) passed its audit at Round 1 (PASS with findings — 2 test-strength backlog items, 0 blockers; 209 tests). The story stays `building` — feat-011 (web) has not started; delivered only when both sides ship (US-2.1 precedent). |
