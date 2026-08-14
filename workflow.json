@@ -2604,12 +2604,14 @@
                   "id": "feat-010-tasks-notebox-api.implement.t2",
                   "title": "T-02 — Tenant-scoped repository, SubtaskChange events, recalculator",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-13T12:40:26Z",
+                  "completed_at": "2026-08-13T12:44:38Z"
                 },
                 {
                   "id": "feat-010-tasks-notebox-api.implement.t3",

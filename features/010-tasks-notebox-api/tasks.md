@@ -14,7 +14,7 @@
       - depends: — · parallel: no
       - verify: `mvn -B verify`
 
-- [ ] **T-02 · Tenant-scoped repository, `SubtaskChange` events, recalculator**
+- [x] **T-02 · Tenant-scoped repository, `SubtaskChange` events, recalculator** ✔ 2026-08-13, verify green (176 tests)
       - files: `infrastructure/persistence/TaskRepository.java`, `domain/event/SubtaskChange.java` (+ 4 records), `application/task/TaskProgressRecalculator.java`, `test …/infrastructure/persistence/TaskRepositoryTest.java`
       - covers: AD-03, AD-10 (inaugural), OQ-21 · scenarios: "The listing is ordered newest first" (id tiebreak), "Listings never leak across tenants" (repo seam); first `@QuarkusTest` also proves V5 ↔ entity `hibernate validate`
       - depends: T-01 · parallel: no
