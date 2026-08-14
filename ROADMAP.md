@@ -1,7 +1,7 @@
 # ROADMAP — the project
 
 > Executive index of what's delivered, what's next, and where decisions live. Language: English.
-> **Last updated:** 2026-08-12
+> **Last updated:** 2026-08-14
 
 This is an index — it does not duplicate canonical sources:
 - 🔗 Open questions: [`catalogs/open-questions.md`](catalogs/open-questions.md)
@@ -23,9 +23,14 @@ This is an index — it does not duplicate canonical sources:
 - [x] **US-2.2** listing & detail — feat-008 (api, PR #10, 2026-08-12) + feat-009 (web, PR #9, 2026-08-12; audit Round 1 pass, 300 tests). Absorbs US-1.2's visible-column projection.
 
 ## 3. Next waves 🌊
-- [ ] **Promote develop → main** (`/wf-promote`) — nine features stacked, no compliance blockers remaining.
+### Wave — E4 Tasks (in progress)
+- [x] **feat-010** (US-4.1, api) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; audit Round 1 pass w/ findings closed by hardening, 212 tests). Inaugurates AD-10 CDI events.
+- [ ] **feat-011** (US-4.1, notebox-web) — task/subtask UI over feat-010's `contracts/tasks.md`. ← next (`spec`)
+### Deferred / dependencies
+- [ ] **Promote develop → main** (`/wf-promote`) — ten features stacked, no compliance blockers remaining.
+- [ ] **US-4.2** task dates/cards/rich text — will observe feat-010's `SubtaskChange` event seam (FR-12/13/14).
+- [ ] **E3** groups & navigation (US-3.1), **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`.
 - [ ] **`release` pipeline step** — final handoff, roadmap and memory close-out.
-- [ ] **E3** groups & navigation (US-3.1), **E4** tasks & subtasks (US-4.1, US-4.2), **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`.
 
 ## 4. Open questions
 ➡️ See [`catalogs/open-questions.md`](catalogs/open-questions.md) — single source of truth (none pending as of 2026-08-12).

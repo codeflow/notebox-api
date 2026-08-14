@@ -2662,30 +2662,36 @@
             {
               "id": "feat-010-tasks-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-14T02:55:43Z",
+              "completed_at": "2026-08-14T02:59:03Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-14T02:59:03Z",
+              "completed_at": "2026-08-14T10:41:15Z"
             }
           ],
           "github": {
             "issue": 11,
             "card": "PVTI_lADOAuNpyc4BeXx1zg2Y9Vk",
-            "branch": "feature/tasks"
+            "branch": "feature/tasks",
+            "pr": 12,
+            "merged": "develop"
           }
         },
         {
