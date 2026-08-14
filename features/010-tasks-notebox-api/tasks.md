@@ -26,7 +26,7 @@
       - depends: T-02 · parallel: no
       - verify: `mvn -B verify`
 
-- [ ] **T-04 · Wire contract — resource, DTOs, validators, i18n, OpenAPI coverage**
+- [x] **T-04 · Wire contract — resource, DTOs, validators, i18n, OpenAPI coverage** ✔ 2026-08-13, verify green (209 tests; inputs/validators had shipped with T-03)
       - files: `api/TaskResource.java`, `api/dto/{TaskInput, SubtaskInput, TaskDto, TaskListItemDto, SubtaskDto}.java`, `api/validation/{ValidPriority, PriorityValidator, DateRangeValid, DateRangeValidator}.java`, `messages.properties`, `messages_pt.properties` (+11 line-parallel keys), `test …/api/TaskResourceTest.java`, `test …/infrastructure/i18n/TaskMessageCoverageTest.java`, `test …/api/OpenApiCoverageTest.java` (extend, +4 path keys)
       - covers: FR-10/FR-11 at the wire, NFR-08, C-01/C-02/C-09, NFR-06 · scenarios: all 21 wire shapes — create at 0%, blank/long names, priority "Urgent", status poison field, read-one with subtasks, pagination trio (default 50 / 201 rejected / T3-T2-T1), unauthenticated 401, foreign-tenant 404s (task and subtask), pt-locale message, date-range rejection, duplicate-name-allowed pin
       - depends: T-03 · parallel: no

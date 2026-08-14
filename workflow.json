@@ -2579,7 +2579,7 @@
             {
               "id": "feat-010-tasks-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2630,15 +2630,18 @@
                   "id": "feat-010-tasks-notebox-api.implement.t4",
                   "title": "T-04 — Wire contract: resource, DTOs, validators, i18n, OpenAPI coverage",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-14T02:21:58Z",
+                  "completed_at": "2026-08-14T02:29:51Z"
                 }
               ],
-              "started_at": "2026-08-13T12:28:11Z"
+              "started_at": "2026-08-13T12:28:11Z",
+              "completed_at": "2026-08-14T02:29:51Z"
             },
             {
               "id": "feat-010-tasks-notebox-api.audit",

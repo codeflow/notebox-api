@@ -187,10 +187,11 @@ class TaskServiceTest {
         em.clear();
 
         assertTrue(repository.findByIdInTenant(taskId).isEmpty(), "the task is gone");
-        Long orphanSubtasks = em.createQuery(
-                        "select count(s) from Subtask s", Long.class)
+        Number orphanSubtasks = (Number) em.createNativeQuery(
+                        "select count(*) from subtask where task_id = ?1")
+                .setParameter(1, taskId.toString())
                 .getSingleResult();
-        assertEquals(0, orphanSubtasks, "its subtasks went with it — one explicit act (BR-05)");
+        assertEquals(0, orphanSubtasks.longValue(), "its subtasks went with it — one explicit act (BR-05)");
         assertEquals(1, auditLog.countForTargetAndAction(taskId, "TASK_DELETED"),
                 "the task deletion is audited with who/what/when (C-10)");
     }
