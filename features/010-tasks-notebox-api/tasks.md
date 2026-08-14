@@ -20,7 +20,7 @@
       - depends: T-01 · parallel: no
       - verify: `mvn -B verify`
 
-- [ ] **T-03 · `TaskService` use cases — audited deletes + recompute wiring**
+- [x] **T-03 · `TaskService` use cases — audited deletes + recompute wiring** ✔ 2026-08-13, verify green (185 tests). Note: `TaskInput`/`SubtaskInput` + the two validator pairs were pulled forward from T-04 — the service signature (per contracts/tasks.md, donor precedent) needs them to compile; T-04 keeps resource, output DTOs, i18n and wire tests.
       - files: `application/task/TaskService.java`, `domain/error/TaskNotFoundException.java`, `domain/error/SubtaskNotFoundException.java`, `test …/application/task/TaskServiceTest.java`
       - covers: FR-10/FR-11, BR-05, C-10 · scenarios: "Completing a subtask updates progress" (2nd of 4 → 50%), "Adding a subtask recomputes downward" (100→50), "Un-completing…" (100→50), "Deleting a subtask recomputes" (25→0, audited), "Deleting a task removes it and its subtasks, audited", "Update name and priority without touching progress", status-guard invariant
       - depends: T-02 · parallel: no

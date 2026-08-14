@@ -2617,12 +2617,14 @@
                   "id": "feat-010-tasks-notebox-api.implement.t3",
                   "title": "T-03 — TaskService use cases: audited deletes + recompute wiring",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-14T02:13:26Z",
+                  "completed_at": "2026-08-14T02:19:01Z"
                 },
                 {
                   "id": "feat-010-tasks-notebox-api.implement.t4",
