@@ -2879,7 +2879,7 @@
             {
               "id": "feat-012-task-details-notebox-api.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -2888,12 +2888,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/012-task-details-notebox-api/spec.md"
-              ]
+              ],
+              "started_at": "2026-08-15T02:21:18Z",
+              "completed_at": "2026-08-15T02:53:34Z"
             },
             {
               "id": "feat-012-task-details-notebox-api.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -2903,7 +2905,9 @@
               "produces": [
                 "features/012-task-details-notebox-api/plan.md",
                 "features/012-task-details-notebox-api/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-15T03:05:36Z",
+              "completed_at": "2026-08-15T03:07:17Z"
             },
             {
               "id": "feat-012-task-details-notebox-api.tasks",
