@@ -48,7 +48,7 @@
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
 | US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | delivered | feat-010-tasks-notebox-api (api, issue #11) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; 212 tests) · feat-011-tasks-notebox-web (notebox-web, issue #10) — **merged into `develop` 2026-08-15** (PR #11, squash `6324257`; audit Round 1 pass w/ findings closed by hardening; 355 tests + live pass). Both sides delivered **on develop**; promotion to `main` pending |
-| US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | todo | — |
+| US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | speccing | feat-012-task-details-notebox-api (api, issue #13) · feat-013-task-details-notebox-web (notebox-web, issue #12) |
 
 ## E5 — Internationalization
 
@@ -78,3 +78,4 @@
 | 2026-08-13 | v7 | US-4.1 todo → speccing: feature pair created (feat-010 api, feat-011 web; issues #11/#10) after US-4.1 was chosen over US-3.1 — FR-09's nav tree serves tasks, so tasks ship first to keep US-3.1's contract non-speculative. E4 → speccing. |
 | 2026-08-13 | v8 | US-4.1 speccing → building: feat-010 (API) passed its audit at Round 1 (PASS with findings — 2 test-strength backlog items, 0 blockers; 209 tests). The story stays `building` — feat-011 (web) has not started; delivered only when both sides ship (US-2.1 precedent). |
 | 2026-08-15 | v9 | US-4.1 building → delivered (on develop): feat-011 (web) merged via PR #11 (squash `6324257`) after audit Round 1 pass w/ findings closed by same-day hardening (355 tests + live pass against the real API), joining feat-010 (api, PR #12). E4 → building (US-4.2 still todo). Promotion to `main` pending. |
+| 2026-08-15 | v10 | US-4.2 todo → speccing: feature pair created (feat-012 api, feat-013 web; issues #13/#12, slug `task-details`) — chosen over US-3.1 to finish E4 while the task aggregate is hot: FR-12's date derivation exercises AD-10's `SubtaskChange` seam early, FR-14 reuses feat-007 sanitization, and a complete task model keeps US-3.1's nav-tree contract non-speculative. |

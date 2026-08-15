@@ -14,9 +14,9 @@
 - **Just landed (2026-08-15):** feat-011 — the tasks & subtasks UI (US-4.1 web side). Squash `6324257`, audit Round 1 pass w/ findings closed by same-day hardening, 355 tests + a live pass against the real API. Introduces the app's first navigation chrome (`AppNav`, af-navTabs) in the shared layout. **US-4.1 is now fully delivered on develop.** Contract gotchas the UI enforces structurally: `status?: never` on `TaskInput` (never serialized) and all-required `SubtaskInput` (PUT-replace omissions unconstructable).
 
 ## In flight
-- Nothing mid-feature. `wf next` → the `delivery` container (pick next story) or close it toward `release`.
+- **US-4.2 pair opened (2026-08-15):** feat-012 (api, issue #13) + feat-013 (web, issue #12), slug `task-details`. `wf next` → `feat-012-task-details-notebox-api.spec` (opus·high). FR-12's date derivation observes feat-010's `SubtaskChange` seam; FR-14 reuses feat-007 sanitization; the web half extends screens 15/16's already-fenced-off regions.
 - **Promotion develop → main (`/wf-promote`)** — eleven features stacked on develop, no compliance blockers.
-- Remaining backlog: E3 (groups/nav, US-3.1), US-4.2 (dates/cards/rich text — its date derivation will observe feat-010's `SubtaskChange` seam; its web half extends screens 15/16's already-fenced-off regions), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`.
+- Remaining backlog: E3 (groups/nav, US-3.1), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`.
 
 ## How to resume
 1. Read `CLAUDE.md` (rules + working language en) and render the pipeline (`./bin/wf status`).

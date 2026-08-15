@@ -26,9 +26,11 @@ This is an index — it does not duplicate canonical sources:
 - [x] **US-4.1** tasks & subtasks with derived progress — feat-010 (api, PR #12, 2026-08-14; AD-10 CDI events inaugurated) + feat-011 (web, PR #11, 2026-08-15; first nav chrome, 355 tests + live pass). On `develop`, promotion pending.
 
 ## 3. Next waves 🌊
+### Wave — US-4.2 task details (in progress)
+- [ ] **feat-012** (US-4.2, api, issue #13) — derived dates, card value object, rich-text details over feat-010's model; observes the `SubtaskChange` seam. ← next (`spec`)
+- [ ] **feat-013** (US-4.2, notebox-web, issue #12) — consumes feat-012's contract; extends screens 15/16's fenced-off regions.
 ### Deferred / dependencies
-- [ ] **Promote develop → main** (`/wf-promote`) — ten features stacked, no compliance blockers remaining.
-- [ ] **US-4.2** task dates/cards/rich text — will observe feat-010's `SubtaskChange` event seam (FR-12/13/14).
+- [ ] **Promote develop → main** (`/wf-promote`) — eleven features stacked, no compliance blockers remaining.
 - [ ] **E3** groups & navigation (US-3.1), **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`.
 - [ ] **`release` pipeline step** — final handoff, roadmap and memory close-out.
 
