@@ -47,7 +47,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | building | feat-010-tasks-notebox-api (api, issue #11) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; audit Round 1 pass w/ findings, both closed by hardening; 212 tests); promotion to `main` pending · feat-011-tasks-notebox-web (notebox-web, issue #10) — spec next, consumes feat-010 `contracts/tasks.md` |
+| US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | building | feat-010-tasks-notebox-api (api, issue #11) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; audit Round 1 pass w/ findings, both closed by hardening; 212 tests); promotion to `main` pending · feat-011-tasks-notebox-web (notebox-web, issue #10) — **audit PASS w/ findings 2026-08-14** (353 tests + live pass; 3 test-strength items), publish/PR next |
 | US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | todo | — |
 
 ## E5 — Internationalization

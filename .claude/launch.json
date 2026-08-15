@@ -4,22 +4,8 @@
     {
       "name": "notebox-web",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "--prefix",
-        "../notebox-web",
-        "run",
-        "dev"
-      ],
+      "runtimeArgs": ["--prefix", "../notebox-web", "run", "dev"],
       "port": 3000
-    },
-    {
-      "name": "notebox-api",
-      "runtimeExecutable": "mvn",
-      "runtimeArgs": [
-        "quarkus:dev",
-        "-Dquarkus.console.basic=true"
-      ],
-      "port": 8080
     }
   ]
 }

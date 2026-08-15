@@ -10,25 +10,25 @@
 > (lint + prettier + tsc + vitest + build) must be green at the end of each task. All file paths
 > below are satellite-relative (`../notebox-web`).
 
-- [ ] **T-01 · Wire foundation — types with structural guards, tasksClient, viewModel, MSW factories**
+- [x] **T-01 · Wire foundation — types with structural guards, tasksClient, viewModel, MSW factories** ✔ 2026-08-14, verify green (314 tests; pre-existing TypeBuilderForm flake flagged as separate backlog task)
       - files: `lib/api/types.ts` (append feat-011 block: `TaskPriority`, `TaskInput` with `status?: never`, all-required `SubtaskInput`, 3 DTos), `lib/api/tasksClient.ts` + `lib/api/tasksClient.test.ts`, `lib/tasks/viewModel.ts` + `lib/tasks/viewModel.test.ts`, `test/msw/handlers.ts` (10 task factories, parent-returning semantics)
       - covers: BR-06 client guard + PUT-replace safety · scenarios: serialization halves of "Create a task with the minimum shape" / "Edit changes name and priority only" (no status key), "Ticking a checkbox sends the full subtask" (full-echo unit), parent-`TaskDto` resolution on subtask DELETE
       - depends: — · parallel: no
       - verify: `npm run verify`
 
-- [ ] **T-02 · Navigation chrome — AppNav, the one-line layout insert, regression guards**
+- [x] **T-02 · Navigation chrome — AppNav, the one-line layout insert, regression guards** ✔ 2026-08-14, verify green (321 tests)
       - files: `components/AppNav.tsx` + `components/AppNav.test.tsx`, `app/(app)/layout.tsx` (insert `<AppNav />`), `app/(app)/layout.test.tsx` (new smoke), `src/styles/adf-fusion.overrides.css` (`nb-navTab` reset), `lib/i18n/messages/en.ts` + `pt.ts` (the 3 `nav.*` keys, both catalogs)
       - covers: the guarded-route reachability chrome · scenarios: route-and-nav half of "The Tasks route is guarded" (guard itself is reused `RouteGuard` evidence); the layout smoke guards every existing route's chrome (plan risk 1 — zero prior layout coverage)
       - depends: — · parallel: no (shared catalogs/CSS with T-03/T-04)
       - verify: `npm run verify`
 
-- [ ] **T-03 · List and task lifecycle — TasksTable, TaskForm, PriorityLabel, TaskProgress, routes**
+- [x] **T-03 · List and task lifecycle — TasksTable, TaskForm, PriorityLabel, TaskProgress, routes** ✔ 2026-08-14, verify green (333 tests; `tasks.notFound` key pulled forward for the edit route, noted)
       - files: `components/tasks/TasksTable.tsx` + `.test.tsx`, `components/tasks/TaskForm.tsx` + `.test.tsx` (exports `routeTaskProblem`), `components/tasks/PriorityLabel.tsx`, `components/tasks/TaskProgress.tsx`, `app/(app)/tasks/page.tsx`, `app/(app)/tasks/new/page.tsx`, `app/(app)/tasks/[taskId]/edit/page.tsx`, `adf-fusion.overrides.css` (`nb-progressNarrow`), `en.ts`/`pt.ts` (list + priorities + form keys, both catalogs)
       - covers: FR-10 UI · scenarios: "The list renders the served page, newest first", "The pager reflects PageDto facts", "Empty state", "Create a task with the minimum shape", "Priority starts unchosen", "Server validation surfaces at the fields", "Edit changes name and priority only", list-half of the 33% display
       - depends: T-01 · parallel: no
       - verify: `npm run verify`
 
-- [ ] **T-04 · Detail and subtasks — SubtasksPanel, dialogs, detail route, integration suite**
+- [x] **T-04 · Detail and subtasks — SubtasksPanel, dialogs, detail route, integration suite** ✔ 2026-08-14, verify green (353 tests) + live pass against the real API (login → nav → create → subtasks → tick → 50% recompute → list)
       - files: `components/tasks/SubtasksPanel.tsx` + `.test.tsx` (exports `routeSubtaskProblem`), `components/tasks/DeleteTaskDialog.tsx` + `.test.tsx`, `components/tasks/DeleteSubtaskDialog.tsx` + `.test.tsx`, `app/(app)/tasks/[taskId]/page.tsx`, `app/(app)/tasks/tasks.integration.test.tsx`, `adf-fusion.overrides.css` (subtask editor rows + `nb-taskDetail` flex pin), `en.ts`/`pt.ts` (detail + subtasks + delete keys, both catalogs)
       - covers: FR-11 UI + BR-05 confirms · scenarios: "Detail renders subtasks and the derived status" (dates unswapped), "Ticking a checkbox…" (wire + repaint), "Unticking recomputes downward", "A non-integer proportion displays the server's integer", "Adding a subtask", "The server's date-range rejection surfaces localized", "Deleting a subtask is explicit and repaints", "Deleting a task is explicit and warns about its subtasks", "A foreign or missing task id shows not-found", "Portuguese locale end to end", list-mount refetch (plan risk 4)
       - depends: T-03 · parallel: no
