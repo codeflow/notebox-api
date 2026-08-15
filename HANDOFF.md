@@ -1,7 +1,7 @@
 # HANDOFF — the project
 
 > Session continuity. What's done, what's in flight, and how to resume. Language: English.
-> **Updated:** 2026-08-14
+> **Updated:** 2026-08-15
 
 ## Current state
 - **notebox-api** (Java 17 / Quarkus / Jakarta EE / MySQL) + satellite **notebox-web** (react/next).
@@ -10,13 +10,13 @@
   - **US-1.1** annotation types — feat-003 (api, PR #4) + feat-004 (web, PR #5).
   - **US-2.1** annotation records — feat-005 (api, PR #6) + feat-006 (web, PR #7) + feat-007 rich-text sanitization (api, PR #8 — closed the C-08 promotion blocker).
   - **US-2.2** listing & detail — feat-008 (api, PR #10) + feat-009 (web, PR #9).
-  - **US-4.1** tasks, API half — feat-010 (api, PR #12).
-- **Just landed (2026-08-14):** feat-010 — tasks + subtasks with derived progress (US-4.1 API side). Squash `fb71054`, audit Round 1 pass w/ findings (both closed by same-day test hardening), 212 tests. Inaugurates AD-10 (CDI events: `SubtaskChange` → `TaskProgressRecalculator`, in-transaction). Contract for the web side: `features/010-tasks-notebox-api/contracts/tasks.md` — note the PUT-replace semantics (omitted `done`/dates clear) and the `@Null`-poisoned `status` field (clients must never send status).
+  - **US-4.1** tasks, both halves — feat-010 (api, PR #12) + feat-011 (web, PR #11).
+- **Just landed (2026-08-15):** feat-011 — the tasks & subtasks UI (US-4.1 web side). Squash `6324257`, audit Round 1 pass w/ findings closed by same-day hardening, 355 tests + a live pass against the real API. Introduces the app's first navigation chrome (`AppNav`, af-navTabs) in the shared layout. **US-4.1 is now fully delivered on develop.** Contract gotchas the UI enforces structurally: `status?: never` on `TaskInput` (never serialized) and all-required `SubtaskInput` (PUT-replace omissions unconstructable).
 
 ## In flight
-- **US-4.1 web half:** `wf next` → `feat-011-tasks-notebox-web.spec` (opus·high) — consumes feat-010's contract.
-- **Promotion develop → main (`/wf-promote`)** — ten features stacked on develop, no compliance blockers.
-- E3 (groups/nav), US-4.2 (dates/cards/rich text), E5 (i18n) have no features yet — scope via `wf feature add`. US-4.2's date derivation will observe feat-010's `SubtaskChange` seam.
+- Nothing mid-feature. `wf next` → the `delivery` container (pick next story) or close it toward `release`.
+- **Promotion develop → main (`/wf-promote`)** — eleven features stacked on develop, no compliance blockers.
+- Remaining backlog: E3 (groups/nav, US-3.1), US-4.2 (dates/cards/rich text — its date derivation will observe feat-010's `SubtaskChange` seam; its web half extends screens 15/16's already-fenced-off regions), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`.
 
 ## How to resume
 1. Read `CLAUDE.md` (rules + working language en) and render the pipeline (`./bin/wf status`).

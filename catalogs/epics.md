@@ -13,7 +13,7 @@
 | E1 | Annotation types | define typed note schemas | delivered |
 | E2 | Annotations | typed records + listing/detail | delivered |
 | E3 | Groups & navigation | organize items, nav tree | todo |
-| E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | speccing |
+| E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | building |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
 | E6 | Identity & tenancy | JWT auth, multi-tenant isolation | speccing |
 
@@ -47,7 +47,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | building | feat-010-tasks-notebox-api (api, issue #11) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; audit Round 1 pass w/ findings, both closed by hardening; 212 tests); promotion to `main` pending · feat-011-tasks-notebox-web (notebox-web, issue #10) — **audit PASS w/ findings 2026-08-14** (353 tests + live pass; 3 test-strength items), publish/PR next |
+| US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | delivered | feat-010-tasks-notebox-api (api, issue #11) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; 212 tests) · feat-011-tasks-notebox-web (notebox-web, issue #10) — **merged into `develop` 2026-08-15** (PR #11, squash `6324257`; audit Round 1 pass w/ findings closed by hardening; 355 tests + live pass). Both sides delivered **on develop**; promotion to `main` pending |
 | US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | todo | — |
 
 ## E5 — Internationalization
@@ -77,3 +77,4 @@
 | 2026-08-12 | v6 | US-2.2 building → delivered (on develop): feat-009 (web) merged via PR #9 (squash `ad79bfe`) after audit Round 1 pass (300 tests), joining feat-008 (api, PR #10). E2 → delivered — US-1.2's absorbed FR-05 visible-column projection ships with it. Promotion to `main` pending. |
 | 2026-08-13 | v7 | US-4.1 todo → speccing: feature pair created (feat-010 api, feat-011 web; issues #11/#10) after US-4.1 was chosen over US-3.1 — FR-09's nav tree serves tasks, so tasks ship first to keep US-3.1's contract non-speculative. E4 → speccing. |
 | 2026-08-13 | v8 | US-4.1 speccing → building: feat-010 (API) passed its audit at Round 1 (PASS with findings — 2 test-strength backlog items, 0 blockers; 209 tests). The story stays `building` — feat-011 (web) has not started; delivered only when both sides ship (US-2.1 precedent). |
+| 2026-08-15 | v9 | US-4.1 building → delivered (on develop): feat-011 (web) merged via PR #11 (squash `6324257`) after audit Round 1 pass w/ findings closed by same-day hardening (355 tests + live pass against the real API), joining feat-010 (api, PR #12). E4 → building (US-4.2 still todo). Promotion to `main` pending. |

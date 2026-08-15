@@ -1,7 +1,7 @@
 # ROADMAP — the project
 
 > Executive index of what's delivered, what's next, and where decisions live. Language: English.
-> **Last updated:** 2026-08-14
+> **Last updated:** 2026-08-15
 
 This is an index — it does not duplicate canonical sources:
 - 🔗 Open questions: [`catalogs/open-questions.md`](catalogs/open-questions.md)
@@ -22,10 +22,10 @@ This is an index — it does not duplicate canonical sources:
 - [x] **US-2.1** annotation records — feat-005 (api, PR #6, 2026-08-11) + feat-006 (web, PR #7, 2026-08-12) + feat-007 rich-text sanitization (api, PR #8, closed C-08).
 - [x] **US-2.2** listing & detail — feat-008 (api, PR #10, 2026-08-12) + feat-009 (web, PR #9, 2026-08-12; audit Round 1 pass, 300 tests). Absorbs US-1.2's visible-column projection.
 
+## 2b. Delivered this wave ✅
+- [x] **US-4.1** tasks & subtasks with derived progress — feat-010 (api, PR #12, 2026-08-14; AD-10 CDI events inaugurated) + feat-011 (web, PR #11, 2026-08-15; first nav chrome, 355 tests + live pass). On `develop`, promotion pending.
+
 ## 3. Next waves 🌊
-### Wave — E4 Tasks (in progress)
-- [x] **feat-010** (US-4.1, api) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; audit Round 1 pass w/ findings closed by hardening, 212 tests). Inaugurates AD-10 CDI events.
-- [ ] **feat-011** (US-4.1, notebox-web) — task/subtask UI over feat-010's `contracts/tasks.md`. ← next (`spec`)
 ### Deferred / dependencies
 - [ ] **Promote develop → main** (`/wf-promote`) — ten features stacked, no compliance blockers remaining.
 - [ ] **US-4.2** task dates/cards/rich text — will observe feat-010's `SubtaskChange` event seam (FR-12/13/14).
