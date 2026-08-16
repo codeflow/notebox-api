@@ -2912,7 +2912,7 @@
             {
               "id": "feat-012-task-details-notebox-api.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -2921,7 +2921,9 @@
               "gate": "human_approval",
               "produces": [
                 "features/012-task-details-notebox-api/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-16T11:36:41Z",
+              "completed_at": "2026-08-16T11:38:45Z"
             },
             {
               "id": "feat-012-task-details-notebox-api.implement",
@@ -2932,7 +2934,64 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-012-task-details-notebox-api.implement.t1",
+                  "title": "T-01 — Schema + domain: V6 migration with backfill, Card embeddable, Task.recomputeDates()",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-012-task-details-notebox-api.implement.t2",
+                  "title": "T-02 — Derived dates at runtime: SubtaskRescheduled event + TaskDatesRecalculator observer",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-012-task-details-notebox-api.implement.t3",
+                  "title": "T-03 — Input contract at the edge: CardInput, @AbsoluteHttpUrl, poison dates, message keys",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-012-task-details-notebox-api.implement.t4",
+                  "title": "T-04 — Service accepts card + details: mapping, sanitize → bound → store, replace clearing",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-012-task-details-notebox-api.implement.t5",
+                  "title": "T-05 — Wire read side: output DTOs, read-side sanitization, resource wiring, full wire truth",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-012-task-details-notebox-api.audit",
