@@ -2940,12 +2940,14 @@
                   "id": "feat-012-task-details-notebox-api.implement.t1",
                   "title": "T-01 — Schema + domain: V6 migration with backfill, Card embeddable, Task.recomputeDates()",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-16T11:42:48Z",
+                  "completed_at": "2026-08-16T11:49:14Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t2",
@@ -3032,7 +3034,8 @@
           ],
           "github": {
             "issue": 13,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg2nnS8"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg2nnS8",
+            "branch": "feature/task-details"
           }
         },
         {

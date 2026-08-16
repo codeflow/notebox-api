@@ -11,7 +11,7 @@
 > dependency, then risk: the schema (V6 ↔ entity validate) and the one new event trigger (date-only
 > reschedule) — the two things most likely to invalidate the plan — go first.
 
-- [ ] **T-01 · Schema + domain — V6 migration with backfill, `Card` embeddable, `Task.recomputeDates()`**
+- [x] **T-01 · Schema + domain — V6 migration with backfill, `Card` embeddable, `Task.recomputeDates()`** ✔ 2026-08-15, verify green (223 tests; V6 ↔ entity `hibernate validate` proven by the existing `@QuarkusTest`s, first `@Embeddable` mapped)
       - files: `db/migration/V6__task_details.sql` (new), `domain/Card.java` (new, first `@Embeddable`), `domain/Task.java` (`startDate`/`endDate`/`card`/`details` fields + `recomputeDates()`), `domain/Subtask.java` (`card`), `test …/domain/TaskTest.java` (extend)
       - covers: FR-12 math (BR-07), FR-13 shape (OQ-06), data-model INV-1/INV-3 · scenarios: "Start is the earliest start and end the latest end, regardless of insertion order", "A subtask missing one date simply does not participate in that bound", "A task with no dated subtasks has no dates", "Disjoint one-sided subtasks may inverse the derived pair" — as a pure `recomputeDates()` table (min/max, one-sided, all-dateless → null/null, inverted, single subtask)
       - depends: — · parallel: no
