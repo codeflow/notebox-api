@@ -17,7 +17,7 @@
       - depends: — · parallel: no
       - verify: `mvn -B verify` — the existing `@QuarkusTest` suite runs Flyway V6 + `hibernate-orm validate` on this task's own verify, so V6 ↔ entity divergence surfaces here, not later. Backfill SQL is reviewed for NULL-over-empty-set semantics (correlated MIN/MAX); the runtime invariant it mirrors is pinned in T-02.
 
-- [ ] **T-02 · Derived dates at runtime — `SubtaskRescheduled` event + `TaskDatesRecalculator` observer**
+- [x] **T-02 · Derived dates at runtime — `SubtaskRescheduled` event + `TaskDatesRecalculator` observer** ✔ 2026-08-15, verify green (231 tests). Note: a test-only `testsupport/SubtaskChangeRecorder` observer was added to assert which facts fire (reschedule = exactly one `SubtaskRescheduled`; name-only = none; done-flip = only the flip fact).
       - files: `domain/event/SubtaskRescheduled.java` (new), `domain/event/SubtaskChange.java` (permits +1), `application/task/TaskDatesRecalculator.java` (new, `@Observes SubtaskChange`, IN_PROGRESS), `application/task/TaskService.java` (`updateSubtask` fires `SubtaskRescheduled` on real date change only), `test …/application/task/TaskServiceTest.java` (extend)
       - covers: FR-12/BR-07 at runtime, AD-10 (second observer of the seam) · scenarios: "Changing a subtask's dates moves the derived dates immediately", "Deleting the boundary subtask recomputes the bound", plus recompute on add; `SubtaskRescheduled` fired only when the stored (start, end) pair changes; done-flip = dates unchanged; dateless-subtask task stays null/null (INV-1 — the backfill's runtime twin)
       - depends: T-01 · parallel: no

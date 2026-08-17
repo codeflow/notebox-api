@@ -2953,12 +2953,14 @@
                   "id": "feat-012-task-details-notebox-api.implement.t2",
                   "title": "T-02 — Derived dates at runtime: SubtaskRescheduled event + TaskDatesRecalculator observer",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-16T12:16:38Z",
+                  "completed_at": "2026-08-16T12:24:43Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t3",

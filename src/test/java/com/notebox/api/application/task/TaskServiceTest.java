@@ -1,10 +1,13 @@
 package com.notebox.api.application.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -19,9 +22,12 @@ import com.notebox.api.domain.Tenant;
 import com.notebox.api.domain.User;
 import com.notebox.api.domain.error.SubtaskNotFoundException;
 import com.notebox.api.domain.error.TaskNotFoundException;
+import com.notebox.api.domain.event.SubtaskCompleted;
+import com.notebox.api.domain.event.SubtaskRescheduled;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
 import com.notebox.api.infrastructure.persistence.TaskRepository;
 import com.notebox.api.infrastructure.security.TenantContext;
+import com.notebox.api.testsupport.SubtaskChangeRecorder;
 import com.notebox.api.testsupport.TestData;
 
 import io.quarkus.test.TestTransaction;
@@ -30,12 +36,19 @@ import io.quarkus.test.junit.mockito.InjectMock;
 import org.junit.jupiter.api.Test;
 
 /**
- * Service-level behavior of FR-10/FR-11: recompute wiring through every subtask mutation kind and
- * both flip directions (BR-06, AD-10), audited irreversible deletes (BR-05, C-10), and the
+ * Service-level behavior of FR-10/FR-11/FR-12: recompute wiring through every subtask mutation kind
+ * and both flip directions (BR-06, AD-10), derived dates moving with every add/reschedule/remove and
+ * never with a done-flip (BR-07, OQ-05), audited irreversible deletes (BR-05, C-10), and the
  * foreign-tenant-behaves-like-missing rule (C-01).
  */
 @QuarkusTest
 class TaskServiceTest {
+
+    private static final LocalDate SEP_1 = LocalDate.of(2026, 9, 1);
+    private static final LocalDate SEP_2 = LocalDate.of(2026, 9, 2);
+    private static final LocalDate SEP_5 = LocalDate.of(2026, 9, 5);
+    private static final LocalDate SEP_8 = LocalDate.of(2026, 9, 8);
+    private static final LocalDate SEP_10 = LocalDate.of(2026, 9, 10);
 
     @Inject
     TaskService service;
@@ -48,6 +61,9 @@ class TaskServiceTest {
 
     @Inject
     TestData data;
+
+    @Inject
+    SubtaskChangeRecorder events;
 
     @Inject
     EntityManager em;
@@ -66,6 +82,10 @@ class TaskServiceTest {
 
     private static SubtaskInput subtask(String name, boolean done) {
         return new SubtaskInput(name, null, null, done);
+    }
+
+    private static SubtaskInput subtask(String name, LocalDate start, LocalDate end) {
+        return new SubtaskInput(name, start, end, false);
     }
 
     @Test
@@ -221,5 +241,144 @@ class TaskServiceTest {
 
         assertThrows(SubtaskNotFoundException.class,
                 () -> service.updateSubtask(task.getId(), UUID.randomUUID(), subtask("x", true)));
+    }
+
+    // ---- FR-12 / BR-07: derived dates through every mutation kind ----------------------------
+
+    @Test
+    @TestTransaction
+    void addSubtask_withDates_derivesTaskDatesRegardlessOfInsertionOrder() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        em.flush();
+        assertNull(task.getStartDate(), "no subtasks — no dates");
+        assertNull(task.getEndDate());
+
+        service.addSubtask(task.getId(), subtask("Cutover", LocalDate.of(2026, 9, 3), SEP_10));
+        service.addSubtask(task.getId(), subtask("Inventory", SEP_1, SEP_5));
+        em.flush();
+
+        assertEquals(SEP_1, task.getStartDate(), "min subtask start, not the first inserted (OQ-05)");
+        assertEquals(SEP_10, task.getEndDate(), "max subtask end");
+    }
+
+    @Test
+    @TestTransaction
+    void updateSubtask_reschedule_movesDerivedDatesImmediately() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
+        em.flush();
+        assertEquals(SEP_1, task.getStartDate());
+        assertEquals(SEP_5, task.getEndDate());
+        UUID subtaskId = task.getSubtasks().get(0).getId();
+        events.reset();
+
+        Task returned = service.updateSubtask(task.getId(), subtaskId, subtask("A", SEP_2, SEP_8));
+        em.flush();
+
+        assertEquals(SEP_2, returned.getStartDate(), "the response already shows the moved start");
+        assertEquals(SEP_8, returned.getEndDate(), "and the moved end");
+        assertEquals(1, events.seen().size(), "a reschedule fires exactly one fact");
+        assertInstanceOf(SubtaskRescheduled.class, events.seen().get(0));
+    }
+
+    @Test
+    @TestTransaction
+    void updateSubtask_sameDates_firesNoRescheduleFact() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
+        em.flush();
+        UUID subtaskId = task.getSubtasks().get(0).getId();
+        events.reset();
+
+        service.updateSubtask(task.getId(), subtaskId, subtask("A renamed", SEP_1, SEP_5));
+        em.flush();
+
+        assertTrue(events.seen().isEmpty(), "a name-only update with the same dates fires nothing");
+        assertEquals(SEP_1, task.getStartDate());
+        assertEquals(SEP_5, task.getEndDate());
+    }
+
+    @Test
+    @TestTransaction
+    void updateSubtask_doneFlipOnly_datesUnchangedAndOnlyTheFlipFactFires() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
+        em.flush();
+        UUID subtaskId = task.getSubtasks().get(0).getId();
+        events.reset();
+
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true));
+        em.flush();
+
+        assertEquals(100, task.getStatus(), "the flip still drives status (BR-06)");
+        assertEquals(SEP_1, task.getStartDate(), "dates are untouched by a done-flip");
+        assertEquals(SEP_5, task.getEndDate());
+        assertEquals(1, events.seen().size());
+        assertInstanceOf(SubtaskCompleted.class, events.seen().get(0));
+    }
+
+    @Test
+    @TestTransaction
+    void removeSubtask_boundarySubtask_recomputesTheBound() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_2));
+        service.addSubtask(task.getId(), subtask("B", SEP_5, SEP_10));
+        em.flush();
+        assertEquals(SEP_1, task.getStartDate());
+        UUID earlyId = task.getSubtasks().get(0).getId();
+
+        Task returned = service.removeSubtask(task.getId(), earlyId);
+        em.flush();
+
+        assertEquals(SEP_5, returned.getStartDate(), "the bound moved to the surviving subtask");
+        assertEquals(SEP_10, returned.getEndDate());
+    }
+
+    @Test
+    @TestTransaction
+    void addSubtask_datelessOnly_taskStaysDateless() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+
+        service.addSubtask(task.getId(), subtask("A", null, null));
+        service.addSubtask(task.getId(), subtask("B", true));
+        em.flush();
+
+        assertNull(task.getStartDate(), "no subtask contributes a start — null, not epoch (INV-1)");
+        assertNull(task.getEndDate());
+    }
+
+    @Test
+    @TestTransaction
+    void updateSubtask_oneSidedDates_derivedBoundsAreIndependent() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        service.addSubtask(task.getId(), subtask("A", SEP_10, null));
+        service.addSubtask(task.getId(), subtask("B", null, SEP_1));
+        em.flush();
+
+        assertEquals(SEP_10, task.getStartDate(), "start-only subtask sets the start bound");
+        assertEquals(SEP_1, task.getEndDate(), "end-only subtask sets the end bound — inverted pair is legal");
+    }
+
+    @Test
+    @TestTransaction
+    void derivedDates_survivePersistenceAndReload() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
+        service.addSubtask(task.getId(), subtask("B", SEP_2, SEP_10));
+        em.flush();
+        em.clear();
+
+        Task reloaded = repository.findByIdInTenant(task.getId()).orElseThrow();
+
+        assertEquals(SEP_1, reloaded.getStartDate(), "the stored column carries the derived start");
+        assertEquals(SEP_10, reloaded.getEndDate(), "the stored column carries the derived end");
     }
 }

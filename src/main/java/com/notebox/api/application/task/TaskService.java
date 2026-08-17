@@ -1,6 +1,7 @@
 package com.notebox.api.application.task;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -19,6 +20,7 @@ import com.notebox.api.domain.event.SubtaskAdded;
 import com.notebox.api.domain.event.SubtaskChange;
 import com.notebox.api.domain.event.SubtaskCompleted;
 import com.notebox.api.domain.event.SubtaskRemoved;
+import com.notebox.api.domain.event.SubtaskRescheduled;
 import com.notebox.api.domain.event.SubtaskUncompleted;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
 import com.notebox.api.infrastructure.persistence.TaskRepository;
@@ -28,8 +30,8 @@ import com.notebox.api.infrastructure.security.TenantContext;
  * Use cases for tasks and their subtasks (FR-10, FR-11): CRUD behind the tenant choke point
  * (AD-03), audited irreversible deletes (BR-05, C-10), and the AD-10 event seam — every subtask
  * mutation first mutates the aggregate, then fires the matching {@link SubtaskChange} fact so the
- * recalculator recomputes the derived status (BR-06) in the same transaction. Status is never
- * assigned here; only the observer's recompute writes it.
+ * recalculators recompute the derived status (BR-06) and dates (BR-07) in the same transaction.
+ * Neither is ever assigned here; only the observers' recomputes write them.
  */
 @ApplicationScoped
 public class TaskService {
@@ -105,12 +107,17 @@ public class TaskService {
         return task;
     }
 
-    /** Replaces the subtask's fields (PUT); a done-flag flip fires the matching fact (AD-10). */
+    /**
+     * Replaces the subtask's fields (PUT); a done-flag flip fires the matching fact and a change of
+     * the (start, end) pair fires {@link SubtaskRescheduled} (AD-10). A name-only update fires nothing.
+     */
     @Transactional
     public Task updateSubtask(UUID taskId, UUID subtaskId, SubtaskInput input) {
         Task task = get(taskId);
         Subtask subtask = task.subtask(subtaskId).orElseThrow(SubtaskNotFoundException::new);
         boolean wasDone = subtask.isDone();
+        boolean rescheduled = !Objects.equals(subtask.getStartDate(), input.startDate())
+                || !Objects.equals(subtask.getEndDate(), input.endDate());
         subtask.setName(input.name());
         subtask.setStartDate(input.startDate());
         subtask.setEndDate(input.endDate());
@@ -119,6 +126,9 @@ public class TaskService {
             events.fire(new SubtaskCompleted(taskId));
         } else if (wasDone && !subtask.isDone()) {
             events.fire(new SubtaskUncompleted(taskId));
+        }
+        if (rescheduled) {
+            events.fire(new SubtaskRescheduled(taskId));
         }
         return task;
     }
