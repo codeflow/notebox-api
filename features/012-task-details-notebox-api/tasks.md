@@ -23,7 +23,7 @@
       - depends: T-01 · parallel: no
       - verify: `mvn -B verify` (`@TestTransaction` reads the recomputed dates inside the TX — catches an `AFTER_SUCCESS` misphase immediately)
 
-- [ ] **T-03 · Input contract at the edge — `CardInput`, `@AbsoluteHttpUrl`, poison dates, message keys**
+- [x] **T-03 · Input contract at the edge — `CardInput`, `@AbsoluteHttpUrl`, poison dates, message keys** ✔ 2026-08-17, verify green (242 tests). The 21 `TaskInput`/`SubtaskInput` construction sites in `TaskServiceTest` were widened for the new components (records have only the canonical constructor).
       - files: `api/dto/CardInput.java` (new), `api/validation/AbsoluteHttpUrl.java` + `AbsoluteHttpUrlValidator.java` (new pair), `api/dto/TaskInput.java` (+ `@Null startDate/endDate`, `@Valid card`, `details`), `api/dto/SubtaskInput.java` (+ `@Valid card`), `messages.properties` + `messages_pt.properties` (+6 line-parallel keys), `test …/api/TaskResourceTest.java` (extend — validation matrix delta), `test …/infrastructure/i18n/TaskMessageCoverageTest.java` (+6 keys)
       - covers: BR-07 write-rejection, FR-13 bounds (OQ-09 refinements), C-09 · scenarios: "A client cannot write task dates", "A card without a code is rejected", "A card URL that is not absolute http or https is rejected" (`javascript:`, `data:`, relative), "A card code above 60 characters is rejected", "New validation messages resolve in the caller's locale (C-09)"
       - depends: T-02 · parallel: no

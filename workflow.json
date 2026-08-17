@@ -2966,12 +2966,14 @@
                   "id": "feat-012-task-details-notebox-api.implement.t3",
                   "title": "T-03 — Input contract at the edge: CardInput, @AbsoluteHttpUrl, poison dates, message keys",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-17T20:37:21Z",
+                  "completed_at": "2026-08-17T20:45:22Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t4",

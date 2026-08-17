@@ -366,6 +366,134 @@ class TaskResourceTest {
                         equalTo("O nome da tarefa é obrigatório."));
     }
 
+    // ---- US-4.2 input contract (feat-012 T-03): poison dates, card bounds, C-09 ----------------
+
+    private static String taskWithCardJson(String name, String cardJson) {
+        return "{\"name\": \"" + name + "\", \"priority\": \"HIGH\", \"card\": " + cardJson + "}";
+    }
+
+    @Test
+    void createTask_supplyingStartDate_rejectedAsDerived() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body("{\"name\": \"Migrate broker\", \"priority\": \"HIGH\", \"startDate\": \"2026-09-01\"}")
+                .when().post("/tasks")
+                .then().statusCode(400)
+                .body("code", equalTo("validation.failed"))
+                .body("violations.code", hasItem("task.dates.not_writable"));
+    }
+
+    @Test
+    void updateTask_supplyingEndDate_rejectedAsDerived() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Migrate broker", "HIGH");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Migrate broker\", \"priority\": \"HIGH\", \"endDate\": \"2026-09-10\"}")
+                .when().put("/tasks/" + taskId)
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.dates.not_writable"));
+    }
+
+    @Test
+    void createTask_cardWithBlankCode_rejected() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body(taskWithCardJson("Broker migration",
+                        "{\"code\": \"\", \"url\": \"https://tracker.example/x\"}"))
+                .when().post("/tasks")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.card.code.required"));
+    }
+
+    @Test
+    void createTask_cardWithoutCode_rejected() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body(taskWithCardJson("Broker migration", "{\"url\": \"https://tracker.example/x\"}"))
+                .when().post("/tasks")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.card.code.required"));
+    }
+
+    @Test
+    void createTask_cardUrlNotAbsoluteHttp_rejected() {
+        String auth = newActorAuth();
+        for (String hostile : new String[] {
+                "javascript:alert(1)", "data:text/html;base64,x", "/PAY-231", "ftp://files.example/x"}) {
+            given().header("Authorization", auth).contentType(ContentType.JSON)
+                    .body(taskWithCardJson("Broker migration",
+                            "{\"code\": \"PAY-233\", \"url\": \"" + hostile + "\"}"))
+                    .when().post("/tasks")
+                    .then().statusCode(400)
+                    .body("violations.code", hasItem("task.card.url.invalid"));
+        }
+    }
+
+    @Test
+    void createTask_cardCodeAboveSixty_rejected() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body(taskWithCardJson("Broker migration", "{\"code\": \"" + "X".repeat(61) + "\"}"))
+                .when().post("/tasks")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.card.code.too_long"));
+    }
+
+    @Test
+    void createTask_cardUrlAbove2048_rejected() {
+        String longUrl = "https://tracker.example/" + "a".repeat(2048);
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body(taskWithCardJson("Broker migration",
+                        "{\"code\": \"PAY-233\", \"url\": \"" + longUrl + "\"}"))
+                .when().post("/tasks")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.card.url.too_long"));
+    }
+
+    @Test
+    void addSubtask_cardUnderTheSameContract_blankCodeRejected() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Migrate broker", "HIGH");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Contract review\","
+                        + " \"card\": {\"code\": \" \", \"url\": \"https://tracker.example/LEG-7\"}}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.card.code.required"));
+    }
+
+    @Test
+    void addSubtask_cardUrlJavascript_rejected() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Migrate broker", "HIGH");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Contract review\","
+                        + " \"card\": {\"code\": \"LEG-7\", \"url\": \"javascript:alert(1)\"}}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(400)
+                .body("violations.code", hasItem("task.card.url.invalid"));
+    }
+
+    @Test
+    void createTask_wellFormedCardAndDetails_acceptedAtTheEdge() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body("{\"name\": \"Broker migration\", \"priority\": \"HIGH\","
+                        + " \"card\": {\"code\": \"PAY-231\", \"url\": \"https://tracker.example/PAY-231\"},"
+                        + " \"details\": \"<p>plan</p>\"}")
+                .when().post("/tasks")
+                .then().statusCode(201);
+    }
+
+    @Test
+    void cardValidationMessage_resolvesInPortugueseLocale() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .header("Accept-Language", "pt")
+                .body(taskWithCardJson("Broker migration", "{\"code\": \"\"}"))
+                .when().post("/tasks")
+                .then().statusCode(400)
+                .body("violations.find { it.code == 'task.card.code.required' }.message",
+                        equalTo("O código do card é obrigatório quando um card é informado."));
+    }
+
     @Test
     void listTasks_pageAndSizeParams_driveTheQuery() {
         String auth = newActorAuth();

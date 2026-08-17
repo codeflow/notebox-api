@@ -81,11 +81,11 @@ class TaskServiceTest {
     }
 
     private static SubtaskInput subtask(String name, boolean done) {
-        return new SubtaskInput(name, null, null, done);
+        return new SubtaskInput(name, null, null, done, null);
     }
 
     private static SubtaskInput subtask(String name, LocalDate start, LocalDate end) {
-        return new SubtaskInput(name, start, end, false);
+        return new SubtaskInput(name, start, end, false, null);
     }
 
     @Test
@@ -93,7 +93,7 @@ class TaskServiceTest {
     void create_minimumShape_statusZero() {
         actAsFreshTenant();
 
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         em.flush();
 
         assertEquals(0, task.getStatus());
@@ -104,7 +104,7 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_markSecondOfFourDone_fifty() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Ops review", "MEDIUM", null));
+        Task task = service.create(new TaskInput("Ops review", "MEDIUM", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("s1", true));
         service.addSubtask(task.getId(), subtask("s2", false));
         service.addSubtask(task.getId(), subtask("s3", false));
@@ -123,7 +123,7 @@ class TaskServiceTest {
     @TestTransaction
     void addSubtask_toFullyDoneTask_recomputesDownward() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("Inventory", true));
         em.flush();
         assertEquals(100, task.getStatus());
@@ -138,7 +138,7 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_unmarkDone_recomputesDownward() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("a", true));
         service.addSubtask(task.getId(), subtask("b", true));
         em.flush();
@@ -155,7 +155,7 @@ class TaskServiceTest {
     @TestTransaction
     void removeSubtask_lastDoneOne_zeroAndAudited() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("Inventory", true));
         service.addSubtask(task.getId(), subtask("b", false));
         service.addSubtask(task.getId(), subtask("c", false));
@@ -177,13 +177,14 @@ class TaskServiceTest {
     @TestTransaction
     void update_nameAndPriority_statusUntouched() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("a", true));
         service.addSubtask(task.getId(), subtask("b", false));
         em.flush();
         assertEquals(50, task.getStatus());
 
-        Task updated = service.update(task.getId(), new TaskInput("Migrate RabbitMQ", "CRITICAL", null));
+        Task updated = service.update(task.getId(),
+                new TaskInput("Migrate RabbitMQ", "CRITICAL", null, null, null, null, null));
         em.flush();
 
         assertEquals("Migrate RabbitMQ", updated.getName());
@@ -195,7 +196,7 @@ class TaskServiceTest {
     @TestTransaction
     void delete_taskWithSubtasks_cascadesAndAudits() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("a", false));
         service.addSubtask(task.getId(), subtask("b", false));
         service.addSubtask(task.getId(), subtask("c", false));
@@ -224,7 +225,7 @@ class TaskServiceTest {
                 tenantB.getId(), UUID.randomUUID() + "@tasks.test", "pw-tasks-2", Role.MEMBER);
         when(tenantContext.tenantId()).thenReturn(tenantB.getId());
         when(tenantContext.userId()).thenReturn(memberB.getId());
-        Task taskB = service.create(new TaskInput("OwnedByB", "LOW", null));
+        Task taskB = service.create(new TaskInput("OwnedByB", "LOW", null, null, null, null, null));
         em.flush();
 
         actAsFreshTenant();
@@ -236,7 +237,7 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_unknownSubtask_throwsSubtaskNotFound() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         em.flush();
 
         assertThrows(SubtaskNotFoundException.class,
@@ -249,7 +250,7 @@ class TaskServiceTest {
     @TestTransaction
     void addSubtask_withDates_derivesTaskDatesRegardlessOfInsertionOrder() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         em.flush();
         assertNull(task.getStartDate(), "no subtasks — no dates");
         assertNull(task.getEndDate());
@@ -266,7 +267,7 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_reschedule_movesDerivedDatesImmediately() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
         em.flush();
         assertEquals(SEP_1, task.getStartDate());
@@ -287,7 +288,7 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_sameDates_firesNoRescheduleFact() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
         em.flush();
         UUID subtaskId = task.getSubtasks().get(0).getId();
@@ -305,13 +306,13 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_doneFlipOnly_datesUnchangedAndOnlyTheFlipFactFires() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
         em.flush();
         UUID subtaskId = task.getSubtasks().get(0).getId();
         events.reset();
 
-        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true));
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true, null));
         em.flush();
 
         assertEquals(100, task.getStatus(), "the flip still drives status (BR-06)");
@@ -325,7 +326,7 @@ class TaskServiceTest {
     @TestTransaction
     void removeSubtask_boundarySubtask_recomputesTheBound() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_2));
         service.addSubtask(task.getId(), subtask("B", SEP_5, SEP_10));
         em.flush();
@@ -343,7 +344,7 @@ class TaskServiceTest {
     @TestTransaction
     void addSubtask_datelessOnly_taskStaysDateless() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
 
         service.addSubtask(task.getId(), subtask("A", null, null));
         service.addSubtask(task.getId(), subtask("B", true));
@@ -357,7 +358,7 @@ class TaskServiceTest {
     @TestTransaction
     void updateSubtask_oneSidedDates_derivedBoundsAreIndependent() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_10, null));
         service.addSubtask(task.getId(), subtask("B", null, SEP_1));
         em.flush();
@@ -370,7 +371,7 @@ class TaskServiceTest {
     @TestTransaction
     void derivedDates_survivePersistenceAndReload() {
         actAsFreshTenant();
-        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null));
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
         service.addSubtask(task.getId(), subtask("B", SEP_2, SEP_10));
         em.flush();
