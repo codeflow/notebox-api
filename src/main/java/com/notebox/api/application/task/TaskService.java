@@ -1,5 +1,6 @@
 package com.notebox.api.application.task;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -8,13 +9,17 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.transaction.Transactional;
 
+import com.notebox.api.api.dto.CardInput;
 import com.notebox.api.api.dto.SubtaskInput;
 import com.notebox.api.api.dto.TaskInput;
+import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.domain.AuditLog;
+import com.notebox.api.domain.Card;
 import com.notebox.api.domain.Priority;
 import com.notebox.api.domain.Subtask;
 import com.notebox.api.domain.Task;
 import com.notebox.api.domain.error.SubtaskNotFoundException;
+import com.notebox.api.domain.error.TaskDetailsTooLongException;
 import com.notebox.api.domain.error.TaskNotFoundException;
 import com.notebox.api.domain.event.SubtaskAdded;
 import com.notebox.api.domain.event.SubtaskChange;
@@ -27,11 +32,13 @@ import com.notebox.api.infrastructure.persistence.TaskRepository;
 import com.notebox.api.infrastructure.security.TenantContext;
 
 /**
- * Use cases for tasks and their subtasks (FR-10, FR-11): CRUD behind the tenant choke point
- * (AD-03), audited irreversible deletes (BR-05, C-10), and the AD-10 event seam — every subtask
- * mutation first mutates the aggregate, then fires the matching {@link SubtaskChange} fact so the
- * recalculators recompute the derived status (BR-06) and dates (BR-07) in the same transaction.
- * Neither is ever assigned here; only the observers' recomputes write them.
+ * Use cases for tasks and their subtasks (FR-10..FR-14): CRUD behind the tenant choke point
+ * (AD-03), the inline card on task and subtask (FR-13), rich-text details sanitized to the shared
+ * dialect before the storage bound (FR-14, C-08), audited irreversible deletes (BR-05, C-10), and
+ * the AD-10 event seam — every subtask mutation first mutates the aggregate, then fires the matching
+ * {@link SubtaskChange} fact so the recalculators recompute the derived status (BR-06) and dates
+ * (BR-07) in the same transaction. Neither is ever assigned here; only the observers' recomputes
+ * write them. Updates are replace-semantics: an omitted card or details clears it.
  */
 @ApplicationScoped
 public class TaskService {
@@ -40,26 +47,33 @@ public class TaskService {
     private static final String TARGET_SUBTASK = "SUBTASK";
     private static final String ACTION_TASK_DELETED = "TASK_DELETED";
     private static final String ACTION_SUBTASK_DELETED = "SUBTASK_DELETED";
+    /** The TEXT column's capacity in UTF-8 bytes — the same bound feat-005 applies to text values. */
+    private static final int DETAILS_MAX_BYTES = 65535;
 
     private final TaskRepository tasks;
     private final AuditLogRepository auditLog;
     private final Event<SubtaskChange> events;
     private final TenantContext tenant;
+    private final RichTextSanitizer sanitizer;
 
     public TaskService(
             TaskRepository tasks,
             AuditLogRepository auditLog,
             Event<SubtaskChange> events,
-            TenantContext tenant) {
+            TenantContext tenant,
+            RichTextSanitizer sanitizer) {
         this.tasks = tasks;
         this.auditLog = auditLog;
         this.events = events;
         this.tenant = tenant;
+        this.sanitizer = sanitizer;
     }
 
     @Transactional
     public Task create(TaskInput input) {
         Task task = new Task(tenant.tenantId(), input.name(), Priority.valueOf(input.priority()));
+        task.setCard(toCard(input.card()));
+        task.setDetails(sanitizedDetails(input.details()));
         return tasks.persistInTenant(task);
     }
 
@@ -78,12 +92,17 @@ public class TaskService {
         return tasks.countInTenant();
     }
 
-    /** Updates name and priority only — the derived status is untouched by design (BR-06). */
+    /**
+     * Replaces name, priority, card and details (PUT — an omitted card or details clears it); the
+     * derived status and dates are untouched by design (BR-06, BR-07).
+     */
     @Transactional
     public Task update(UUID id, TaskInput input) {
         Task task = get(id);
         task.setName(input.name());
         task.setPriority(Priority.valueOf(input.priority()));
+        task.setCard(toCard(input.card()));
+        task.setDetails(sanitizedDetails(input.details()));
         return task;
     }
 
@@ -101,8 +120,10 @@ public class TaskService {
     @Transactional
     public Task addSubtask(UUID taskId, SubtaskInput input) {
         Task task = get(taskId);
-        task.addSubtask(new Subtask(
-                input.name(), input.startDate(), input.endDate(), input.doneOrFalse()));
+        Subtask subtask = new Subtask(
+                input.name(), input.startDate(), input.endDate(), input.doneOrFalse());
+        subtask.setCard(toCard(input.card()));
+        task.addSubtask(subtask);
         events.fire(new SubtaskAdded(taskId));
         return task;
     }
@@ -122,6 +143,7 @@ public class TaskService {
         subtask.setStartDate(input.startDate());
         subtask.setEndDate(input.endDate());
         subtask.setDone(input.doneOrFalse());
+        subtask.setCard(toCard(input.card()));
         if (!wasDone && subtask.isDone()) {
             events.fire(new SubtaskCompleted(taskId));
         } else if (wasDone && !subtask.isDone()) {
@@ -145,5 +167,27 @@ public class TaskService {
                 "taskId=" + taskId));
         events.fire(new SubtaskRemoved(taskId));
         return task;
+    }
+
+    /** The inline card value for an input — null input means no card (replace semantics, OQ-06). */
+    private static Card toCard(CardInput input) {
+        return input == null ? null : new Card(input.code(), input.url());
+    }
+
+    /**
+     * Sanitizes details to the shared dialect FIRST, then applies the storage bound to what will
+     * actually be persisted (C-08 input half; feat-005 ordering) — null stays null.
+     *
+     * @throws TaskDetailsTooLongException when the sanitized value exceeds the column capacity
+     */
+    private String sanitizedDetails(String details) {
+        if (details == null) {
+            return null;
+        }
+        String sanitized = sanitizer.sanitize(details);
+        if (sanitized.getBytes(StandardCharsets.UTF_8).length > DETAILS_MAX_BYTES) {
+            throw new TaskDetailsTooLongException();
+        }
+        return sanitized;
     }
 }

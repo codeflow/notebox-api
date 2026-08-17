@@ -2979,12 +2979,14 @@
                   "id": "feat-012-task-details-notebox-api.implement.t4",
                   "title": "T-04 — Service accepts card + details: mapping, sanitize → bound → store, replace clearing",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-17T20:59:17Z",
+                  "completed_at": "2026-08-17T21:07:06Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t5",
