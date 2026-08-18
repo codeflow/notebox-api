@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
-/** Every feature-010 message key must have its own value in each locale file (C-09, BR-08). */
+/** Every task message key (feat-010 + feat-012) must have its own value in each locale file (C-09, BR-08). */
 class TaskMessageCoverageTest {
 
     private static final List<String> KEYS = List.of(
@@ -23,7 +23,14 @@ class TaskMessageCoverageTest {
             "task.subtask.name.too_long",
             "task.subtask.date.invalid",
             "task.subtask.not_found",
-            "task.list.size.out_of_bounds");
+            "task.list.size.out_of_bounds",
+            // feat-012 (US-4.2)
+            "task.dates.not_writable",
+            "task.card.code.required",
+            "task.card.code.too_long",
+            "task.card.url.invalid",
+            "task.card.url.too_long",
+            "task.details.too_long");
 
     @Test
     void everyKey_hasItsOwnValueInEnglishAndPortuguese() throws Exception {

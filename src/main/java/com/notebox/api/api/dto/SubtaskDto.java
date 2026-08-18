@@ -6,13 +6,17 @@ import java.util.UUID;
 
 import com.notebox.api.domain.Subtask;
 
-/** Wire shape of a subtask (FR-11) — name, optional date pair, done flag and timestamps. */
+/**
+ * Wire shape of a subtask (FR-11) — name, optional date pair, done flag, optional inline card
+ * (FR-13) and timestamps.
+ */
 public record SubtaskDto(
         UUID id,
         String name,
         LocalDate startDate,
         LocalDate endDate,
         boolean done,
+        CardDto card,
         Instant createdAt,
         Instant updatedAt) {
 
@@ -29,6 +33,7 @@ public record SubtaskDto(
                 subtask.getStartDate(),
                 subtask.getEndDate(),
                 subtask.isDone(),
+                CardDto.from(subtask.getCard()),
                 subtask.getCreatedAt(),
                 subtask.getUpdatedAt());
     }

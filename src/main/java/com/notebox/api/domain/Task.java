@@ -1,7 +1,9 @@
 package com.notebox.api.domain;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,6 +11,7 @@ import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,10 +27,13 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 /**
- * A tenant-owned task (FR-10): a name, a priority from the closed set, and a status that is always
- * derived from its subtasks — the integer percent (HALF_UP, OQ-22) of those marked done, 0 when it
- * has none (BR-06). Status is never assigned from input; only {@link #recomputeStatus()} writes it.
- * The aggregate root — subtasks are persisted and removed only through it (AD-03).
+ * A tenant-owned task (FR-10): a name, a priority from the closed set, an optional inline
+ * {@link Card} (FR-13), optional sanitized rich-text details (FR-14), and two kinds of derived
+ * state a client can never assign — the status, the integer percent (HALF_UP, OQ-22) of subtasks
+ * marked done, 0 when it has none (BR-06); and the dates, min subtask start / max subtask end, null
+ * when no subtask contributes (BR-07, OQ-05). Only {@link #recomputeStatus()} and
+ * {@link #recomputeDates()} write them. The aggregate root — subtasks are persisted and removed
+ * only through it (AD-03).
  */
 @Entity
 @Table(name = "task")
@@ -51,6 +57,18 @@ public class Task implements TenantOwned {
 
     @Column(name = "status", nullable = false)
     private int status;
+
+    @Column(name = "start_date")
+    private LocalDate startDate;
+
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
+    @Embedded
+    private Card card;
+
+    @Column(name = "details", columnDefinition = "TEXT")
+    private String details;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -128,6 +146,22 @@ public class Task implements TenantOwned {
         return status;
     }
 
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public Card getCard() {
+        return card;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -146,6 +180,20 @@ public class Task implements TenantOwned {
 
     public void setPriority(Priority priority) {
         this.priority = priority;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
+    }
+
+    /**
+     * Sets the rich-text details. Callers must pass the already-sanitized dialect value (C-08);
+     * the entity stores what it is given.
+     *
+     * @param details sanitized rich text, or null for none
+     */
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public void addSubtask(Subtask subtask) {
@@ -176,5 +224,24 @@ public class Task implements TenantOwned {
     public void recomputeStatus() {
         int doneCount = (int) subtasks.stream().filter(Subtask::isDone).count();
         this.status = percentOf(doneCount, subtasks.size());
+    }
+
+    /**
+     * Recomputes the derived dates from the current subtasks (BR-07, FR-12, OQ-05) — the only date
+     * writer: start = the earliest subtask start, end = the latest subtask end, each over the
+     * subtasks that carry that date and null when none does. The two bounds are independent, so
+     * disjoint one-sided subtasks may legitimately yield start after end.
+     */
+    public void recomputeDates() {
+        this.startDate = subtasks.stream()
+                .map(Subtask::getStartDate)
+                .filter(Objects::nonNull)
+                .min(Comparator.naturalOrder())
+                .orElse(null);
+        this.endDate = subtasks.stream()
+                .map(Subtask::getEndDate)
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder())
+                .orElse(null);
     }
 }

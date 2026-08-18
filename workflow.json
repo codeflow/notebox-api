@@ -2928,7 +2928,7 @@
             {
               "id": "feat-012-task-details-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2940,63 +2940,75 @@
                   "id": "feat-012-task-details-notebox-api.implement.t1",
                   "title": "T-01 — Schema + domain: V6 migration with backfill, Card embeddable, Task.recomputeDates()",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-16T11:42:48Z",
+                  "completed_at": "2026-08-16T11:49:14Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t2",
                   "title": "T-02 — Derived dates at runtime: SubtaskRescheduled event + TaskDatesRecalculator observer",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-16T12:16:38Z",
+                  "completed_at": "2026-08-16T12:24:43Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t3",
                   "title": "T-03 — Input contract at the edge: CardInput, @AbsoluteHttpUrl, poison dates, message keys",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-17T20:37:21Z",
+                  "completed_at": "2026-08-17T20:45:22Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t4",
                   "title": "T-04 — Service accepts card + details: mapping, sanitize → bound → store, replace clearing",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-17T20:59:17Z",
+                  "completed_at": "2026-08-17T21:07:06Z"
                 },
                 {
                   "id": "feat-012-task-details-notebox-api.implement.t5",
                   "title": "T-05 — Wire read side: output DTOs, read-side sanitization, resource wiring, full wire truth",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-17T23:19:15Z",
+                  "completed_at": "2026-08-17T23:28:30Z"
                 }
-              ]
+              ],
+              "started_at": "2026-08-17T23:28:39Z",
+              "completed_at": "2026-08-17T23:28:39Z"
             },
             {
               "id": "feat-012-task-details-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -3005,7 +3017,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/012-task-details-notebox-api/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-18T03:19:28Z",
+              "completed_at": "2026-08-18T03:31:17Z"
             },
             {
               "id": "feat-012-task-details-notebox-api.publish",
@@ -3032,7 +3046,8 @@
           ],
           "github": {
             "issue": 13,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg2nnS8"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg2nnS8",
+            "branch": "feature/task-details"
           }
         },
         {

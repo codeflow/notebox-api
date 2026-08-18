@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
@@ -15,8 +16,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 /**
- * An aggregate-internal child of a {@link Task} (FR-11): a name, optional start/end dates and the
- * writable done flag that drives the parent's derived status (BR-06). Carries no tenant id — it is
+ * An aggregate-internal child of a {@link Task} (FR-11): a name, optional start/end dates, an
+ * optional inline {@link Card} (FR-13) and the writable done flag that drives the parent's derived
+ * status (BR-06); its dates feed the parent's derived dates (BR-07). Carries no tenant id — it is
  * reached only through its task (AD-03) and has no repository of its own.
  */
 @Entity
@@ -39,6 +41,9 @@ public class Subtask {
 
     @Column(name = "done", nullable = false)
     private boolean done;
+
+    @Embedded
+    private Card card;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -95,6 +100,10 @@ public class Subtask {
         return done;
     }
 
+    public Card getCard() {
+        return card;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -117,5 +126,9 @@ public class Subtask {
 
     public void setDone(boolean done) {
         this.done = done;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
     }
 }
