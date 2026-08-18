@@ -35,7 +35,7 @@
       - depends: T-03 · parallel: no
       - verify: `mvn -B verify`
 
-- [ ] **T-05 · Wire read side — output DTOs, read-side sanitization, resource wiring, full wire truth**
+- [x] **T-05 · Wire read side — output DTOs, read-side sanitization, resource wiring, full wire truth** ✔ 2026-08-17, verify green (268 tests — the `implement` step's `verify_green` gate; feature total +56 over feat-010's 212)
       - files: `api/dto/CardDto.java` (new), `api/dto/TaskDto.java` (`startDate`/`endDate`/`card`/`details`; `from(...)` gains `RichTextSanitizer`), `api/dto/TaskListItemDto.java` (dates + card, **no** details), `api/dto/SubtaskDto.java` (`card`), `api/TaskResource.java` (injects the sanitizer, passes it to the factories), `test …/api/TaskResourceTest.java` (extend — the remaining wire scenarios)
       - covers: FR-12/FR-13/FR-14 at the wire, C-08 read side, C-01/C-02, NFR-06 · scenarios: "Start is the earliest…" (over the wire, insertion order reversed), "Listing rows carry the derived dates", "A task card with code and URL round-trips" / "A card may carry only its code" / "A subtask carries a card under the same contract" (wire), "A dialect-clean details value round-trips unchanged" (byte-identical), "A javascript: link loses its href but keeps its text", "An embedded image is a reference, never a fetched binary" (`src` stripped, `data-image-id` kept), "A legacy hostile row is sanitized on the way out" (direct DB write, read through the API), "Listing rows never carry details", "A foreign tenant's task stays indistinguishable from a missing one"
       - depends: T-04 · parallel: no
@@ -49,3 +49,12 @@ card round-trip scenarios is deliberate — service-level entity assertions and 
 assertions of the same behaviour, complementary as in feat-010's T-03/T-04. No task cites zero
 scenarios; the one non-scenario behaviour (T-04's oversize-details guard) is plan-mandated and
 named as such. No scenario is uncovered.
+
+## Implement close-out (2026-08-17)
+
+All five tasks `[x]`, `mvn -B verify` green at **268 tests** (T-01 223 → T-02 231 → T-03 242 →
+T-04 253 → T-05 268). Files beyond the plan's list, each noted on its task: test-only
+`testsupport/SubtaskChangeRecorder` (T-02) and `domain/error/TaskDetailsTooLongException` (T-04, the
+§Errors mechanism the plan's guard implies). Everything the plan marked "explicitly untouched" stayed
+untouched: `TaskRepository`, `TaskProgressRecalculator`, both sanitizer classes, `recomputeStatus()`,
+every shipped endpoint path and migration, `OpenApiCoverageTest`.

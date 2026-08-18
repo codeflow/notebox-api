@@ -25,15 +25,17 @@ import com.notebox.api.api.dto.SubtaskInput;
 import com.notebox.api.api.dto.TaskDto;
 import com.notebox.api.api.dto.TaskInput;
 import com.notebox.api.api.dto.TaskListItemDto;
+import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.application.task.TaskService;
 
 import io.quarkus.security.Authenticated;
 
 /**
- * Task and subtask endpoints (FR-10, FR-11). Every endpoint is authenticated and tenant-scoped: a
+ * Task and subtask endpoints (FR-10..FR-14). Every endpoint is authenticated and tenant-scoped: a
  * foreign tenant's id yields 404 and discloses nothing (C-01, C-02). Subtask mutations return the
- * parent task so the client reads the recomputed status (BR-06) without a second round trip; the
- * listing is paginated newest-first (NFR-08, OQ-21).
+ * parent task so the client reads the recomputed status (BR-06) and dates (BR-07) without a second
+ * round trip; the listing is paginated newest-first (NFR-08, OQ-21). Task details are re-sanitized
+ * at the DTO boundary on every read (C-08 output half).
  */
 @Path("/tasks")
 @Authenticated
@@ -41,9 +43,11 @@ import io.quarkus.security.Authenticated;
 public class TaskResource {
 
     private final TaskService service;
+    private final RichTextSanitizer sanitizer;
 
-    public TaskResource(TaskService service) {
+    public TaskResource(TaskService service, RichTextSanitizer sanitizer) {
         this.service = service;
+        this.sanitizer = sanitizer;
     }
 
     /** One page of the tenant's tasks, newest first — createdAt desc, id desc (NFR-08, OQ-21). */
@@ -66,7 +70,7 @@ public class TaskResource {
     @Transactional
     public Response create(@Valid TaskInput input) {
         return Response.status(Response.Status.CREATED)
-                .entity(TaskDto.from(service.create(input)))
+                .entity(TaskDto.from(service.create(input), sanitizer))
                 .build();
     }
 
@@ -74,7 +78,7 @@ public class TaskResource {
     @Path("/{id}")
     @Transactional
     public TaskDto get(@PathParam("id") UUID id) {
-        return TaskDto.from(service.get(id));
+        return TaskDto.from(service.get(id), sanitizer);
     }
 
     @PUT
@@ -82,7 +86,7 @@ public class TaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     public TaskDto update(@PathParam("id") UUID id, @Valid TaskInput input) {
-        return TaskDto.from(service.update(id, input));
+        return TaskDto.from(service.update(id, input), sanitizer);
     }
 
     @DELETE
@@ -99,7 +103,7 @@ public class TaskResource {
     @Transactional
     public Response addSubtask(@PathParam("id") UUID id, @Valid SubtaskInput input) {
         return Response.status(Response.Status.CREATED)
-                .entity(TaskDto.from(service.addSubtask(id, input)))
+                .entity(TaskDto.from(service.addSubtask(id, input), sanitizer))
                 .build();
     }
 
@@ -111,13 +115,13 @@ public class TaskResource {
             @PathParam("id") UUID id,
             @PathParam("subtaskId") UUID subtaskId,
             @Valid SubtaskInput input) {
-        return TaskDto.from(service.updateSubtask(id, subtaskId, input));
+        return TaskDto.from(service.updateSubtask(id, subtaskId, input), sanitizer);
     }
 
     @DELETE
     @Path("/{id}/subtasks/{subtaskId}")
     @Transactional
     public TaskDto removeSubtask(@PathParam("id") UUID id, @PathParam("subtaskId") UUID subtaskId) {
-        return TaskDto.from(service.removeSubtask(id, subtaskId));
+        return TaskDto.from(service.removeSubtask(id, subtaskId), sanitizer);
     }
 }

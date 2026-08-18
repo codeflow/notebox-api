@@ -2928,7 +2928,7 @@
             {
               "id": "feat-012-task-details-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -2992,14 +2992,18 @@
                   "id": "feat-012-task-details-notebox-api.implement.t5",
                   "title": "T-05 — Wire read side: output DTOs, read-side sanitization, resource wiring, full wire truth",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-17T23:19:15Z",
+                  "completed_at": "2026-08-17T23:28:30Z"
                 }
-              ]
+              ],
+              "started_at": "2026-08-17T23:28:39Z",
+              "completed_at": "2026-08-17T23:28:39Z"
             },
             {
               "id": "feat-012-task-details-notebox-api.audit",
