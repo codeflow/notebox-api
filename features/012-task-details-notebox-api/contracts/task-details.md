@@ -66,13 +66,15 @@ clears the card, omitted/null `details` clears the details. `TaskDto.from(...)` 
 | any `startDate`/`endDate` supplied on task create/update | `@Null` poison | 400 | `task.dates.not_writable` |
 | card present with blank/missing `code` | `@NotBlank` (cascaded `@Valid`) | 400 | `task.card.code.required` |
 | card `code` > 60 chars | `@Size` | 400 | `task.card.code.too_long` |
-| card `url` not absolute http/https (`javascript:`, `data:`, relative) | `@AbsoluteHttpUrl` (new; null passes) | 400 | `task.card.url.invalid` |
+| card `url` not an absolute http/https URL **with an authority** (`javascript:`, `data:`, relative, `""`, authority-less `https:foo`) | `@AbsoluteHttpUrl` (new; null passes) | 400 | `task.card.url.invalid` |
 | card `url` > 2048 chars | `@Size` | 400 | `task.card.url.too_long` |
 | `details` > 65 535 UTF-8 bytes **after** sanitization | service guard (feat-005 `applyText` ordering) | 400 | `task.details.too_long` |
 
 New constraint pair in `api/validation/`: `@AbsoluteHttpUrl` + `AbsoluteHttpUrlValidator`
 (`ConstraintValidator<AbsoluteHttpUrl, String>` — passes null; valid iff the value parses as an
-absolute URI with scheme `http` or `https`).
+absolute URI with scheme `http` or `https` **and a non-empty authority** — tightened by the audit
+(finding 1) so scheme-only/opaque forms like `https:foo` are unstorable; the raw authority is
+checked, so IDN hosts stay valid).
 
 ## Message keys (6 new — en shown; pt line-parallel)
 
@@ -133,3 +135,17 @@ shipped tenant-scoped `GET /api/images/{id}` (FR-07); no binary travels in task 
   *characters*; the catalog message deliberately avoids naming a character count.
 - **Backfill:** V6 derives dates for pre-existing tasks in the migration itself; a task whose
   subtasks are all dateless stays `null/null`.
+- **`"url": ""` is not "no URL":** an empty string is a relative (invalid) URI → 400
+  `task.card.url.invalid`. Only `null`/omitted means no link — clients must send `null`, never `""`.
+- **`"details": ""` is stored and served as `""`:** the sanitizer passes empty through and the
+  service stores what it is given, so `null`, `""` and `<p></p>` are three distinguishable "empty"
+  states on the wire. `null`/omitted is the only value that *clears*; a client mapping an emptied
+  editor to "no details" must send `null` (feat-013's call).
+- **Poison dates and Jackson coercion:** `"startDate": ""` / `"startDate": []` are coerced to `null`
+  by the JSR-310 defaults and therefore pass `@Null` — accepted silently, exactly like the shipped
+  `"status": null` edge; nothing is stored either way (dates stay computed). Any real date value,
+  numeric or array-form date is non-null and rejected with `task.dates.not_writable`.
+- **Rollout (PUT-replace × legacy web):** feat-011's shipped UI sends `TaskInput`/`SubtaskInput`
+  without `card`/`details`, so until feat-013 ships an old-UI task edit — or a subtask checkbox
+  tick — clears any card/details set through the API. Spec-conformant replace semantics; the pair
+  should reach `main` together, and feat-013's input builders must echo `card`/`details`.

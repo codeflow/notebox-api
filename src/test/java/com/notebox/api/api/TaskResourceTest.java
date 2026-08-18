@@ -405,15 +405,41 @@ class TaskResourceTest {
     }
 
     @Test
-    void updateTask_supplyingEndDate_rejectedAsDerived() {
+    void updateTask_supplyingEndDate_rejectedAndDatesStayComputed() {
         String auth = newActorAuth();
         String taskId = createTask(auth, "Migrate broker", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body(datedSubtaskJson("A", "2026-09-01", "2026-09-05"))
+                .when().post("/tasks/" + taskId + "/subtasks").then().statusCode(201);
 
         given().header("Authorization", auth).contentType(ContentType.JSON)
-                .body("{\"name\": \"Migrate broker\", \"priority\": \"HIGH\", \"endDate\": \"2026-09-10\"}")
+                .body("{\"name\": \"Renamed\", \"priority\": \"LOW\", \"endDate\": \"2026-09-10\"}")
                 .when().put("/tasks/" + taskId)
                 .then().statusCode(400)
                 .body("violations.code", hasItem("task.dates.not_writable"));
+
+        // The rejected payload changed nothing: dates are exactly the computed values, and the
+        // rest of the payload was not half-applied either (feat-010 status-poison precedent).
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("startDate", equalTo("2026-09-01"))
+                .body("endDate", equalTo("2026-09-05"))
+                .body("name", equalTo("Migrate broker"))
+                .body("priority", equalTo("HIGH"));
+    }
+
+    @Test
+    void createTask_cardUrlWithoutAuthority_rejected() {
+        String auth = newActorAuth();
+        for (String authorityLess : new String[] {"https:foo", "https:///path", "https:?q"}) {
+            given().header("Authorization", auth).contentType(ContentType.JSON)
+                    .body(taskWithCardJson("Broker migration",
+                            "{\"code\": \"PAY-234\", \"url\": \"" + authorityLess + "\"}"))
+                    .when().post("/tasks")
+                    .then().statusCode(400)
+                    .body("violations.code", hasItem("task.card.url.invalid"));
+        }
     }
 
     @Test

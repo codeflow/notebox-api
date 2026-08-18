@@ -373,7 +373,7 @@ class TaskServiceTest {
 
     @Test
     @TestTransaction
-    void updateSubtask_oneSidedDates_derivedBoundsAreIndependent() {
+    void addSubtask_oneSidedDates_derivedBoundsAreIndependent() {
         actAsFreshTenant();
         Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null));
         service.addSubtask(task.getId(), subtask("A", SEP_10, null));
@@ -522,6 +522,24 @@ class TaskServiceTest {
 
         assertThrows(TaskDetailsTooLongException.class,
                 () -> service.create(taskWith("Broker migration", null, oversize)));
+    }
+
+    @Test
+    @TestTransaction
+    void create_detailsExactlyAtTheByteBound_accepted_oneOver_rejected() {
+        actAsFreshTenant();
+        // "<p>" + n × 'a' + "</p>" is 7 + n bytes; the dialect keeps it byte-identical.
+        String atBound = "<p>" + "a".repeat(65_535 - 7) + "</p>";
+        String oneOver = "<p>" + "a".repeat(65_536 - 7) + "</p>";
+        assertEquals(65_535, atBound.getBytes(StandardCharsets.UTF_8).length, "precondition");
+        assertEquals(65_536, oneOver.getBytes(StandardCharsets.UTF_8).length, "precondition");
+
+        Task task = service.create(taskWith("Broker migration", null, atBound));
+        assertEquals(atBound, reload(task.getId()).getDetails(), "65 535 bytes is legal (TEXT capacity)");
+
+        assertThrows(TaskDetailsTooLongException.class,
+                () -> service.create(taskWith("Broker migration", null, oneOver)),
+                "65 536 bytes is one over the TEXT capacity");
     }
 
     @Test
