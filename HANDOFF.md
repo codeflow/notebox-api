@@ -1,7 +1,7 @@
 # HANDOFF — the project
 
 > Session continuity. What's done, what's in flight, and how to resume. Language: English.
-> **Updated:** 2026-08-15
+> **Updated:** 2026-08-18
 
 ## Current state
 - **notebox-api** (Java 17 / Quarkus / Jakarta EE / MySQL) + satellite **notebox-web** (react/next).
@@ -11,12 +11,13 @@
   - **US-2.1** annotation records — feat-005 (api, PR #6) + feat-006 (web, PR #7) + feat-007 rich-text sanitization (api, PR #8 — closed the C-08 promotion blocker).
   - **US-2.2** listing & detail — feat-008 (api, PR #10) + feat-009 (web, PR #9).
   - **US-4.1** tasks, both halves — feat-010 (api, PR #12) + feat-011 (web, PR #11).
-- **Just landed (2026-08-15):** feat-011 — the tasks & subtasks UI (US-4.1 web side). Squash `6324257`, audit Round 1 pass w/ findings closed by same-day hardening, 355 tests + a live pass against the real API. Introduces the app's first navigation chrome (`AppNav`, af-navTabs) in the shared layout. **US-4.1 is now fully delivered on develop.** Contract gotchas the UI enforces structurally: `status?: never` on `TaskInput` (never serialized) and all-required `SubtaskInput` (PUT-replace omissions unconstructable).
+  - **US-4.2** task details, API half — feat-012 (api, PR #14).
+- **Just landed (2026-08-18):** feat-012 — task dates, card link and rich-text details (US-4.2 API side). Squash `a295030`, audit Round 1 pass w/ findings (all 5 hardening items closed on the branch), 274 tests. Second observer of the AD-10 `SubtaskChange` seam (`TaskDatesRecalculator` + new `SubtaskRescheduled` fact), the codebase's first `@Embeddable` (`Card`, on task and subtask), and feat-007's sanitizer reused for `details` on write **and** read. Contract for the web side: `features/012-task-details-notebox-api/contracts/task-details.md` — additive fields only; `TaskInput` poisons `startDate`/`endDate` like `status`; PUT-replace clears omitted `card`/`details`; card `url` must be absolute http/https **with an authority** and `""` is invalid (send `null`); `""` details is stored as `""` (only `null` clears).
 
 ## In flight
-- **US-4.2 pair opened (2026-08-15):** feat-012 (api, issue #13) + feat-013 (web, issue #12), slug `task-details`. `wf next` → `feat-012-task-details-notebox-api.spec` (opus·high). FR-12's date derivation observes feat-010's `SubtaskChange` seam; FR-14 reuses feat-007 sanitization; the web half extends screens 15/16's already-fenced-off regions.
-- **Promotion develop → main (`/wf-promote`)** — eleven features stacked on develop, no compliance blockers.
-- Remaining backlog: E3 (groups/nav, US-3.1), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`.
+- **US-4.2 web half:** `wf next` → `feat-013-task-details-notebox-web.spec` (opus·high) — consumes feat-012's contract. **Rollout hazard to carry into its spec:** the shipped feat-011 UI sends inputs without `card`/`details`, so until feat-013 lands an old-UI task edit (or a subtask checkbox tick) clears API-set cards/details — spec-conformant replace semantics; the pair should reach `main` together and feat-013's input builders must echo `card`/`details`.
+- **Promotion develop → main (`/wf-promote`)** — twelve features stacked on develop, no compliance blockers.
+- Remaining backlog: E3 (groups/nav, US-3.1), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`. Feat-012 backlog notes: no automated test for the V6 date backfill (verified manually on mysql:8.4); `@Version` on the task aggregate (stored status **and** dates share the last-writer-wins race, inherited from feat-010).
 
 ## How to resume
 1. Read `CLAUDE.md` (rules + working language en) and render the pipeline (`./bin/wf status`).
@@ -29,3 +30,4 @@
 - **Type evolution is guarded (OQ-17/OQ-18 decisions, 2026-08-03):** type PUT preserves field identity for unchanged fields; removing/retyping a field — or flipping its Secret flag — while values exist is rejected with a localized 409.
 - **Secret fields shipped in US-2.1:** value encryption at rest + role-gated audited reveal (FR-18, BR-10); the web masks values. Rich Free-text values are sanitized on input and output (feat-007, C-08).
 - **Open Questions:** none pending — OQ-14/15/16/17/18/19 all carry recorded decisions in `catalogs/open-questions.md`.
+- **Board automation trap:** the Projects v2 board's built-in "Status → Done closes the issue" fires even for merges into `develop`; issues must stay open until promotion, so at review close-out the **PR** card goes to Done and the **issue** card stays non-terminal (Todo, mirroring #11/#13). #13 was auto-closed once and reopened.

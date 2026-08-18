@@ -1,7 +1,7 @@
 # ROADMAP — the project
 
 > Executive index of what's delivered, what's next, and where decisions live. Language: English.
-> **Last updated:** 2026-08-15
+> **Last updated:** 2026-08-18
 
 This is an index — it does not duplicate canonical sources:
 - 🔗 Open questions: [`catalogs/open-questions.md`](catalogs/open-questions.md)
@@ -27,10 +27,10 @@ This is an index — it does not duplicate canonical sources:
 
 ## 3. Next waves 🌊
 ### Wave — US-4.2 task details (in progress)
-- [ ] **feat-012** (US-4.2, api, issue #13) — derived dates, card value object, rich-text details over feat-010's model; observes the `SubtaskChange` seam. ← next (`spec`)
-- [ ] **feat-013** (US-4.2, notebox-web, issue #12) — consumes feat-012's contract; extends screens 15/16's fenced-off regions.
+- [x] **feat-012** (US-4.2, api, issue #13) — **merged into `develop` 2026-08-18** (PR #14, squash `a295030`; audit Round 1 pass w/ findings, hardening closed on-branch; 274 tests). Second AD-10 observer, first `@Embeddable`, feat-007 sanitizer reused both ways.
+- [ ] **feat-013** (US-4.2, notebox-web, issue #12) — consumes `features/012-task-details-notebox-api/contracts/task-details.md`; extends screens 15/16's fenced-off regions; must echo `card`/`details` in its input builders (rollout note). ← next (`spec`)
 ### Deferred / dependencies
-- [ ] **Promote develop → main** (`/wf-promote`) — eleven features stacked, no compliance blockers remaining.
+- [ ] **Promote develop → main** (`/wf-promote`) — twelve features stacked, no compliance blockers remaining; ship feat-012 + feat-013 together (PUT-replace × legacy-web rollout note).
 - [ ] **E3** groups & navigation (US-3.1), **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`.
 - [ ] **`release` pipeline step** — final handoff, roadmap and memory close-out.
 
