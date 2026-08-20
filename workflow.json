@@ -3099,7 +3099,7 @@
             {
               "id": "feat-013-task-details-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -3108,7 +3108,9 @@
               "gate": "human_approval",
               "produces": [
                 "features/013-task-details-notebox-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-18T17:41:24Z",
+              "completed_at": "2026-08-18T18:36:21Z"
             },
             {
               "id": "feat-013-task-details-notebox-web.implement",
@@ -3119,7 +3121,64 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-013-task-details-notebox-web.implement.t1",
+                  "title": "T-01 — Wire foundation: types with structural guards, view-model send rules and echo builders, date formatter, MSW fixtures",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-013-task-details-notebox-web.implement.t2",
+                  "title": "T-02 — Card and dates on the list and the task form: CardLink, CardFields, TasksTable columns, TaskForm card fields + routing",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-013-task-details-notebox-web.implement.t3",
+                  "title": "T-03 — Subtasks panel: Card column, editor card inputs, routing, formatted date cells, span footer, tick echoes card",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-013-task-details-notebox-web.implement.t4",
+                  "title": "T-04 — Details tab: useRichImageUpload extraction, TaskDetailsTab view + inline edit with the shipped rich-text stack",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-013-task-details-notebox-web.implement.t5",
+                  "title": "T-05 — Detail page assembly + integration suite + live pass: metrics rows, Card panel, tabs, page-level scenarios",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-013-task-details-notebox-web.audit",
