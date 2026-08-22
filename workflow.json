@@ -3115,7 +3115,7 @@
             {
               "id": "feat-013-task-details-notebox-web.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -3127,63 +3127,75 @@
                   "id": "feat-013-task-details-notebox-web.implement.t1",
                   "title": "T-01 — Wire foundation: types with structural guards, view-model send rules and echo builders, date formatter, MSW fixtures",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-21T00:28:31Z",
+                  "completed_at": "2026-08-21T04:03:18Z"
                 },
                 {
                   "id": "feat-013-task-details-notebox-web.implement.t2",
                   "title": "T-02 — Card and dates on the list and the task form: CardLink, CardFields, TasksTable columns, TaskForm card fields + routing",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-21T19:18:13Z",
+                  "completed_at": "2026-08-21T19:23:44Z"
                 },
                 {
                   "id": "feat-013-task-details-notebox-web.implement.t3",
                   "title": "T-03 — Subtasks panel: Card column, editor card inputs, routing, formatted date cells, span footer, tick echoes card",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-21T20:23:05Z",
+                  "completed_at": "2026-08-21T20:29:01Z"
                 },
                 {
                   "id": "feat-013-task-details-notebox-web.implement.t4",
                   "title": "T-04 — Details tab: useRichImageUpload extraction, TaskDetailsTab view + inline edit with the shipped rich-text stack",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-21T20:48:24Z",
+                  "completed_at": "2026-08-21T20:55:40Z"
                 },
                 {
                   "id": "feat-013-task-details-notebox-web.implement.t5",
                   "title": "T-05 — Detail page assembly + integration suite + live pass: metrics rows, Card panel, tabs, page-level scenarios",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-21T20:58:27Z",
+                  "completed_at": "2026-08-21T21:59:29Z"
                 }
-              ]
+              ],
+              "started_at": "2026-08-21T21:59:29Z",
+              "completed_at": "2026-08-21T21:59:29Z"
             },
             {
               "id": "feat-013-task-details-notebox-web.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -3192,7 +3204,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/013-task-details-notebox-web/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-21T23:25:15Z",
+              "completed_at": "2026-08-21T23:40:33Z"
             },
             {
               "id": "feat-013-task-details-notebox-web.publish",
@@ -3220,7 +3234,8 @@
           "project": "notebox-web",
           "github": {
             "issue": 12,
-            "card": "PVTI_lADOAuNpyc4BeXEnzg2nnT4"
+            "card": "PVTI_lADOAuNpyc4BeXEnzg2nnT4",
+            "branch": "feature/task-details-web"
           }
         }
       ]

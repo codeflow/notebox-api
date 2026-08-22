@@ -118,6 +118,21 @@ tasks.details.cancel=Cancel · tasks.details.saveFailed=Something went wrong. Pl
   present).
 
 ## Documented edges (client)
+- **No client-side trimming of card values** (plan alternative 6): `{ code: 'X', url: ' ' }` or a
+  trailing space is sent verbatim and the server answers `task.card.url.invalid` at the URL field;
+  only the exact `''` url maps to `null`.
+- **`isEmptyRichText` normalises empty documents** — `''`, `<p></p>`, stacked empty paragraphs and
+  break-only paragraphs (`<p><br></p>`) all count as no details (audit finding 6); the Details tab's
+  empty state is keyed on that, so served `""`/`<p></p>` (storable via the API's own edge) render
+  "No details yet." rather than a blank renderer (audit finding 4), and the next save collapses them
+  to `null`.
+- **Details-tab save errors** surface as the form-level alert; a field violation on the echoed
+  card/name (only a hypothetical legacy row could trigger one) collapses to the server's top-level
+  message (audit finding 5).
+- **Tabs** use `role=tab`/`aria-selected` and `hidden` panels; no `aria-controls` wiring (a11y nit,
+  backlog — the satellite owns accessibility per the compliance note).
+- `formatIsoDate` returns a non-`yyyy-MM-dd` value verbatim instead of throwing (unreachable from the
+  API's `LocalDate`; guarded anyway).
 - The **Card panel is display-only** on the detail page; card editing is on the task form (approved
   spec) even though design 16 draws inputs in the panel.
 - **Details are edited in the Details tab only** (inline, response repaint); the create form has no
