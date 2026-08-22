@@ -13,7 +13,7 @@
 | E1 | Annotation types | define typed note schemas | delivered |
 | E2 | Annotations | typed records + listing/detail | delivered |
 | E3 | Groups & navigation | organize items, nav tree | todo |
-| E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | building |
+| E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | delivered |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
 | E6 | Identity & tenancy | JWT auth, multi-tenant isolation | speccing |
 
@@ -48,7 +48,7 @@
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
 | US-4.1 | As a tenant member, I want tasks with subtasks whose completion drives the task's progress, so status reflects real work. | FR-10, FR-11 · BR-06 | delivered | feat-010-tasks-notebox-api (api, issue #11) — **merged into `develop` 2026-08-14** (PR #12, squash `fb71054`; 212 tests) · feat-011-tasks-notebox-web (notebox-web, issue #10) — **merged into `develop` 2026-08-15** (PR #11, squash `6324257`; audit Round 1 pass w/ findings closed by hardening; 355 tests + live pass). Both sides delivered **on develop**; promotion to `main` pending |
-| US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | building | feat-012-task-details-notebox-api (api, issue #13) — **merged into `develop` 2026-08-18** (PR #14, squash `a295030`; audit Round 1 pass w/ findings, all 5 hardening items closed on the branch; 274 tests); promotion to `main` pending · feat-013-task-details-notebox-web (notebox-web, issue #12) — **audit PASS w/ findings 2026-08-21** (Round 1; 402 tests + live pass against the real API; 0 blockers; 6 hardening items closed same day), publish/PR next; **rollout note:** under PUT-replace semantics the shipped feat-011 UI clears API-set cards/details until feat-013 ships — the pair should reach `main` together |
+| US-4.2 | As a tenant member, I want task dates derived from subtasks, a card link, and rich-text details, so a task is self-contained. | FR-12, FR-13, FR-14 · BR-07 | delivered | feat-012-task-details-notebox-api (api, issue #13) — **merged into `develop` 2026-08-18** (PR #14, squash `a295030`; audit Round 1 pass w/ findings, hardening closed; 274 tests) · feat-013-task-details-notebox-web (notebox-web, issue #12) — **merged into `develop` 2026-08-22** (PR #13, squash `47da16e`; audit Round 1 pass w/ findings, 6 hardening items closed; 402 tests + live pass). Both sides delivered **on develop**; promotion to `main` pending — ship the pair together (the web half closes the PUT-replace rollout hazard). E4 → delivered |
 
 ## E5 — Internationalization
 
@@ -82,3 +82,4 @@
 | 2026-08-17 | v11 | US-4.2 speccing → building: feat-012 (API) passed its audit at Round 1 (PASS with findings — 0 blockers; 5 same-day hardening items incl. tightening `@AbsoluteHttpUrl` to require an authority; 268 tests). The story stays `building` — feat-013 (web) has not started; delivered only when both sides ship (US-4.1 precedent). Rollout hazard recorded: PUT-replace × legacy web clears API-set cards/details until feat-013 lands. |
 | 2026-08-18 | v12 | feat-012 (US-4.2 API) merged into `develop` via PR #14 (squash `a295030`; 274 tests; branch + PR CI green). US-4.2 stays `building` pending feat-013; twelve features now stacked on `develop` awaiting promotion. |
 | 2026-08-21 | v13 | feat-013 (US-4.2 web) passed its audit at Round 1 (PASS with findings — 0 blockers; 6 same-day hardening items incl. empty-document normalisation for details; 402 tests + live pass against the real API: derived span, card survives PUT-replace, details edit/clear). The story stays `building` until feat-013 merges (US-4.1 precedent). |
+| 2026-08-22 | v14 | US-4.2 building → delivered (on develop): feat-013 (web) merged via PR #13 (squash `47da16e`), joining feat-012 (api, PR #14). **E4 → delivered** — every task story (US-4.1, US-4.2) is on develop. Thirteen features stacked on `develop` awaiting promotion; promote the US-4.2 pair together. |

@@ -1,7 +1,7 @@
 # HANDOFF — the project
 
 > Session continuity. What's done, what's in flight, and how to resume. Language: English.
-> **Updated:** 2026-08-18
+> **Updated:** 2026-08-22
 
 ## Current state
 - **notebox-api** (Java 17 / Quarkus / Jakarta EE / MySQL) + satellite **notebox-web** (react/next).
@@ -11,13 +11,13 @@
   - **US-2.1** annotation records — feat-005 (api, PR #6) + feat-006 (web, PR #7) + feat-007 rich-text sanitization (api, PR #8 — closed the C-08 promotion blocker).
   - **US-2.2** listing & detail — feat-008 (api, PR #10) + feat-009 (web, PR #9).
   - **US-4.1** tasks, both halves — feat-010 (api, PR #12) + feat-011 (web, PR #11).
-  - **US-4.2** task details, API half — feat-012 (api, PR #14).
-- **Just landed (2026-08-18):** feat-012 — task dates, card link and rich-text details (US-4.2 API side). Squash `a295030`, audit Round 1 pass w/ findings (all 5 hardening items closed on the branch), 274 tests. Second observer of the AD-10 `SubtaskChange` seam (`TaskDatesRecalculator` + new `SubtaskRescheduled` fact), the codebase's first `@Embeddable` (`Card`, on task and subtask), and feat-007's sanitizer reused for `details` on write **and** read. Contract for the web side: `features/012-task-details-notebox-api/contracts/task-details.md` — additive fields only; `TaskInput` poisons `startDate`/`endDate` like `status`; PUT-replace clears omitted `card`/`details`; card `url` must be absolute http/https **with an authority** and `""` is invalid (send `null`); `""` details is stored as `""` (only `null` clears).
+  - **US-4.2** task details, both halves — feat-012 (api, PR #14) + feat-013 (web, PR #13). **E4 is fully delivered on develop.**
+- **Just landed (2026-08-22):** feat-013 — the task dates / card / rich-text details UI (US-4.2 web side). Squash `47da16e`, audit Round 1 pass w/ findings (6 hardening items closed on the branch), 402 tests + a live pass against the real API. Derived dates displayed never typed (`startDate?/endDate?: never`, `dd-MMM-yyyy` incl. subtask cells), inline card on task and subtask (`CardLink`/`CardFields`), a Details tab editing rich text inline with the shipped TipTap/DOMPurify stack (one dialect; `useRichImageUpload` extracted from `ValueField`). **Closes feat-012's rollout hazard:** `SubtaskInput.card` is a required key and every update body comes from full-echo builders (`taskToDraft`/`toSubtaskInput`). Client conventions: empty URL → `null`; `isEmptyRichText` (`''`, `<p></p>`, stacked/break-only paragraphs) → `details: null`.
 
 ## In flight
-- **US-4.2 web half:** `wf next` → `feat-013-task-details-notebox-web.spec` (opus·high) — consumes feat-012's contract. **Rollout hazard to carry into its spec:** the shipped feat-011 UI sends inputs without `card`/`details`, so until feat-013 lands an old-UI task edit (or a subtask checkbox tick) clears API-set cards/details — spec-conformant replace semantics; the pair should reach `main` together and feat-013's input builders must echo `card`/`details`.
-- **Promotion develop → main (`/wf-promote`)** — twelve features stacked on develop, no compliance blockers.
-- Remaining backlog: E3 (groups/nav, US-3.1), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`. Feat-012 backlog notes: no automated test for the V6 date backfill (verified manually on mysql:8.4); `@Version` on the task aggregate (stored status **and** dates share the last-writer-wins race, inherited from feat-010).
+- Nothing mid-feature. `wf next` → the `delivery` container (pick the next story) or close it toward `release`.
+- **Promotion develop → main (`/wf-promote`)** — thirteen features stacked on develop, no compliance blockers; promote the US-4.2 pair (API `a295030` + web `47da16e`) together.
+- Remaining backlog: E3 (groups/nav, US-3.1), E5 (i18n, US-5.1/5.2). Scope via `wf feature add`. Recorded backlog notes: feat-012 — no automated test for the V6 date backfill (verified manually on mysql:8.4), `@Version` on the task aggregate (stored status **and** dates share the last-writer-wins race, inherited from feat-010); feat-013 — `tasksClient.ts` stale doc comment (plan-untouched file), detail tabs lack `aria-controls`, a pre-existing `LoginForm` under-load timing flake.
 
 ## How to resume
 1. Read `CLAUDE.md` (rules + working language en) and render the pipeline (`./bin/wf status`).

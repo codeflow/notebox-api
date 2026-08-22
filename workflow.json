@@ -3211,31 +3211,37 @@
             {
               "id": "feat-013-task-details-notebox-web.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-22T02:05:45Z",
+              "completed_at": "2026-08-22T02:23:32Z"
             },
             {
               "id": "feat-013-task-details-notebox-web.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-22T11:26:41Z",
+              "completed_at": "2026-08-22T12:49:28Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "issue": 12,
             "card": "PVTI_lADOAuNpyc4BeXEnzg2nnT4",
-            "branch": "feature/task-details-web"
+            "branch": "feature/task-details-web",
+            "pr": 13,
+            "merged": "develop"
           }
         }
       ]
