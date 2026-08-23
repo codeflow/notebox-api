@@ -18,7 +18,7 @@
       - depends: — · parallel: no
       - verify: `mvn -B verify` — the existing `@QuarkusTest` suite runs Flyway V7 + `hibernate-orm validate`, so a `V7 ↔ entity` divergence surfaces here rather than four tasks later. This is also where the `item_group` naming is proven: an unquoted `group` table would fail every statement that touches it.
 
-- [ ] **T-02 · Group persistence + service — CRUD, per-domain uniqueness, immutable domain, audited delete**
+- [x] **T-02 · Group persistence + service — CRUD, per-domain uniqueness, immutable domain, audited delete** ✔ 2026-08-23, verify green (316 tests, 285 → 316; `e33330b`). Note: `api/dto/GroupInput` was listed under T-03 but the contracted service signature takes it, so the plain record landed here; its Bean Validation annotations remain T-03 (AD-07 puts validation at the edge). Added beyond the file list: four domain exceptions in `domain/error/` (`GroupNotFound`, `GroupNameTaken`, `GroupDomainNotModifiable`, `GroupDomainMismatch`) — the constitution §Errors mechanism, same as feat-012 T-04 needing `TaskDetailsTooLongException`.
       - files: `infrastructure/persistence/GroupRepository.java` (new), `application/group/GroupService.java` (new), `test …/application/group/GroupServiceTest.java` (new)
       - covers: FR-08 lifecycle, I-3/I-4/I-5, **I-11** (C-10 audit), BR-05 · scenarios: "The same name is free in the other domain but taken in its own", "Name uniqueness is scoped to the tenant", "A group's domain is fixed at creation", "Renaming keeps the members attached", "The deletion is audited (C-10)", plus the service half of the two un-grouping scenarios
       - depends: T-01 · parallel: no
