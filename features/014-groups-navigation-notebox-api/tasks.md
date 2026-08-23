@@ -36,7 +36,7 @@
       - depends: T-03 · parallel: no
       - verify: `mvn -B verify` — ⚠️ this is where the **PUT-replace hazard** (plan Risk 1) becomes real: the clearing test is the one that documents it. Existing `TaskInput`/`AnnotationRecordInput` construction sites must be widened (records expose only the canonical constructor — the feat-012 T-03 experience).
 
-- [ ] **T-05 · Group-filtered listings — `GroupFilter`, repository queries, one query param per listing**
+- [x] **T-05 · Group-filtered listings — `GroupFilter`, repository queries, one query param per listing** ✔ 2026-08-23, verify green (359 tests, 346 → 359; `9a69330`). Beyond the file list: `domain/error/GroupFilterInvalidException` (INVALID → 400) and a `GroupFilterTest` unit. The pre-existing unfiltered repository methods were refactored to **delegate** to the filtered ones with `GroupFilter.none()` — one source of truth for the OQ-20/OQ-21 ordering, and feat-008/feat-010's repository tests stay in place guarding it.
       - files: `application/group/GroupFilter.java` (new), `infrastructure/persistence/TaskRepository.java` (filtered list + count), `infrastructure/persistence/AnnotationRecordRepository.java` (same), `api/TaskResource.java` (+ `@QueryParam("group")`), `api/AnnotationRecordResource.java` (same), `test …/api/TaskResourceTest.java` (extend), `test …/api/AnnotationRecordResourceTest.java` (extend)
       - covers: FR-09 → C30 resolution, NFR-08, OQ-20/OQ-21 left intact · scenarios: "Filtering a type's records by a group node", "Filtering to ungrouped items explicitly", "Filtering tasks by a group node"
       - depends: T-04 · parallel: no

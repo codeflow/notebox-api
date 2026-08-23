@@ -3367,13 +3367,14 @@
                   "id": "feat-014-groups-navigation-notebox-api.implement.t5",
                   "title": "T-05 — Group-filtered listings: GroupFilter, repository queries, one query param per listing",
                   "kind": "task",
-                  "status": "in_progress",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-23T12:19:34Z"
+                  "started_at": "2026-08-23T12:19:34Z",
+                  "completed_at": "2026-08-23T12:48:45Z"
                 },
                 {
                   "id": "feat-014-groups-navigation-notebox-api.implement.t6",
