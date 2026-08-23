@@ -3354,13 +3354,14 @@
                   "id": "feat-014-groups-navigation-notebox-api.implement.t4",
                   "title": "T-04 — Item assignment: groupId on both item surfaces, domain check, replace-clearing",
                   "kind": "task",
-                  "status": "in_progress",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-23T11:31:58Z"
+                  "started_at": "2026-08-23T11:31:58Z",
+                  "completed_at": "2026-08-23T11:44:16Z"
                 },
                 {
                   "id": "feat-014-groups-navigation-notebox-api.implement.t5",

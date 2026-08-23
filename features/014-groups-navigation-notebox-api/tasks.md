@@ -30,7 +30,7 @@
       - depends: T-02 · parallel: no
       - verify: `mvn -B verify` — the full validation/error matrix from the contract (10 rows) is asserted at the wire; `GroupMessageCoverageTest` pins en/pt parity for all 10 keys
 
-- [ ] **T-04 · Item assignment — `groupId` on both item surfaces, domain check, replace-clearing**
+- [x] **T-04 · Item assignment — `groupId` on both item surfaces, domain check, replace-clearing** ✔ 2026-08-23, verify green (346 tests, 336 → 346; `3be0b8b`). 62 construction sites widened (43 `AnnotationRecordInput`, 19 `TaskInput`) — the predicted canonical-constructor churn; no convenience overload was added, since a short-arg form would let a caller silently un-group an item. **The PUT-replace hazard is now live in the code** and pinned by two clearing tests (record + task side).
       - files: `application/group/GroupService.java` (+ `resolveForAssignment`), `application/task/TaskService.java`, `application/annotation/AnnotationRecordService.java`, `api/dto/TaskInput.java`, `api/dto/TaskDto.java`, `api/dto/TaskListItemDto.java`, `api/dto/AnnotationRecordInput.java`, `api/dto/AnnotationRecordDto.java`, `test …/application/task/TaskServiceTest.java` (extend), `test …/api/AnnotationRecordResourceTest.java` (extend)
       - covers: FR-08 assignment, **I-8** (domain check — the one rule an FK cannot express), **I-9**, C-01 · scenarios: "Assigning a record to an annotation group", "A second assignment replaces the first — never accumulates", "Omitting the group clears it (established replace semantics)", "A task cannot be put in an annotation group", "A foreign tenant's group is indistinguishable from a missing one"
       - depends: T-03 · parallel: no
