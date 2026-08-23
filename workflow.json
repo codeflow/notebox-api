@@ -3287,7 +3287,7 @@
             {
               "id": "feat-014-groups-navigation-notebox-api.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -3296,7 +3296,9 @@
               "gate": "human_approval",
               "produces": [
                 "features/014-groups-navigation-notebox-api/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-23T02:28:29Z",
+              "completed_at": "2026-08-23T02:37:03Z"
             },
             {
               "id": "feat-014-groups-navigation-notebox-api.implement",
@@ -3307,7 +3309,76 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t1",
+                  "title": "T-01 — Schema + domain: V7 migration, Group entity, GroupDomain, membership columns",
+                  "kind": "task",
+                  "status": "in_progress",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T02:38:48Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t2",
+                  "title": "T-02 — Group persistence + service: CRUD, per-domain uniqueness, immutable domain, audited delete",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t3",
+                  "title": "T-03 — Group endpoints + edge contract: DTOs, @ValidGroupDomain, 10 message keys, GroupResource",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t4",
+                  "title": "T-04 — Item assignment: groupId on both item surfaces, domain check, replace-clearing",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t5",
+                  "title": "T-05 — Group-filtered listings: GroupFilter, repository queries, one query param per listing",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t6",
+                  "title": "T-06 — Navigation tree: distinct projections, NavigationService, GET /navigation",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-014-groups-navigation-notebox-api.audit",
@@ -3348,7 +3419,8 @@
           ],
           "github": {
             "issue": 15,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg3lBPA"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg3lBPA",
+            "branch": "feature/groups-navigation"
           }
         },
         {

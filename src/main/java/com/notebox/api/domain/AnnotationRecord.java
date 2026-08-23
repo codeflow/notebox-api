@@ -43,6 +43,10 @@ public class AnnotationRecord implements TenantOwned {
     @Column(name = "name", length = 120, nullable = false)
     private String name;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "group_id", length = 36)
+    private UUID groupId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -108,6 +112,20 @@ public class AnnotationRecord implements TenantOwned {
 
     public List<AnnotationValue> getValues() {
         return values;
+    }
+
+    public UUID getGroupId() {
+        return groupId;
+    }
+
+    /**
+     * Assigns the record to a group, or clears it. Callers must pass a group id already resolved
+     * and domain-checked (FR-08); the entity stores what it is given.
+     *
+     * @param groupId an annotation-domain group of the same tenant, or null for ungrouped
+     */
+    public void setGroupId(UUID groupId) {
+        this.groupId = groupId;
     }
 
     public void setName(String name) {
