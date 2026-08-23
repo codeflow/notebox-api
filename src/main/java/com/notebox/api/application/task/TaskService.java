@@ -13,6 +13,7 @@ import com.notebox.api.api.dto.CardInput;
 import com.notebox.api.api.dto.SubtaskInput;
 import com.notebox.api.api.dto.TaskInput;
 import com.notebox.api.application.content.RichTextSanitizer;
+import com.notebox.api.application.group.GroupFilter;
 import com.notebox.api.application.group.GroupService;
 import com.notebox.api.domain.AuditLog;
 import com.notebox.api.domain.Card;
@@ -89,13 +90,13 @@ public class TaskService {
     }
 
     /** One page, newest first — createdAt desc, id desc (NFR-08, OQ-21). */
-    public List<Task> list(int page, int size) {
-        return tasks.listNewestFirstInTenant(page, size);
+    public List<Task> list(GroupFilter filter, int page, int size) {
+        return tasks.listByGroupNewestFirstInTenant(filter, page, size);
     }
 
     /** Total tasks of the caller's tenant — the pager fact behind the page above (NFR-08). */
-    public long count() {
-        return tasks.countInTenant();
+    public long count(GroupFilter filter) {
+        return tasks.countByGroupInTenant(filter);
     }
 
     /**
