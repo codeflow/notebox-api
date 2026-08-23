@@ -16,8 +16,8 @@ import com.notebox.api.domain.TypeField;
 
 /** Full response view of an annotation record: its values, ordered by the type's field position (FR-04). */
 public record AnnotationRecordDto(
-        UUID id, UUID annotationTypeId, String name, Instant createdAt, Instant updatedAt,
-        List<AnnotationValueDto> values) {
+        UUID id, UUID annotationTypeId, String name, UUID groupId, Instant createdAt,
+        Instant updatedAt, List<AnnotationValueDto> values) {
 
     public static AnnotationRecordDto from(AnnotationRecord record, AnnotationType type, RichTextSanitizer sanitizer) {
         Map<UUID, AnnotationValue> valuesByField = record.getValues().stream()
@@ -30,7 +30,8 @@ public record AnnotationRecordDto(
             }
         }
         return new AnnotationRecordDto(
-                record.getId(), record.getAnnotationTypeId(), record.getName(), record.getCreatedAt(),
+                record.getId(), record.getAnnotationTypeId(), record.getName(), record.getGroupId(),
+                record.getCreatedAt(),
                 record.getUpdatedAt(), values);
     }
 
@@ -51,7 +52,8 @@ public record AnnotationRecordDto(
             }
         }
         return new AnnotationRecordDto(
-                record.getId(), record.getAnnotationTypeId(), record.getName(), record.getCreatedAt(),
+                record.getId(), record.getAnnotationTypeId(), record.getName(), record.getGroupId(),
+                record.getCreatedAt(),
                 record.getUpdatedAt(), values);
     }
 }

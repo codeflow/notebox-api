@@ -1,6 +1,7 @@
 package com.notebox.api.api.dto;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,7 +16,7 @@ import com.notebox.api.api.validation.ValidPriority;
  * an optional inline card (FR-13) and optional rich-text details (FR-14, sanitized server-side).
  * The status and date components are poison fields — status (BR-06) and dates (BR-07) are derived,
  * and any supplied value is rejected with a localized key, never silently ignored. Replace
- * semantics: an omitted card or details clears it.
+ * semantics: an omitted card, details or group clears it.
  */
 public record TaskInput(
         @NotBlank(message = "task.name.required")
@@ -28,5 +29,6 @@ public record TaskInput(
         @Null(message = "task.dates.not_writable") LocalDate startDate,
         @Null(message = "task.dates.not_writable") LocalDate endDate,
         @Valid CardInput card,
-        String details) {
+        String details,
+        UUID groupId) {
 }

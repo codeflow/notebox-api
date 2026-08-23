@@ -51,7 +51,7 @@ class AnnotationTypeDeleteGuardTest {
 
         AnnotationType created = typeService.create(new AnnotationTypeInput("RabbitMQ", null, List.of()));
         em.flush();
-        recordService.create(new AnnotationRecordInput(created.getId(), "prod-broker", List.of()));
+        recordService.create(new AnnotationRecordInput(created.getId(), "prod-broker", List.of(), /*group*/ null));
         em.flush();
 
         assertThrows(AnnotationTypeHasRecordsException.class, () -> typeService.delete(created.getId()));

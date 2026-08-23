@@ -19,12 +19,14 @@ import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.AnnotationValueInput;
 import com.notebox.api.application.crypto.EncryptedValue;
 import com.notebox.api.application.content.RichTextSanitizer;
+import com.notebox.api.application.group.GroupService;
 import com.notebox.api.application.crypto.SecretValueCipher;
 import com.notebox.api.domain.AnnotationRecord;
 import com.notebox.api.domain.AnnotationType;
 import com.notebox.api.domain.AnnotationValue;
 import com.notebox.api.domain.AuditLog;
 import com.notebox.api.domain.FieldType;
+import com.notebox.api.domain.GroupDomain;
 import com.notebox.api.domain.FieldOption;
 import com.notebox.api.domain.Role;
 import com.notebox.api.domain.TypeField;
@@ -68,6 +70,7 @@ public class AnnotationRecordService {
     private final SecretValueCipher cipher;
     private final RichTextSanitizer sanitizer;
     private final TenantContext tenant;
+    private final GroupService groups;
 
     public AnnotationRecordService(
             AnnotationRecordRepository records,
@@ -76,7 +79,8 @@ public class AnnotationRecordService {
             ImageService images,
             SecretValueCipher cipher,
             RichTextSanitizer sanitizer,
-            TenantContext tenant) {
+            TenantContext tenant,
+            GroupService groups) {
         this.records = records;
         this.types = types;
         this.auditLog = auditLog;
@@ -84,6 +88,7 @@ public class AnnotationRecordService {
         this.cipher = cipher;
         this.sanitizer = sanitizer;
         this.tenant = tenant;
+        this.groups = groups;
     }
 
     @Transactional
@@ -93,6 +98,7 @@ public class AnnotationRecordService {
         for (AnnotationValue value : toValues(type, input.valuesOrEmpty())) {
             record.addValue(value);
         }
+        record.setGroupId(groups.resolveForAssignment(input.groupId(), GroupDomain.ANNOTATION));
         return records.persistInTenant(record);
     }
 
@@ -113,6 +119,7 @@ public class AnnotationRecordService {
         AnnotationType type = requireType(record.getAnnotationTypeId());
         record.setName(input.name());
         record.replaceValues(toUpdatedValues(type, record, input.valuesOrEmpty()));
+        record.setGroupId(groups.resolveForAssignment(input.groupId(), GroupDomain.ANNOTATION));
         return record;
     }
 

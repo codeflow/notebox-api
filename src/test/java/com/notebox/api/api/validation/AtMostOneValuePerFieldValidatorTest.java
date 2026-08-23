@@ -24,7 +24,7 @@ class AtMostOneValuePerFieldValidatorTest {
     void rejectsTwoValuesForTheSameField() {
         UUID field = UUID.randomUUID();
         AnnotationRecordInput input = new AnnotationRecordInput(
-                UUID.randomUUID(), "dup", List.of(text(field, "a"), text(field, "b")));
+                UUID.randomUUID(), "dup", List.of(text(field, "a"), text(field, "b")), /*group*/ null);
 
         assertFalse(validator.isValid(input, null));
     }
@@ -33,8 +33,8 @@ class AtMostOneValuePerFieldValidatorTest {
     void acceptsDistinctFieldsAndMissingValues() {
         AnnotationRecordInput distinct = new AnnotationRecordInput(
                 UUID.randomUUID(), "ok",
-                List.of(text(UUID.randomUUID(), "a"), text(UUID.randomUUID(), "b")));
-        AnnotationRecordInput noValues = new AnnotationRecordInput(UUID.randomUUID(), "ok", null);
+                List.of(text(UUID.randomUUID(), "a"), text(UUID.randomUUID(), "b")), /*group*/ null);
+        AnnotationRecordInput noValues = new AnnotationRecordInput(UUID.randomUUID(), "ok", null, /*group*/ null);
 
         assertTrue(validator.isValid(distinct, null));
         assertTrue(validator.isValid(noValues, null));

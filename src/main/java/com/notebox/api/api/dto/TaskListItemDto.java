@@ -20,6 +20,7 @@ public record TaskListItemDto(
         LocalDate startDate,
         LocalDate endDate,
         CardDto card,
+        UUID groupId,
         Instant createdAt,
         Instant updatedAt) {
 
@@ -38,6 +39,7 @@ public record TaskListItemDto(
                 task.getStartDate(),
                 task.getEndDate(),
                 CardDto.from(task.getCard()),
+                task.getGroupId(),
                 task.getCreatedAt(),
                 task.getUpdatedAt());
     }

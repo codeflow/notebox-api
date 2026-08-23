@@ -23,6 +23,7 @@ public record TaskDto(
         LocalDate endDate,
         CardDto card,
         String details,
+        UUID groupId,
         Instant createdAt,
         Instant updatedAt,
         List<SubtaskDto> subtasks) {
@@ -46,6 +47,7 @@ public record TaskDto(
                 task.getEndDate(),
                 CardDto.from(task.getCard()),
                 sanitizer.sanitize(task.getDetails()),
+                task.getGroupId(),
                 task.getCreatedAt(),
                 task.getUpdatedAt(),
                 task.getSubtasks().stream().map(SubtaskDto::from).toList());
