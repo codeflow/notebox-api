@@ -3341,13 +3341,14 @@
                   "id": "feat-014-groups-navigation-notebox-api.implement.t3",
                   "title": "T-03 — Group endpoints + edge contract: DTOs, @ValidGroupDomain, 10 message keys, GroupResource",
                   "kind": "task",
-                  "status": "in_progress",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-23T03:30:51Z"
+                  "started_at": "2026-08-23T03:30:51Z",
+                  "completed_at": "2026-08-23T03:43:12Z"
                 },
                 {
                   "id": "feat-014-groups-navigation-notebox-api.implement.t4",
