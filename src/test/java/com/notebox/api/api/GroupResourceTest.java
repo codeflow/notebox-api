@@ -223,6 +223,17 @@ class GroupResourceTest {
                 .then().statusCode(400);
     }
 
+    /**
+     * The listing's domain parameter is validated, not just deserialized: a bogus value must be a
+     * localized 400, never an IllegalArgumentException from valueOf surfacing as a 500.
+     */
+    @Test
+    void listingRejectsADomainOutsideTheClosedSet() {
+        given().header("Authorization", newActorAuth())
+                .when().get("/groups?domain=SOMETHING_ELSE")
+                .then().statusCode(400);
+    }
+
     @Test
     void listingRejectsAnOutOfBoundsPageSize() {
         given().header("Authorization", newActorAuth())
