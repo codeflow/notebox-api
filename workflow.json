@@ -3380,13 +3380,14 @@
                   "id": "feat-014-groups-navigation-notebox-api.implement.t6",
                   "title": "T-06 — Navigation tree: distinct projections, NavigationService, GET /navigation",
                   "kind": "task",
-                  "status": "in_progress",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-23T12:52:30Z"
+                  "started_at": "2026-08-23T12:52:30Z",
+                  "completed_at": "2026-08-23T12:59:19Z"
                 }
               ]
             },
