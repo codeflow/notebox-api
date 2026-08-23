@@ -3315,24 +3315,26 @@
                   "id": "feat-014-groups-navigation-notebox-api.implement.t1",
                   "title": "T-01 — Schema + domain: V7 migration, Group entity, GroupDomain, membership columns",
                   "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T02:38:48Z",
+                  "completed_at": "2026-08-23T02:45:46Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t2",
+                  "title": "T-02 — Group persistence + service: CRUD, per-domain uniqueness, immutable domain, audited delete",
+                  "kind": "task",
                   "status": "in_progress",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-23T02:38:48Z"
-                },
-                {
-                  "id": "feat-014-groups-navigation-notebox-api.implement.t2",
-                  "title": "T-02 — Group persistence + service: CRUD, per-domain uniqueness, immutable domain, audited delete",
-                  "kind": "task",
-                  "status": "pending",
-                  "instructions": "instructions/feature-implement.md",
-                  "agent": {
-                    "model": "sonnet",
-                    "effort": "medium"
-                  }
+                  "started_at": "2026-08-23T03:07:50Z"
                 },
                 {
                   "id": "feat-014-groups-navigation-notebox-api.implement.t3",

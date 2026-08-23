@@ -12,7 +12,7 @@
 > `GROUP` reserved-word trap and whether `ON DELETE SET NULL` really is the OQ-24 rule — and both
 > are cheapest to discover before any service is written.
 
-- [ ] **T-01 · Schema + domain — V7 migration, `Group` entity, `GroupDomain`, membership columns**
+- [x] **T-01 · Schema + domain — V7 migration, `Group` entity, `GroupDomain`, membership columns** ✔ 2026-08-22, verify green (285 tests, 274 → 285; `a4dfce0`). V7 ↔ entity proven by the existing `@QuarkusTest` suite running Flyway + `hibernate-orm validate`; `item_group` naming and the OQ-24 FK action both pinned by `GroupSchemaTest`.
       - files: `db/migration/V7__groups_navigation.sql` (new), `domain/Group.java` (new), `domain/GroupDomain.java` (new), `domain/AnnotationRecord.java` (+ `groupId`), `domain/Task.java` (+ `groupId`), `test …/domain/GroupTest.java` (new), `test …/infrastructure/persistence/GroupSchemaTest.java` (new, `@QuarkusTest`)
       - covers: data-model I-1…I-7 at schema level, **I-10** (the FK action) · scenarios: "A non-empty group is deleted and its members become ungrouped" and "The same rule holds on the task side" — **storage half**: insert a group plus members, delete the group row, assert every member survives with `group_id IS NULL`. The service-level half (audit, 204) is T-02.
       - depends: — · parallel: no
