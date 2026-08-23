@@ -12,7 +12,7 @@
 | 🔴 Blocker | blocks planning an entire feature | — |
 | 🟡 Important | blocks details, not the feature | — |
 | 🟢 Tactical | can wait | — |
-| ✅ Resolved | — | OQ-01 … OQ-22 (latest: OQ-21/OQ-22, 2026-08-13) |
+| ✅ Resolved | — | OQ-01 … OQ-25 (latest: OQ-23/OQ-24/OQ-25, 2026-08-22) |
 
 ## List
 
@@ -206,6 +206,33 @@
 **Status:** ✅ resolved (2026-08-13).
 **Decision:** Integer percent, rounded half up: status = round(done ÷ total × 100) with .5 rounding up (1/3 → 33, 2/3 → 67, 1/8 → 13); 0% with no subtasks per BR-06. The wire contract stays integer-typed, matching the progress-bar consumer. — decided by rafaelsantos, 2026-08-13.
 
+### OQ-23 — Navigation-tree composition: how group nodes and type nodes compose
+**Severity:** 🟡 Important
+**Description:** FR-08 assigns "an annotation or task" to a group — in PRD vocabulary an *annotation* is a record (FR-04/FR-05), so groups hold records. But C28 says that under Annotations "each annotation **type** is a node". FR-09's "annotations by type and tasks, organized by group" does not say which axis nests inside the other, and the two readings imply different entity models (the group reference sits on the record vs. on the type). OQ-04 fixed group *semantics* (single-membership, flat, per-domain) but explicitly left the navigation-tree contract open in its own Impact line.
+**Impact:** Blocks feat-014's spec — the tree contract and which entity carries the group reference. feat-015's Navigator sidebar inherits the shape.
+**Suggested path:** Human decision. Options: (a) **type → group** (recommended: matches FR-08's literal "an annotation", honours C28's type nodes, keeps the tree bounded); (b) group → type (would require amending FR-08); (c) type → group → individual record leaves (unbounded payload, collides with NFR-08).
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-22).
+**Decision:** Type → group. Groups hold annotation **records** and **tasks**, as FR-08 and OQ-04 word it. Under the Annotations root the primary axis is the annotation **type** (C28); each type node then carries the groups that its own records occupy, plus an `Ungrouped` node. Under the Tasks root, group nodes sit directly beneath. The tree **stops at group nodes** — individual records and tasks are never enumerated as leaves, so the payload stays bounded and clicking a group node opens the existing US-2.2 / feat-010 paginated listing filtered by group rather than a new contract. — decided by rafaelsantos, 2026-08-22.
+
+### OQ-24 — Deleting a group that still holds annotations or tasks
+**Severity:** 🟡 Important
+**Description:** FR-08 grants group CRUD but does not say what deleting a non-empty group does. OQ-14 set a *block* rule for deleting an annotation **type** that still owns records, but that rule was justified by data loss — a record without its type is meaningless. A group is a label, not a schema, so the precedent does not transfer automatically.
+**Impact:** Blocks feat-014's group-delete scenario and the BR-05 reading for this surface.
+**Suggested path:** Human decision. Options: (a) **un-group the members** (recommended: the group is deleted, its items survive as ungrouped — no annotation or task data is destroyed); (b) block while non-empty, mirroring OQ-14.
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-22).
+**Decision:** Un-group the members. Deleting a group removes the group only; every annotation record and task that referenced it survives and becomes ungrouped, surfacing under the `Ungrouped` node. No annotation or task is deleted, so BR-05's irreversible-delete concern is met by the group's own removal, and reorganizing stays cheap. Deliberately **diverges from OQ-14**, whose block rule exists to prevent orphaned records. — decided by rafaelsantos, 2026-08-22.
+
+### OQ-25 — Navigation-tree node ordering
+**Severity:** 🟡 Important
+**Description:** FR-09 fixes no ordering for sibling nodes (types under Annotations; groups under a type or under Tasks). OQ-20 and OQ-21 fixed `createdAt` desc for the paginated **record** and **task** listings, but their rationale was page stability — a concern an unpaginated tree does not have. Undefined order makes the Navigator non-deterministic and its tests unwritable.
+**Impact:** Blocks feat-014's tree scenarios and the wire contract; feat-015's sidebar inherits the decision.
+**Suggested path:** Human decision. Options: (a) **name ascending**, case-insensitive, id tiebreak (recommended: a navigator is a browse surface — you find a type by scanning alphabetically); (b) `createdAt` desc, mirroring OQ-20/OQ-21 for one uniform ordering contract.
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-22).
+**Decision:** Name ascending — case-insensitive, ties broken by id — for annotation-type nodes and for group nodes alike. The synthetic `Ungrouped` node is **pinned last**, after every named group, regardless of collation. Deliberately diverges from OQ-20/OQ-21: their recency rule exists to keep rows from jumping between *pages*, which an unpaginated browse tree never does. — decided by rafaelsantos, 2026-08-22.
+
 ## History
 
 | Date | Change |
@@ -248,3 +275,6 @@
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
 - Every feature spec lists the OQs that affect it.
+| 2026-08-22 | OQ-23 opened+resolved: navigation tree composes type → group; groups hold records/tasks, tree stops at group nodes. |
+| 2026-08-22 | OQ-24 opened+resolved: deleting a non-empty group un-groups its members; no record or task is deleted (diverges from OQ-14). |
+| 2026-08-22 | OQ-25 opened+resolved: tree siblings ordered by name asc (case-insensitive, id tiebreak); `Ungrouped` pinned last. |
