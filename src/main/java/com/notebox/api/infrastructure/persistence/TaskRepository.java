@@ -1,6 +1,7 @@
 package com.notebox.api.infrastructure.persistence;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.TypedQuery;
@@ -79,5 +80,19 @@ public class TaskRepository extends TenantScopedRepository<Task> {
         if (filter.isRestricted() && filter.groupId() != null) {
             query.setParameter("group", filter.groupId());
         }
+    }
+
+    /**
+     * Which groups the tenant's tasks actually occupy (FR-09, OQ-23). A null element means at least
+     * one ungrouped task exists — the Tasks root's Ungrouped node.
+     *
+     * @return distinct group ids, null included when ungrouped tasks exist
+     */
+    public List<UUID> distinctGroupIdsInTenant() {
+        return em.createQuery(
+                        "select distinct e.groupId from Task e where e.tenantId = :tenant",
+                        UUID.class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
     }
 }

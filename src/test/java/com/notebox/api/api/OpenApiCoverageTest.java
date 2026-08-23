@@ -70,6 +70,17 @@ class OpenApiCoverageTest {
                 "the listing GET's domain parameter is documented (feat-014, NFR-06)");
     }
 
+    @Test
+    void openApiDocumentsNavigationEndpoint() {
+        String document = given().accept("application/json")
+                .when().get("/q/openapi")
+                .then().statusCode(200)
+                .extract().asString();
+
+        assertTrue(hasPathKey(document, "/api/navigation"),
+                "navigation path missing from OpenAPI (feat-014, NFR-06)");
+    }
+
     /** Matches a whole path KEY (JSON quoted or YAML colon-terminated), never a substring of a longer path. */
     private static boolean hasPathKey(String document, String path) {
         return document.contains("\"" + path + "\"") || document.contains(path + ":");

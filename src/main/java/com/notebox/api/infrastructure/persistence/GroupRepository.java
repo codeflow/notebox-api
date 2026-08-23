@@ -91,4 +91,17 @@ public class GroupRepository extends TenantScopedRepository<Group> {
                 .getSingleResult();
         return records + tasks;
     }
+
+    /**
+     * Every group of the caller's tenant, both namespaces, for resolving the tree's ids to names in
+     * one query rather than one per node.
+     *
+     * @return the tenant's groups
+     */
+    public List<Group> allInTenant() {
+        return em.createQuery(
+                        "select e from Group e where e.tenantId = :tenant", Group.class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
+    }
 }

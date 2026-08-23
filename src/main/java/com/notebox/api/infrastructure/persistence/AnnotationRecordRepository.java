@@ -108,4 +108,20 @@ public class AnnotationRecordRepository extends TenantScopedRepository<Annotatio
             query.setParameter("group", filter.groupId());
         }
     }
+
+    /**
+     * Which groups each type's records actually occupy (FR-09, OQ-23). A null second element means
+     * that type has at least one ungrouped record — its Ungrouped node. Bounded by types x groups,
+     * never by record count, which is why the tree stops at group nodes.
+     *
+     * @return distinct (annotationTypeId, groupId-or-null) pairs for the caller's tenant
+     */
+    public List<Object[]> distinctTypeGroupPairsInTenant() {
+        return em.createQuery(
+                        "select distinct e.annotationTypeId, e.groupId from AnnotationRecord e"
+                                + " where e.tenantId = :tenant",
+                        Object[].class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
+    }
 }
