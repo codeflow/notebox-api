@@ -3511,24 +3511,26 @@
                   "id": "feat-016-group-counts.implement.t1",
                   "title": "T-01 — Tree counts: DISTINCT -> GROUP BY ... COUNT in the same statements",
                   "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-24T15:15:37Z",
+                  "completed_at": "2026-08-24T15:21:35Z"
+                },
+                {
+                  "id": "feat-016-group-counts.implement.t2",
+                  "title": "T-02 — Listing aggregates: one grouped query per page, keyed by the page's group ids",
+                  "kind": "task",
                   "status": "in_progress",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-24T15:15:37Z"
-                },
-                {
-                  "id": "feat-016-group-counts.implement.t2",
-                  "title": "T-02 — Listing aggregates: one grouped query per page, keyed by the page's group ids",
-                  "kind": "task",
-                  "status": "pending",
-                  "instructions": "instructions/feature-implement.md",
-                  "agent": {
-                    "model": "sonnet",
-                    "effort": "medium"
-                  }
+                  "started_at": "2026-08-24T15:21:35Z"
                 },
                 {
                   "id": "feat-016-group-counts.implement.t3",

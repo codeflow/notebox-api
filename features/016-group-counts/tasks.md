@@ -12,7 +12,7 @@
 > the cheapest proof it is behaviour-preserving is feat-014's own tests passing unmodified. That
 > proof is worth having before anything is built on top.
 
-- [ ] **T-01 · Tree counts — `DISTINCT` → `GROUP BY … COUNT` in the same statements**
+- [x] **T-01 · Tree counts — `DISTINCT` → `GROUP BY … COUNT` in the same statements** ✔ 2026-08-24, verify green (374 tests, 369 → 374; `8021dd2`). feat-014's 8 existing `NavigationResourceTest` cases pass **unmodified** — the evidence the swap is behaviour-preserving. Statement budget verified structurally (4 repository calls, one `createQuery` each) rather than by reading a SQL log.
       - files: `infrastructure/persistence/AnnotationRecordRepository.java` (`distinctTypeGroupPairsInTenant` → `typeGroupCountsInTenant`, + count), `infrastructure/persistence/TaskRepository.java` (`distinctGroupIdsInTenant` → `groupCountsInTenant`, + count), `application/navigation/NavigationService.java` (carry the count through), `api/dto/NavigationGroupNodeDto.java` (+ `count`, and `ungrouped(long)`), `test …/api/NavigationResourceTest.java` (extend)
       - covers: FR-09 node counts, data-model **A-1/A-2/A-7** · scenarios: "A group node under a type counts that type's records in that group", "The count equals the listing that clicking the node opens", "A task group node counts the tasks in that group", "The same group under two types counts each independently", "Counts never cross tenants"
       - depends: — · parallel: no

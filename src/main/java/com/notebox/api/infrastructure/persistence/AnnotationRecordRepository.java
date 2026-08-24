@@ -1,5 +1,6 @@
 package com.notebox.api.infrastructure.persistence;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -125,6 +126,30 @@ public class AnnotationRecordRepository extends TenantScopedRepository<Annotatio
                                 + " group by e.annotationTypeId, e.groupId",
                         Object[].class)
                 .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
+    }
+
+    /**
+     * Per-group aggregates for one page of annotation groups (FR-08, OQ-27): how many records each
+     * holds and how many distinct types those records span. One grouped statement for the whole
+     * page — never one per row (NFR-08).
+     *
+     * <p>A group with no records returns <b>no row</b>; the caller maps the missing id to
+     * {@link com.notebox.api.application.group.GroupAggregates#empty}. That absence is where the
+     * zero comes from, so no special case is needed.
+     *
+     * @param groupIds the page's group ids; must not be empty (the caller skips the call instead)
+     * @return (groupId, recordCount, distinctTypeCount) triples
+     */
+    public List<Object[]> aggregatesByGroupInTenant(Collection<UUID> groupIds) {
+        return em.createQuery(
+                        "select e.groupId, count(e), count(distinct e.annotationTypeId)"
+                                + " from AnnotationRecord e"
+                                + " where e.tenantId = :tenant and e.groupId in :groups"
+                                + " group by e.groupId",
+                        Object[].class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .setParameter("groups", groupIds)
                 .getResultList();
     }
 }
