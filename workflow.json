@@ -3421,14 +3421,15 @@
             {
               "id": "feat-014-groups-navigation-notebox-api.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
               "gate": "human_approval",
-              "started_at": "2026-08-24T12:14:37Z"
+              "started_at": "2026-08-24T12:14:37Z",
+              "completed_at": "2026-08-24T12:24:59Z"
             }
           ],
           "github": {
