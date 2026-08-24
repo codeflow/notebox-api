@@ -213,6 +213,7 @@
 **Suggested path:** Human decision. Options: (a) **type → group** (recommended: matches FR-08's literal "an annotation", honours C28's type nodes, keeps the tree bounded); (b) group → type (would require amending FR-08); (c) type → group → individual record leaves (unbounded payload, collides with NFR-08).
 **Depends on:** Human decision.
 **Status:** ✅ resolved (2026-08-22).
+**Clarified 2026-08-24 (feat-015 spec):** this decision governs the **payload**, not the UI. The design reference (`notebox-web/design/handoff`, screen 05) nests the Navigator **group → type**, and that stands: `/navigation` returns a bipartite type↔group relation and the web inverts it for display. No API change — nesting is presentation, which AD-06 assigns to the satellite. Decided by rafaelsantos.
 **Decision:** Type → group. Groups hold annotation **records** and **tasks**, as FR-08 and OQ-04 word it. Under the Annotations root the primary axis is the annotation **type** (C28); each type node then carries the groups that its own records occupy, plus an `Ungrouped` node. Under the Tasks root, group nodes sit directly beneath. The tree **stops at group nodes** — individual records and tasks are never enumerated as leaves, so the payload stays bounded and clicking a group node opens the existing US-2.2 / feat-010 paginated listing filtered by group rather than a new contract. — decided by rafaelsantos, 2026-08-22.
 
 ### OQ-24 — Deleting a group that still holds annotations or tasks
@@ -240,6 +241,15 @@
 **Suggested path:** Human decision. Options: (a) **Spotless + a Checkstyle ruleset** matching 03-code-standards, wired with `wf harness signal lint "mvn -B spotless:check checkstyle:check"` — the fullest fit, but expect a first run flagging violations across the existing codebase, so it needs its own feature; (b) Spotless formatting only (cheaper, catches import order and whitespace, not naming); (c) leave it unwired and keep the standards reviewer-enforced, accepting the drift.
 **Depends on:** Human decision.
 **Status:** 🟡 open (2026-08-24).
+
+### OQ-27 — Aggregate counts for the Navigator and the groups screens
+**Severity:** 🟡 Important
+**Description:** Both design screens show aggregates the shipped feat-014 API does not return. Screen 05's tree carries a count per node (`Service Endpoint (12)`, `Migration (8)`, `Ungrouped (3)`); screen 14's group tables show **Annotations** and **Types used** per annotation group, and **Tasks** and **Avg. status** per task group. feat-014's spec deliberately put node counts out of scope ("no FR names them; adding them would put an unbounded aggregate behind every node"), so the web has no source for any of it.
+**Impact:** Blocks feat-015's tree and groups screens as designed. The alternative — deriving each count client-side from the filtered listing — is one HTTP round trip per node on first paint, and `Avg. status` would require fetching every task in the group.
+**Suggested path:** Human decision. Options: (a) **add the aggregates to the API** — additive fields on the `/navigation` nodes and the group listing (recommended: computed where the data lives, one round trip); (b) drop counts from the web and amend both design screens; (c) compute client-side, accepting the N+1.
+**Depends on:** Human decision.
+**Status:** ✅ resolved (2026-08-24).
+**Decision:** Add the aggregates to the API. `/navigation` group nodes gain a member count; the group listing gains `itemCount` plus `typesUsed` (annotation domain) and `averageStatus` (task domain). **Additive only** — no existing field changes shape, so nothing feat-014 shipped breaks. Because feat-014 is already merged and closed, this lands as its own small API slice that must ship **before** feat-015 can implement the count display. — decided by rafaelsantos, 2026-08-24.
 
 ## History
 
@@ -287,3 +297,5 @@
 | 2026-08-22 | OQ-24 opened+resolved: deleting a non-empty group un-groups its members; no record or task is deleted (diverges from OQ-14). |
 | 2026-08-22 | OQ-25 opened+resolved: tree siblings ordered by name asc (case-insensitive, id tiebreak); `Ungrouped` pinned last. |
 | 2026-08-24 | OQ-26 opened: lint signal removed from CI rather than left faking a pass; what replaces it is undecided. |
+| 2026-08-24 | OQ-23 clarified: its type→group ruling governs the payload; the Navigator renders group→type per design screen 05, inverted client-side. |
+| 2026-08-24 | OQ-27 opened+resolved: aggregate counts added to the API (additive), as a slice that must precede feat-015's implement. |

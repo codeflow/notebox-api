@@ -3441,14 +3441,14 @@
           }
         },
         {
-          "id": "feat-015-groups-navigation-notebox-web",
-          "title": "Item groups and navigation-tree data (US-3.1)",
+          "id": "feat-016-group-counts",
+          "title": "Aggregate counts for the Navigator and group listings (OQ-27) (US-3.1)",
           "kind": "feature",
           "status": "pending",
           "instructions": "instructions/feature-lifecycle.md",
           "steps": [
             {
-              "id": "feat-015-groups-navigation-notebox-web.spec",
+              "id": "feat-016-group-counts.spec",
               "title": "Spec — what and why, in Gherkin",
               "status": "pending",
               "instructions": "instructions/feature-spec.md",
@@ -3458,8 +3458,113 @@
               },
               "gate": "human_approval",
               "produces": [
-                "features/015-groups-navigation-notebox-web/spec.md"
+                "features/016-group-counts/spec.md"
               ]
+            },
+            {
+              "id": "feat-016-group-counts.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/016-group-counts/plan.md",
+                "features/016-group-counts/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-016-group-counts.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/016-group-counts/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-016-group-counts.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-016-group-counts.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/016-group-counts/audit.md"
+              ]
+            },
+            {
+              "id": "feat-016-group-counts.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-016-group-counts.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "github": {
+            "issue": 17,
+            "card": "PVTI_lADOAuNpyc4BeXx1zg3yPPg"
+          }
+        },
+        {
+          "id": "feat-015-groups-navigation-notebox-web",
+          "title": "Item groups and navigation-tree data (US-3.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-015-groups-navigation-notebox-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/015-groups-navigation-notebox-web/spec.md"
+              ],
+              "started_at": "2026-08-24T13:51:07Z",
+              "completed_at": "2026-08-24T13:56:09Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.plan",
