@@ -26,6 +26,7 @@ import com.notebox.api.api.dto.TaskDto;
 import com.notebox.api.api.dto.TaskInput;
 import com.notebox.api.api.dto.TaskListItemDto;
 import com.notebox.api.application.content.RichTextSanitizer;
+import com.notebox.api.application.group.GroupFilter;
 import com.notebox.api.application.task.TaskService;
 
 import io.quarkus.security.Authenticated;
@@ -54,15 +55,17 @@ public class TaskResource {
     @GET
     @Transactional
     public PageDto<TaskListItemDto> list(
+            @QueryParam("group") String group,
             @QueryParam("page") @DefaultValue("0")
             @Min(value = 0, message = "task.list.size.out_of_bounds") int page,
             @QueryParam("size") @DefaultValue("50")
             @Min(value = 1, message = "task.list.size.out_of_bounds")
             @Max(value = 200, message = "task.list.size.out_of_bounds") int size) {
-        List<TaskListItemDto> items = service.list(page, size).stream()
+        GroupFilter filter = GroupFilter.parse(group);
+        List<TaskListItemDto> items = service.list(filter, page, size).stream()
                 .map(TaskListItemDto::from)
                 .toList();
-        return new PageDto<>(items, page, size, service.count());
+        return new PageDto<>(items, page, size, service.count(filter));
     }
 
     @POST

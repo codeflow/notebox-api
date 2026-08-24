@@ -80,7 +80,7 @@ class AnnotationRecordServiceTest {
         assertThrows(AnnotationRecordValueOptionUnknownException.class, () -> service.create(
                 new AnnotationRecordInput(type.getId(), "x",
                         List.of(new AnnotationValueInput(fieldId(type, "Environment"), null, null, null,
-                                java.util.Arrays.asList((UUID) null))))),
+                                java.util.Arrays.asList((UUID) null))), /*group*/ null)),
                 "a null option id is unknown, never an NPE/500 (audit F13/R2-10)");
     }
 
@@ -93,7 +93,7 @@ class AnnotationRecordServiceTest {
 
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "prod",
-                List.of(new AnnotationValueInput(fieldId(type, "API key"), "s3cr3t-token", null, null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "API key"), "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
 
         Object[] row = (Object[]) em.createNativeQuery(
@@ -156,7 +156,7 @@ class AnnotationRecordServiceTest {
                         new AnnotationValueInput(fieldId(type, "Port"), null, new BigDecimal("5672"), null, null),
                         new AnnotationValueInput(
                                 fieldId(type, "Environment"), null, null, null,
-                                List.of(optionId(type, "Environment", "prod"))))));
+                                List.of(optionId(type, "Environment", "prod")))), /*group*/ null));
 
         assertEquals("prod-broker", record.getName());
         assertEquals(3, record.getValues().size());
@@ -178,7 +178,7 @@ class AnnotationRecordServiceTest {
                 AnnotationRecordFieldUnknownException.class,
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "prod-broker",
-                        List.of(new AnnotationValueInput(UUID.randomUUID(), "us-east", null, null, null)))));
+                        List.of(new AnnotationValueInput(UUID.randomUUID(), "us-east", null, null, null)), /*group*/ null)));
     }
 
     @Test
@@ -192,7 +192,7 @@ class AnnotationRecordServiceTest {
                 AnnotationRecordValueTypeMismatchException.class,
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "prod-broker",
-                        List.of(new AnnotationValueInput(fieldId(type, "Port"), "not-a-number", null, null, null)))));
+                        List.of(new AnnotationValueInput(fieldId(type, "Port"), "not-a-number", null, null, null)), /*group*/ null)));
     }
 
     @Test
@@ -207,7 +207,7 @@ class AnnotationRecordServiceTest {
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "prod-broker",
                         List.of(new AnnotationValueInput(
-                                fieldId(type, "Port"), null, new BigDecimal("70000"), null, null)))));
+                                fieldId(type, "Port"), null, new BigDecimal("70000"), null, null)), /*group*/ null)));
     }
 
     @Test
@@ -222,7 +222,7 @@ class AnnotationRecordServiceTest {
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "prod-broker",
                         List.of(new AnnotationValueInput(
-                                fieldId(type, "Environment"), null, null, null, List.of(UUID.randomUUID()))))));
+                                fieldId(type, "Environment"), null, null, null, List.of(UUID.randomUUID()))), /*group*/ null)));
     }
 
     @Test
@@ -236,7 +236,7 @@ class AnnotationRecordServiceTest {
 
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
-                List.of(new AnnotationValueInput(fieldId(type, "Tags"), null, null, null, List.of(ops, db)))));
+                List.of(new AnnotationValueInput(fieldId(type, "Tags"), null, null, null, List.of(ops, db))), /*group*/ null));
 
         assertEquals(Set.of(ops, db), record.getValues().get(0).getSelectedOptionIds());
     }
@@ -249,14 +249,14 @@ class AnnotationRecordServiceTest {
         AnnotationType type = rabbitMqType(tenant);
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
-                List.of(new AnnotationValueInput(fieldId(type, "Port"), null, new BigDecimal("5672"), null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "Port"), null, new BigDecimal("5672"), null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         em.clear();
 
         service.update(id, new AnnotationRecordInput(
                 null, "prod-broker",
-                List.of(new AnnotationValueInput(fieldId(type, "Port"), null, new BigDecimal("5673"), null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "Port"), null, new BigDecimal("5673"), null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -274,7 +274,7 @@ class AnnotationRecordServiceTest {
 
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "no-tags",
-                List.of(new AnnotationValueInput(fieldId(type, "Tags"), null, null, null, List.of()))));
+                List.of(new AnnotationValueInput(fieldId(type, "Tags"), null, null, null, List.of())), /*group*/ null));
 
         assertTrue(valueFor(record, fieldId(type, "Tags")).getSelectedOptionIds().isEmpty(),
                 "MULTIPLE_CHOICE allows 0..n selections (contract, audit F9)");
@@ -291,7 +291,7 @@ class AnnotationRecordServiceTest {
                 AnnotationRecordValueTooLongException.class,
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "too-long",
-                        List.of(new AnnotationValueInput(fieldId(type, "URL"), "x".repeat(65_536), null, null, null)))));
+                        List.of(new AnnotationValueInput(fieldId(type, "URL"), "x".repeat(65_536), null, null, null)), /*group*/ null)));
     }
 
     @Test
@@ -306,7 +306,7 @@ class AnnotationRecordServiceTest {
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "too-long",
                         List.of(new AnnotationValueInput(
-                                fieldId(type, "API key"), "x".repeat(4_081), null, null, null)))));
+                                fieldId(type, "API key"), "x".repeat(4_081), null, null, null)), /*group*/ null)));
     }
 
     @Test
@@ -320,7 +320,7 @@ class AnnotationRecordServiceTest {
 
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "with-diagram",
-                List.of(new AnnotationValueInput(fieldId(type, "Diagram"), null, null, imageId, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "Diagram"), null, null, imageId, null)), /*group*/ null));
 
         assertEquals(imageId, valueFor(record, fieldId(type, "Diagram")).getImageId());
     }
@@ -338,7 +338,7 @@ class AnnotationRecordServiceTest {
                 AnnotationRecordValueImageNotFoundException.class,
                 () -> service.create(new AnnotationRecordInput(
                         type.getId(), "with-diagram",
-                        List.of(new AnnotationValueInput(fieldId(type, "Diagram"), null, null, imageId, null)))));
+                        List.of(new AnnotationValueInput(fieldId(type, "Diagram"), null, null, imageId, null)), /*group*/ null)));
     }
 
     @Test
@@ -352,7 +352,7 @@ class AnnotationRecordServiceTest {
                 type.getId(), "prod-broker",
                 List.of(
                         new AnnotationValueInput(fieldId(type, "URL"), "amqp://h", null, null, null),
-                        new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null))));
+                        new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         byte[] ciphertextBefore = valueFor(created, apiKey).getSecretCiphertext().clone();
@@ -360,7 +360,7 @@ class AnnotationRecordServiceTest {
 
         service.update(id, new AnnotationRecordInput(
                 null, "prod-renamed",
-                List.of(new AnnotationValueInput(fieldId(type, "URL"), "amqp://h2", null, null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "URL"), "amqp://h2", null, null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -379,7 +379,7 @@ class AnnotationRecordServiceTest {
         UUID apiKey = fieldId(type, "API key");
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
-                List.of(new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null))));
+                List.of(new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         byte[] ciphertextBefore = valueFor(created, apiKey).getSecretCiphertext().clone();
@@ -387,7 +387,7 @@ class AnnotationRecordServiceTest {
 
         service.update(id, new AnnotationRecordInput(
                 null, "prod-broker",
-                List.of(new AnnotationValueInput(apiKey, null, null, null, null))));
+                List.of(new AnnotationValueInput(apiKey, null, null, null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -406,7 +406,7 @@ class AnnotationRecordServiceTest {
         UUID apiKey = fieldId(type, "API key");
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
-                List.of(new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null))));
+                List.of(new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         byte[] ciphertextBefore = valueFor(created, apiKey).getSecretCiphertext().clone();
@@ -414,7 +414,7 @@ class AnnotationRecordServiceTest {
 
         service.update(id, new AnnotationRecordInput(
                 null, "prod-broker",
-                List.of(new AnnotationValueInput(apiKey, "rotated-token", null, null, null))));
+                List.of(new AnnotationValueInput(apiKey, "rotated-token", null, null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -435,14 +435,14 @@ class AnnotationRecordServiceTest {
         UUID apiKey = fieldId(type, "API key");
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
-                List.of(new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null))));
+                List.of(new AnnotationValueInput(apiKey, "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         em.clear();
 
         service.update(id, new AnnotationRecordInput(
                 null, "prod-broker",
-                List.of(new AnnotationValueInput(apiKey, null, null, null, null, true))));
+                List.of(new AnnotationValueInput(apiKey, null, null, null, null, true)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -477,7 +477,7 @@ class AnnotationRecordServiceTest {
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
                 List.of(new AnnotationValueInput(
-                        fieldId(type, "API key"), "s3cr3t-token", null, null, null))));
+                        fieldId(type, "API key"), "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         em.clear();
@@ -524,7 +524,7 @@ class AnnotationRecordServiceTest {
                 List.of(new AnnotationValueInput(
                         fieldId(type, "Notes"),
                         "<p>before</p><script>steal()</script><p onclick=\"x()\">after</p>",
-                        null, null, null))));
+                        null, null, null)), /*group*/ null));
 
         assertEquals("<p>before</p><p>after</p>",
                 valueFor(record, fieldId(type, "Notes")).getTextValue(),
@@ -539,14 +539,14 @@ class AnnotationRecordServiceTest {
         AnnotationType type = notesType(tenant);
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "r1",
-                List.of(new AnnotationValueInput(fieldId(type, "Notes"), "<p>clean</p>", null, null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "Notes"), "<p>clean</p>", null, null, null)), /*group*/ null));
 
         AnnotationRecord updated = service.update(record.getId(), new AnnotationRecordInput(
                 null, "r1",
                 List.of(new AnnotationValueInput(
                         fieldId(type, "Notes"),
                         "<img src=\"https://evil.example/p.png\" data-image-id=\"i1\"><iframe></iframe>",
-                        null, null, null))));
+                        null, null, null)), /*group*/ null));
 
         assertEquals("<img data-image-id=\"i1\">",
                 valueFor(updated, fieldId(type, "Notes")).getTextValue(),
@@ -562,7 +562,7 @@ class AnnotationRecordServiceTest {
 
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "r1",
-                List.of(new AnnotationValueInput(fieldId(type, "URL"), "<b>not markup</b>", null, null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "URL"), "<b>not markup</b>", null, null, null)), /*group*/ null));
 
         assertEquals("<b>not markup</b>",
                 valueFor(record, fieldId(type, "URL")).getTextValue(),
@@ -581,7 +581,7 @@ class AnnotationRecordServiceTest {
 
         AnnotationRecord record = service.create(new AnnotationRecordInput(
                 type.getId(), "r1",
-                List.of(new AnnotationValueInput(fieldId(type, "API key"), hostileSecret, null, null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "API key"), hostileSecret, null, null, null)), /*group*/ null));
         em.flush();
 
         assertEquals(hostileSecret, service.reveal(record.getId(), fieldId(type, "API key")),
@@ -601,7 +601,7 @@ class AnnotationRecordServiceTest {
                 List.of(new AnnotationValueInput(
                         fieldId(type, "Notes"),
                         "<p onclick=\"" + hugeAttribute + "\">x</p>",
-                        null, null, null))));
+                        null, null, null)), /*group*/ null));
 
         assertEquals("<p>x</p>", valueFor(record, fieldId(type, "Notes")).getTextValue(),
                 "the raw input exceeds the column bound but the stored (sanitized) form fits");
@@ -609,7 +609,7 @@ class AnnotationRecordServiceTest {
         assertThrows(AnnotationRecordValueTooLongException.class, () -> service.create(new AnnotationRecordInput(
                 type.getId(), "r2",
                 List.of(new AnnotationValueInput(
-                        fieldId(type, "Notes"), "<p>" + hugeAttribute + "</p>", null, null, null)))),
+                        fieldId(type, "Notes"), "<p>" + hugeAttribute + "</p>", null, null, null)), /*group*/ null)),
                 "a sanitized form over the bound still hits the existing too_long rule");
     }
 }

@@ -28,7 +28,6 @@
     "verify": "mvn -B verify",
     "ci": ".github/workflows/ci.yml",
     "signals": [
-      "lint",
       "typecheck",
       "test",
       "build"
@@ -36,8 +35,7 @@
     "commands": {
       "test": "mvn -B test",
       "build": "mvn -B package",
-      "typecheck": "mvn -B compile",
-      "lint": "echo 'lint placeholder - Checkstyle/Spotless pending (F3)'"
+      "typecheck": "mvn -B compile"
     }
   },
   "github": {
@@ -3242,6 +3240,303 @@
             "branch": "feature/task-details-web",
             "pr": 13,
             "merged": "develop"
+          }
+        },
+        {
+          "id": "feat-014-groups-navigation-notebox-api",
+          "title": "Item groups and navigation-tree data (US-3.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-014-groups-navigation-notebox-api.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/014-groups-navigation-notebox-api/spec.md"
+              ],
+              "started_at": "2026-08-22T19:18:38Z",
+              "completed_at": "2026-08-23T01:25:55Z"
+            },
+            {
+              "id": "feat-014-groups-navigation-notebox-api.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/014-groups-navigation-notebox-api/plan.md",
+                "features/014-groups-navigation-notebox-api/data-model.md"
+              ],
+              "started_at": "2026-08-23T01:45:53Z",
+              "completed_at": "2026-08-23T01:48:23Z"
+            },
+            {
+              "id": "feat-014-groups-navigation-notebox-api.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/014-groups-navigation-notebox-api/tasks.md"
+              ],
+              "started_at": "2026-08-23T02:28:29Z",
+              "completed_at": "2026-08-23T02:37:03Z"
+            },
+            {
+              "id": "feat-014-groups-navigation-notebox-api.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t1",
+                  "title": "T-01 — Schema + domain: V7 migration, Group entity, GroupDomain, membership columns",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T02:38:48Z",
+                  "completed_at": "2026-08-23T02:45:46Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t2",
+                  "title": "T-02 — Group persistence + service: CRUD, per-domain uniqueness, immutable domain, audited delete",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T03:07:50Z",
+                  "completed_at": "2026-08-23T03:22:06Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t3",
+                  "title": "T-03 — Group endpoints + edge contract: DTOs, @ValidGroupDomain, 10 message keys, GroupResource",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T03:30:51Z",
+                  "completed_at": "2026-08-23T03:43:12Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t4",
+                  "title": "T-04 — Item assignment: groupId on both item surfaces, domain check, replace-clearing",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T11:31:58Z",
+                  "completed_at": "2026-08-23T11:44:16Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t5",
+                  "title": "T-05 — Group-filtered listings: GroupFilter, repository queries, one query param per listing",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T12:19:34Z",
+                  "completed_at": "2026-08-23T12:48:45Z"
+                },
+                {
+                  "id": "feat-014-groups-navigation-notebox-api.implement.t6",
+                  "title": "T-06 — Navigation tree: distinct projections, NavigationService, GET /navigation",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-23T12:52:30Z",
+                  "completed_at": "2026-08-23T12:59:19Z"
+                }
+              ]
+            },
+            {
+              "id": "feat-014-groups-navigation-notebox-api.audit",
+              "title": "Audit — adversarial check",
+              "status": "done",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/014-groups-navigation-notebox-api/audit.md"
+              ],
+              "started_at": "2026-08-23T13:23:15Z",
+              "completed_at": "2026-08-23T13:31:00Z"
+            },
+            {
+              "id": "feat-014-groups-navigation-notebox-api.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "in_progress",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green",
+              "started_at": "2026-08-24T10:22:49Z"
+            },
+            {
+              "id": "feat-014-groups-navigation-notebox-api.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "github": {
+            "issue": 15,
+            "card": "PVTI_lADOAuNpyc4BeXx1zg3lBPA",
+            "branch": "feature/groups-navigation"
+          }
+        },
+        {
+          "id": "feat-015-groups-navigation-notebox-web",
+          "title": "Item groups and navigation-tree data (US-3.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-015-groups-navigation-notebox-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/015-groups-navigation-notebox-web/spec.md"
+              ]
+            },
+            {
+              "id": "feat-015-groups-navigation-notebox-web.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/015-groups-navigation-notebox-web/plan.md",
+                "features/015-groups-navigation-notebox-web/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-015-groups-navigation-notebox-web.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/015-groups-navigation-notebox-web/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-015-groups-navigation-notebox-web.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-015-groups-navigation-notebox-web.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/015-groups-navigation-notebox-web/audit.md"
+              ]
+            },
+            {
+              "id": "feat-015-groups-navigation-notebox-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-015-groups-navigation-notebox-web.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 14,
+            "card": "PVTI_lADOAuNpyc4BeXEnzg3lBQM"
           }
         }
       ]

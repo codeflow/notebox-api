@@ -1,5 +1,7 @@
 package com.notebox.api.infrastructure.persistence;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
 
 import com.notebox.api.domain.AnnotationType;
@@ -27,5 +29,20 @@ public class AnnotationTypeRepository extends TenantScopedRepository<AnnotationT
                 .setParameter("name", name)
                 .getSingleResult();
         return count > 0;
+    }
+
+    /**
+     * Every type of the caller's tenant, name ascending (OQ-25). Types are the tree's structural
+     * axis (C28), so a type with no records still appears as a node.
+     *
+     * @return the tenant's types, ordered case-insensitively by name with an id tiebreak
+     */
+    public List<AnnotationType> listAllInTenantByName() {
+        return em.createQuery(
+                        "select e from AnnotationType e where e.tenantId = :tenant"
+                                + " order by lower(e.name) asc, e.id asc",
+                        AnnotationType.class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
     }
 }

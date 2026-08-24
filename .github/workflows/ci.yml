@@ -12,8 +12,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: 'temurin', java-version: '21', cache: 'maven' }
-      - name: lint
-        run: echo 'lint placeholder - Checkstyle/Spotless pending (F3)'
       - name: typecheck
         run: mvn -B compile
       - name: test

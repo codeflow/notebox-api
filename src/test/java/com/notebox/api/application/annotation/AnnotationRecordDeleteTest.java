@@ -68,7 +68,7 @@ class AnnotationRecordDeleteTest {
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
                 List.of(new AnnotationValueInput(
-                        type.getFields().get(0).getId(), "amqp://h", null, null, null))));
+                        type.getFields().get(0).getId(), "amqp://h", null, null, null)), /*group*/ null));
         em.flush();
         UUID id = created.getId();
         em.clear();

@@ -118,7 +118,7 @@ class AnnotationTypeEditGuardTest {
                         new AnnotationValueInput(fieldId(type, "Port"), null, new BigDecimal("5672"), null, null),
                         new AnnotationValueInput(
                                 fieldId(type, "Environment"), null, null, null,
-                                List.of(optionId(type, "Environment", "prod"))))));
+                                List.of(optionId(type, "Environment", "prod")))), /*group*/ null));
         em.flush();
         em.clear();
         return record.getId();
@@ -246,7 +246,7 @@ class AnnotationTypeEditGuardTest {
         em.flush();
         recordService.create(new AnnotationRecordInput(
                 type.getId(), "prod",
-                List.of(new AnnotationValueInput(fieldId(type, "API key"), "s3cr3t", null, null, null))));
+                List.of(new AnnotationValueInput(fieldId(type, "API key"), "s3cr3t", null, null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -264,7 +264,7 @@ class AnnotationTypeEditGuardTest {
         recordService.create(new AnnotationRecordInput(
                 type.getId(), "prod",
                 List.of(new AnnotationValueInput(
-                        fieldId(type, "Port"), null, new BigDecimal("5672"), null, null))));
+                        fieldId(type, "Port"), null, new BigDecimal("5672"), null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -300,7 +300,7 @@ class AnnotationTypeEditGuardTest {
                 type.getId(), "both",
                 List.of(
                         new AnnotationValueInput(firstId, "a", null, null, null),
-                        new AnnotationValueInput(secondId, "b", null, null, null))));
+                        new AnnotationValueInput(secondId, "b", null, null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -325,7 +325,7 @@ class AnnotationTypeEditGuardTest {
         em.flush();
         recordService.create(new AnnotationRecordInput(
                 type.getId(), "one",
-                List.of(new AnnotationValueInput(type.getFields().get(1).getId(), "b", null, null, null))));
+                List.of(new AnnotationValueInput(type.getFields().get(1).getId(), "b", null, null, null)), /*group*/ null));
         em.flush();
         em.clear();
 
@@ -343,7 +343,7 @@ class AnnotationTypeEditGuardTest {
                 type.getId(), "picks-the-second",
                 List.of(new AnnotationValueInput(
                         fieldId(type, "Env"), null, null, null,
-                        List.of(type.getFields().get(0).getOptions().get(1).getId())))));
+                        List.of(type.getFields().get(0).getOptions().get(1).getId()))), /*group*/ null));
         em.flush();
         em.clear();
         return record.getId();

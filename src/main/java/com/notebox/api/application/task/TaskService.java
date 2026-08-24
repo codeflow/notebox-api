@@ -13,8 +13,11 @@ import com.notebox.api.api.dto.CardInput;
 import com.notebox.api.api.dto.SubtaskInput;
 import com.notebox.api.api.dto.TaskInput;
 import com.notebox.api.application.content.RichTextSanitizer;
+import com.notebox.api.application.group.GroupFilter;
+import com.notebox.api.application.group.GroupService;
 import com.notebox.api.domain.AuditLog;
 import com.notebox.api.domain.Card;
+import com.notebox.api.domain.GroupDomain;
 import com.notebox.api.domain.Priority;
 import com.notebox.api.domain.Subtask;
 import com.notebox.api.domain.Task;
@@ -55,18 +58,21 @@ public class TaskService {
     private final Event<SubtaskChange> events;
     private final TenantContext tenant;
     private final RichTextSanitizer sanitizer;
+    private final GroupService groups;
 
     public TaskService(
             TaskRepository tasks,
             AuditLogRepository auditLog,
             Event<SubtaskChange> events,
             TenantContext tenant,
-            RichTextSanitizer sanitizer) {
+            RichTextSanitizer sanitizer,
+            GroupService groups) {
         this.tasks = tasks;
         this.auditLog = auditLog;
         this.events = events;
         this.tenant = tenant;
         this.sanitizer = sanitizer;
+        this.groups = groups;
     }
 
     @Transactional
@@ -74,6 +80,7 @@ public class TaskService {
         Task task = new Task(tenant.tenantId(), input.name(), Priority.valueOf(input.priority()));
         task.setCard(toCard(input.card()));
         task.setDetails(sanitizedDetails(input.details()));
+        task.setGroupId(groups.resolveForAssignment(input.groupId(), GroupDomain.TASK));
         return tasks.persistInTenant(task);
     }
 
@@ -83,17 +90,17 @@ public class TaskService {
     }
 
     /** One page, newest first — createdAt desc, id desc (NFR-08, OQ-21). */
-    public List<Task> list(int page, int size) {
-        return tasks.listNewestFirstInTenant(page, size);
+    public List<Task> list(GroupFilter filter, int page, int size) {
+        return tasks.listByGroupNewestFirstInTenant(filter, page, size);
     }
 
     /** Total tasks of the caller's tenant — the pager fact behind the page above (NFR-08). */
-    public long count() {
-        return tasks.countInTenant();
+    public long count(GroupFilter filter) {
+        return tasks.countByGroupInTenant(filter);
     }
 
     /**
-     * Replaces name, priority, card and details (PUT — an omitted card or details clears it); the
+     * Replaces name, priority, card, details and group (PUT — an omitted one clears it); the
      * derived status and dates are untouched by design (BR-06, BR-07).
      */
     @Transactional
@@ -103,6 +110,7 @@ public class TaskService {
         task.setPriority(Priority.valueOf(input.priority()));
         task.setCard(toCard(input.card()));
         task.setDetails(sanitizedDetails(input.details()));
+        task.setGroupId(groups.resolveForAssignment(input.groupId(), GroupDomain.TASK));
         return task;
     }
 

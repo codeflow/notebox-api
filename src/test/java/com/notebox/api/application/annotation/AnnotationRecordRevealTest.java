@@ -67,7 +67,7 @@ class AnnotationRecordRevealTest {
         AnnotationRecord created = service.create(new AnnotationRecordInput(
                 type.getId(), "prod-broker",
                 List.of(new AnnotationValueInput(
-                        type.getFields().get(0).getId(), "s3cr3t-token", null, null, null))));
+                        type.getFields().get(0).getId(), "s3cr3t-token", null, null, null)), /*group*/ null));
         em.flush();
         UUID recordId = created.getId();
         em.clear();

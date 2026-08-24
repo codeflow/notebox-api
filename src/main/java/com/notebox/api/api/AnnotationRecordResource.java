@@ -26,8 +26,9 @@ import com.notebox.api.api.dto.PageDto;
 import com.notebox.api.api.dto.AnnotationRecordInput;
 import com.notebox.api.api.dto.RevealResponse;
 import com.notebox.api.application.annotation.AnnotationRecordService;
-import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.application.annotation.AnnotationTypeService;
+import com.notebox.api.application.content.RichTextSanitizer;
+import com.notebox.api.application.group.GroupFilter;
 import com.notebox.api.domain.AnnotationRecord;
 import com.notebox.api.domain.AnnotationType;
 import com.notebox.api.domain.AnnotationType;
@@ -61,16 +62,18 @@ public class AnnotationRecordResource {
     public PageDto<AnnotationRecordDto> list(
             @QueryParam("typeId")
             @NotNull(message = "annotation.record.list.type.required") UUID typeId,
+            @QueryParam("group") String group,
             @QueryParam("page") @DefaultValue("0")
             @Min(value = 0, message = "annotation.record.list.size.out_of_bounds") int page,
             @QueryParam("size") @DefaultValue("50")
             @Min(value = 1, message = "annotation.record.list.size.out_of_bounds")
             @Max(value = 200, message = "annotation.record.list.size.out_of_bounds") int size) {
         AnnotationType type = typeService.get(typeId);
-        List<AnnotationRecordDto> items = service.listByType(typeId, page, size).stream()
+        GroupFilter filter = GroupFilter.parse(group);
+        List<AnnotationRecordDto> items = service.listByType(typeId, filter, page, size).stream()
                 .map(record -> AnnotationRecordDto.forListing(record, type, sanitizer))
                 .toList();
-        return new PageDto<>(items, page, size, service.countByType(typeId));
+        return new PageDto<>(items, page, size, service.countByType(typeId, filter));
     }
 
     @POST

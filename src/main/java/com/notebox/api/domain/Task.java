@@ -70,6 +70,10 @@ public class Task implements TenantOwned {
     @Column(name = "details", columnDefinition = "TEXT")
     private String details;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "group_id", length = 36)
+    private UUID groupId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -162,6 +166,10 @@ public class Task implements TenantOwned {
         return details;
     }
 
+    public UUID getGroupId() {
+        return groupId;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -194,6 +202,16 @@ public class Task implements TenantOwned {
      */
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    /**
+     * Assigns the task to a group, or clears it. Callers must pass a group id already resolved and
+     * domain-checked (FR-08): the entity stores what it is given.
+     *
+     * @param groupId a task-domain group of the same tenant, or null for ungrouped
+     */
+    public void setGroupId(UUID groupId) {
+        this.groupId = groupId;
     }
 
     public void addSubtask(Subtask subtask) {

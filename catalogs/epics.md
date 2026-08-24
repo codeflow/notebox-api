@@ -12,7 +12,7 @@
 | E0 | Foundations & Harness | repo, CI/CD, agentic pipeline | todo |
 | E1 | Annotation types | define typed note schemas | delivered |
 | E2 | Annotations | typed records + listing/detail | delivered |
-| E3 | Groups & navigation | organize items, nav tree | todo |
+| E3 | Groups & navigation | organize items, nav tree | speccing |
 | E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | delivered |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
 | E6 | Identity & tenancy | JWT auth, multi-tenant isolation | speccing |
@@ -41,7 +41,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-3.1 | As a tenant member, I want to group annotations and tasks and get a navigation tree, so I can organize my workspace. | FR-08, FR-09 | todo | — |
+| US-3.1 | As a tenant member, I want to group annotations and tasks and get a navigation tree, so I can organize my workspace. | FR-08, FR-09 | building | feat-014-groups-navigation-notebox-api (api, issue #15) — **audit Round 1 PASS with findings 2026-08-23, hardening closed 2026-08-24** (0 blockers; F-01..F-03 + N-01 all closed, nothing carried to backlog; spec amended to v2; 369 tests), on `feature/groups-navigation`, publish + PR pending · feat-015-groups-navigation-notebox-web (notebox-web, issue #14) — **created 2026-08-22**, spec pending. API-side first: its `contracts/` are what the web half consumes |
 
 ## E4 — Tasks & subtasks
 
@@ -83,3 +83,5 @@
 | 2026-08-18 | v12 | feat-012 (US-4.2 API) merged into `develop` via PR #14 (squash `a295030`; 274 tests; branch + PR CI green). US-4.2 stays `building` pending feat-013; twelve features now stacked on `develop` awaiting promotion. |
 | 2026-08-21 | v13 | feat-013 (US-4.2 web) passed its audit at Round 1 (PASS with findings — 0 blockers; 6 same-day hardening items incl. empty-document normalisation for details; 402 tests + live pass against the real API: derived span, card survives PUT-replace, details edit/clear). The story stays `building` until feat-013 merges (US-4.1 precedent). |
 | 2026-08-22 | v14 | US-4.2 building → delivered (on develop): feat-013 (web) merged via PR #13 (squash `47da16e`), joining feat-012 (api, PR #14). **E4 → delivered** — every task story (US-4.1, US-4.2) is on develop. Thirteen features stacked on `develop` awaiting promotion; promote the US-4.2 pair together. |
+| 2026-08-22 | v15 | US-3.1 todo → speccing: feature pair created (feat-014 api, feat-015 web; slug `groups-navigation`) — chosen over E5 because its blocking precondition just cleared. FR-09's nav tree projects annotations by type **and** tasks by group, so it was deferred twice (v7, v10) until the task model was complete; with E4 delivered the contract is no longer speculative. OQ-04 (single-membership, flat, per-domain namespaces) was decided 2026-07-22, so the pair has no open question. E5 (i18n) stays last: it is cross-cutting over every string and would be redone if run before the feature surface is final. E3 → speccing. |
+| 2026-08-23 | v16 | US-3.1 speccing → building: feat-014 (API) passed its audit at Round 1 (PASS with findings — 0 blockers; 3 backlog items: a spec-wording mismatch on the nesting scenario needing a human decision, one test fixture the API cannot produce, one redundant query; 368 tests). The story stays `building` — feat-015 (web) has not started, and US-3.1 is delivered only when both sides ship (US-2.1/US-4.1/US-4.2 precedent). **Rollout hazard recorded:** `groupId` rides replace-update semantics, so a legacy client that PUTs without it un-groups the item — the feat-012 PUT-replace hazard repeating; promote the feat-014/feat-015 pair together. |
