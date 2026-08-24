@@ -24,7 +24,7 @@
       - depends: T-01 · parallel: no
       - verify: `mvn -B verify` — three things must be asserted, not assumed: the **null-vs-zero** pair (an empty group and an all-zero group are two different tests and must disagree); **HALF_UP** via the 33/34 → 34 case, which `Math.round` would also pass, so the assertion is on the rule not the value; and the **empty-page guard** — a page with no groups issues **no** aggregate query at all, never `in ()`.
 
-- [ ] **T-03 · Wire the aggregates out — `GroupDto`, resource, OpenAPI**
+- [x] **T-03 · Wire the aggregates out — `GroupDto`, resource, OpenAPI** ✔ 2026-08-24, verify green (386 tests, 382 → 386; `27994e0`). Additive compatibility evidenced by the diff itself: **93 insertions, 0 deletions** in `GroupResourceTest` — feat-014's 18 cases assert the same published fields unmodified. Added beyond the file list: a second `GroupDto.from(group)` overload for single-group reads, so create/get/replace do not pay for aggregates.
       - files: `api/dto/GroupDto.java` (+ `itemCount`, `typesUsed`, `averageStatus`; `from(group, aggregates)`), `api/GroupResource.java` (fetch the page's aggregates, pass them to the factory), `test …/api/GroupResourceTest.java` (extend), `test …/api/OpenApiCoverageTest.java` (extend)
       - covers: FR-08 at the wire, NFR-06, **the additive-compatibility guarantee** · scenarios: "A client ignoring the new fields is unaffected", "The aggregates do not turn a bounded read into an unbounded one", "An unauthenticated caller still gets nothing", plus the wire half of the annotation/task aggregate scenarios
       - depends: T-02 · parallel: no

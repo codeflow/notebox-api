@@ -3537,13 +3537,14 @@
                   "id": "feat-016-group-counts.implement.t3",
                   "title": "T-03 — Wire the aggregates out: GroupDto, resource, OpenAPI",
                   "kind": "task",
-                  "status": "in_progress",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-24T15:26:46Z"
+                  "started_at": "2026-08-24T15:26:46Z",
+                  "completed_at": "2026-08-24T16:15:39Z"
                 }
               ]
             },
