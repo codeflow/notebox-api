@@ -132,6 +132,30 @@ class NavigationResourceTest {
                 .body("annotations[0].groups[3].groupId", is(nullValue()));
     }
 
+    /**
+     * N-01 hardening: Ungrouped lands last because the comparator puts it there, not because it is
+     * appended after the sort. A group named "zzz" sorts after every other name yet must still
+     * precede Ungrouped.
+     */
+    @Test
+    void ungroupedSortsLastEvenBehindANameThatOrdersAfterEverything() {
+        Tenant tenant = data.createTenant();
+        String auth = newActorAuth(tenant);
+        String typeId = createType(auth, "RabbitMQ");
+        String zzz = createGroup(auth, "zzz", "ANNOTATION");
+        String alpha = createGroup(auth, "alpha", "ANNOTATION");
+        createRecord(auth, typeId, "r1", zzz);
+        createRecord(auth, typeId, "r2", alpha);
+        createRecord(auth, typeId, "r3", null);
+
+        given().header("Authorization", auth)
+                .when().get("/navigation")
+                .then().statusCode(200)
+                .body("annotations[0].groups.name",
+                        equalTo(java.util.Arrays.asList("alpha", "zzz", null)))
+                .body("annotations[0].groups[2].groupId", is(nullValue()));
+    }
+
     /** A type node is structural; a group node is a projection of real membership. */
     @Test
     void aTypeNodeIsStructuralAGroupNodeIsAProjection() {

@@ -35,10 +35,15 @@ import com.notebox.api.infrastructure.persistence.TaskRepository;
 @ApplicationScoped
 public class NavigationService {
 
-    /** Case-insensitive by name, then by id — the OQ-25 order, shared by both node kinds. */
+    /**
+     * The OQ-25 order: Ungrouped last, then case-insensitive by name with an id tiebreak. Null-safe
+     * on both components, so the Ungrouped node sorts correctly even if it is ever added to the list
+     * before sorting rather than appended after it — its position must not depend on call order.
+     */
     private static final Comparator<NavigationGroupNodeDto> BY_NAME =
-            Comparator.comparing((NavigationGroupNodeDto n) -> n.name().toLowerCase())
-                    .thenComparing(n -> n.groupId().toString());
+            Comparator.comparing((NavigationGroupNodeDto n) -> n.groupId() == null)
+                    .thenComparing(n -> n.name() == null ? "" : n.name().toLowerCase())
+                    .thenComparing(n -> n.groupId() == null ? "" : n.groupId().toString());
 
     private final AnnotationTypeRepository types;
     private final AnnotationRecordRepository records;
@@ -104,7 +109,9 @@ public class NavigationService {
     }
 
     /**
-     * Turns an occupied-group id set into ordered nodes, appending Ungrouped last when asked.
+     * Turns an occupied-group id set into ordered nodes, including Ungrouped when asked. Ungrouped
+     * is added <em>before</em> the sort and lands last because {@link #BY_NAME} puts it there — its
+     * position is the comparator's guarantee, not a side effect of appending it afterwards.
      *
      * <p>A group id with no name in the map cannot occur — membership and the group live in the
      * same tenant — but it is skipped rather than emitted nameless, since a nameless node would be
@@ -119,10 +126,10 @@ public class NavigationService {
                 nodes.add(new NavigationGroupNodeDto(groupId, name));
             }
         }
-        nodes.sort(BY_NAME);
         if (withUngrouped) {
             nodes.add(NavigationGroupNodeDto.ungrouped());
         }
+        nodes.sort(BY_NAME);
         return nodes;
     }
 }

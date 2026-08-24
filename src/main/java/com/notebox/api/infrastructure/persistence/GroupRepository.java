@@ -73,23 +73,24 @@ public class GroupRepository extends TenantScopedRepository<Group> {
         return count > 0;
     }
 
-    /** How many annotation records and tasks reference a group — the audit's members fact (C-10). */
+    /**
+     * How many items reference a group — the audit's members fact (C-10). Only the group's own
+     * namespace is counted: an item can only reference a group of its own domain (I-8), so querying
+     * the other table would always return zero and would quietly suggest cross-domain membership is
+     * a supported state.
+     *
+     * @param group the group about to be deleted
+     * @return the number of records (annotation groups) or tasks (task groups) that reference it
+     */
     public long countMembers(Group group) {
-        Long records = em.createQuery(
-                        "select count(e) from AnnotationRecord e"
+        String entity = group.getDomain() == GroupDomain.ANNOTATION ? "AnnotationRecord" : "Task";
+        return em.createQuery(
+                        "select count(e) from " + entity + " e"
                                 + " where e.tenantId = :tenant and e.groupId = :group",
                         Long.class)
                 .setParameter("tenant", tenantContext.tenantId())
                 .setParameter("group", group.getId())
                 .getSingleResult();
-        Long tasks = em.createQuery(
-                        "select count(e) from Task e"
-                                + " where e.tenantId = :tenant and e.groupId = :group",
-                        Long.class)
-                .setParameter("tenant", tenantContext.tenantId())
-                .setParameter("group", group.getId())
-                .getSingleResult();
-        return records + tasks;
     }
 
     /**

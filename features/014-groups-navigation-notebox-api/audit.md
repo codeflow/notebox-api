@@ -4,8 +4,9 @@
 **Date:** 2026-08-23 · **Model:** opus/xhigh
 **Scope:** `develop..feature/groups-navigation` — 10 commits, 54 source files, +3156/−115
 **Verify at audit time:** `mvn -B verify` → BUILD SUCCESS, **368 tests, 0 failures, 0 errors**
+**Hardening closed:** 2026-08-24 — all four items resolved, **369 tests** green
 
-## Verdict — **PASS WITH FINDINGS**
+## Verdict — **PASS WITH FINDINGS** (all findings closed 2026-08-24)
 
 Three findings, **0 blockers**. Every FR traces to a scenario, a test and code; every architecture
 boundary is uncrossed by grep, not by assumption; every `applies` compliance item has its evidence
@@ -172,12 +173,24 @@ drop the ordering dependency.
 
 ---
 
-## Backlog raised by this audit
+## Hardening — all four closed 2026-08-24
 
-- **F-02** — rebuild `deletingAGroupIsAudited`'s fixture from one namespace.
-- **F-03** — branch `countMembers` on the group's domain.
-- **N-01** — null-safe comparator so Ungrouped's position stops depending on insertion order.
-- **F-01** — human decision: amend the scenario (recommended) or change deserialization globally.
+Nothing was carried to backlog. Verify green at 369 tests (368 → 369).
+
+| Item | Resolution |
+|---|---|
+| **F-01** | **Decided by rafaelsantos:** amend the scenario. `spec.md` → **v2** — *"the request is rejected"* became *"the parent is not stored and the created group has none"*, with the reason recorded inline and in the spec's Open Questions. Deserialization is untouched, so no other endpoint's behaviour moved. |
+| **F-02** | Fixture rebuilt inside one namespace. **A second instance the audit had missed** was found while fixing the first — `deletingAGroupUngroupsItsMembersAndDeletesNone` had the same defect. It now uses two groups, one per namespace, which is both API-reachable *and* still proves the FK un-groups both tables. |
+| **F-03** | `countMembers` branches on `group.getDomain()` and issues **one** query. The dead cross-domain count is gone, and with it the implication that cross-domain membership is a supported state. |
+| **N-01** | Comparator is null-safe on both components and pins Ungrouped last **itself**. `nodes()` now adds Ungrouped *before* the sort, so the guarantee is exercised rather than defensive: without the comparator's null handling the list would NPE. Regression test `ungroupedSortsLastEvenBehindANameThatOrdersAfterEverything` uses a group named `zzz` — one that sorts after everything yet must still precede Ungrouped. |
+
+### Audit self-correction
+
+F-02 was reported as a single test. It was two. The audit's spot-check read
+`deletingAGroupIsAudited` closely and took the neighbouring
+`deletingAGroupUngroupsItsMembersAndDeletesNone` at face value because its *name* described the
+behaviour correctly — exactly the failure mode section 2 exists to catch. Recorded here rather than
+quietly fixed, since an audit that under-reports is worth knowing about.
 
 ## Not found
 

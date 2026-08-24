@@ -171,18 +171,25 @@ class GroupServiceTest {
                 () -> service.replace(second.getId(), input("Brokers", GroupDomain.ANNOTATION)));
     }
 
-    /** OQ-24 at the service level: the label goes, every member survives and is ungrouped. */
+    /**
+     * OQ-24 at the service level: the label goes, every member survives and is ungrouped. Two
+     * groups, one per namespace — a single group holding both a record and a task is a state the
+     * API rejects, so using one here would prove the FK against data that cannot exist (audit
+     * F-02, second instance).
+     */
     @Test
     @TestTransaction
     void deletingAGroupUngroupsItsMembersAndDeletesNone() {
         Tenant tenant = signedInTenant();
         AnnotationType type = persistType(tenant, "RabbitMQ");
-        Group group = service.create(input("Brokers", GroupDomain.ANNOTATION));
-        UUID recordId = persistRecord(tenant, type, "prod-broker", group.getId());
-        UUID taskId = persistTask(tenant, "Migrate broker", group.getId());
+        Group annotationGroup = service.create(input("Brokers", GroupDomain.ANNOTATION));
+        Group taskGroup = service.create(input("Q3 Migration", GroupDomain.TASK));
+        UUID recordId = persistRecord(tenant, type, "prod-broker", annotationGroup.getId());
+        UUID taskId = persistTask(tenant, "Migrate broker", taskGroup.getId());
         em.flush();
 
-        service.delete(group.getId());
+        service.delete(annotationGroup.getId());
+        service.delete(taskGroup.getId());
         em.flush();
         em.clear();
 
@@ -190,10 +197,16 @@ class GroupServiceTest {
         assertNull(em.find(AnnotationRecord.class, recordId).getGroupId());
         assertNotNull(em.find(Task.class, taskId), "the task survives its group");
         assertNull(em.find(Task.class, taskId).getGroupId());
-        assertThrows(GroupNotFoundException.class, () -> service.get(group.getId()));
+        assertThrows(GroupNotFoundException.class, () -> service.get(annotationGroup.getId()));
+        assertThrows(GroupNotFoundException.class, () -> service.get(taskGroup.getId()));
     }
 
-    /** C-10: who, what, when — and the member count taken BEFORE the rows are un-grouped. */
+    /**
+     * C-10: who, what, when — and the member count taken BEFORE the rows are un-grouped. The
+     * fixture stays inside one namespace, as the API enforces: a group holding both records and
+     * tasks is exactly what {@code resolveForAssignment} rejects, so counting it here would assert
+     * a state that cannot occur (audit F-02). Cross-domain membership is GroupAssignmentTest's.
+     */
     @Test
     @TestTransaction
     void deletingAGroupIsAudited() {
@@ -204,7 +217,7 @@ class GroupServiceTest {
         Group group = service.create(input("Brokers", GroupDomain.ANNOTATION));
         persistRecord(tenant, type, "one", group.getId());
         persistRecord(tenant, type, "two", group.getId());
-        persistTask(tenant, "Migrate broker", group.getId());
+        persistRecord(tenant, type, "three", group.getId());
         em.flush();
         UUID groupId = group.getId();
 

@@ -2,8 +2,8 @@
 
 **ID:** features/014-groups-navigation-notebox-api
 **User Story:** US-3.1
-**Version:** v1
-**Status:** Approved (human approval 2026-08-22)
+**Version:** v2
+**Status:** Approved (human approval 2026-08-22) · **v2** — nesting scenario amended 2026-08-24 (audit F-01)
 **Date:** 2026-08-22
 
 ## Origin
@@ -107,7 +107,12 @@ Feature: FR-08 Group lifecycle in two separate namespaces (OQ-04)
   Scenario: A group cannot be nested
     Given an authenticated member of tenant A and an existing annotation group "Brokers"
     When they attempt to create a group declaring "Brokers" as its parent
-    Then the request is rejected — the contract exposes no parent, so groups stay flat
+    Then the parent is not stored and the created group has none
+    And reading it back returns no parent of any kind
+    # The contract exposes no parent, so nesting is unrepresentable rather than rejected:
+    # unknown JSON properties are ignored project-wide (no FAIL_ON_UNKNOWN_PROPERTIES), which
+    # is every endpoint's behaviour, not this feature's. Amended from "the request is rejected"
+    # — audit F-01, decided by rafaelsantos 2026-08-24.
 
   Scenario: A group's domain is fixed at creation
     Given an annotation group "Brokers" of tenant A
@@ -293,6 +298,11 @@ Feature: Standing guarantees over the new surface (C-01, C-02, C-09)
   - **OQ-25** — sibling ordering is **name ascending**, case-insensitive, id tiebreak, with **Ungrouped
     pinned last**. A deliberate divergence from OQ-20/OQ-21, whose recency rule protects *page*
     stability that an unpaginated tree does not need.
+- **Amended after audit Round 1 (2026-08-24, F-01):** the nesting scenario said *"the request is
+  rejected"*. It is not — a stated parent yields 201 and is dropped, because unknown JSON properties
+  are ignored project-wide. OQ-04's substance was never at risk (no parent column, none stored, none
+  returned, and `GroupTest` fails if an accessor appears), so the scenario was corrected to match
+  the codebase rather than deserialization changed for every endpoint.
 - Refinements taken under the standing **OQ-09** delegation (*"feature specs may refine"*), consistent
   with the feat-010/feat-012 precedent: group name required, ≤ 120 chars, unique per tenant per domain;
   group domain immutable after creation; group and Ungrouped nodes appear only when non-empty while type
