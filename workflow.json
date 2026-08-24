@@ -3466,7 +3466,7 @@
             {
               "id": "feat-016-group-counts.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -3476,7 +3476,8 @@
               "produces": [
                 "features/016-group-counts/plan.md",
                 "features/016-group-counts/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-24T14:36:10Z"
             },
             {
               "id": "feat-016-group-counts.tasks",
