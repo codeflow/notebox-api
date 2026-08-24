@@ -41,7 +41,7 @@
 
 | ID | User Story | FR/BR | Status | Feature |
 |----|------------|-------|--------|---------|
-| US-3.1 | As a tenant member, I want to group annotations and tasks and get a navigation tree, so I can organize my workspace. | FR-08, FR-09 | building | feat-014-groups-navigation-notebox-api (api, issue #15) — **audit Round 1 PASS with findings 2026-08-23** (0 blockers; 3 backlog items; 368 tests), on `feature/groups-navigation`, publish + PR pending · feat-015-groups-navigation-notebox-web (notebox-web, issue #14) — **created 2026-08-22**, spec pending. API-side first: its `contracts/` are what the web half consumes |
+| US-3.1 | As a tenant member, I want to group annotations and tasks and get a navigation tree, so I can organize my workspace. | FR-08, FR-09 | building | feat-014-groups-navigation-notebox-api (api, issue #15) — **audit Round 1 PASS with findings 2026-08-23, hardening closed 2026-08-24** (0 blockers; F-01..F-03 + N-01 all closed, nothing carried to backlog; spec amended to v2; 369 tests), on `feature/groups-navigation`, publish + PR pending · feat-015-groups-navigation-notebox-web (notebox-web, issue #14) — **created 2026-08-22**, spec pending. API-side first: its `contracts/` are what the web half consumes |
 
 ## E4 — Tasks & subtasks
 
