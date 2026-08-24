@@ -28,7 +28,6 @@
     "verify": "mvn -B verify",
     "ci": ".github/workflows/ci.yml",
     "signals": [
-      "lint",
       "typecheck",
       "test",
       "build"
@@ -36,8 +35,7 @@
     "commands": {
       "test": "mvn -B test",
       "build": "mvn -B package",
-      "typecheck": "mvn -B compile",
-      "lint": "echo 'lint placeholder - Checkstyle/Spotless pending (F3)'"
+      "typecheck": "mvn -B compile"
     }
   },
   "github": {
@@ -3410,13 +3408,14 @@
             {
               "id": "feat-014-groups-navigation-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-24T10:22:49Z"
             },
             {
               "id": "feat-014-groups-navigation-notebox-api.review",

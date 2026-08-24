@@ -11,7 +11,7 @@
 |----------|-----------|-----|
 | 🔴 Blocker | blocks planning an entire feature | — |
 | 🟡 Important | blocks details, not the feature | — |
-| 🟢 Tactical | can wait | — |
+| 🟢 Tactical | can wait | OQ-26 |
 | ✅ Resolved | — | OQ-01 … OQ-25 (latest: OQ-23/OQ-24/OQ-25, 2026-08-22) |
 
 ## List
@@ -233,6 +233,14 @@
 **Status:** ✅ resolved (2026-08-22).
 **Decision:** Name ascending — case-insensitive, ties broken by id — for annotation-type nodes and for group nodes alike. The synthetic `Ungrouped` node is **pinned last**, after every named group, regardless of collation. Deliberately diverges from OQ-20/OQ-21: their recency rule exists to keep rows from jumping between *pages*, which an unpaginated browse tree never does. — decided by rafaelsantos, 2026-08-22.
 
+### OQ-26 — Lint/static-analysis signal for the API harness
+**Severity:** 🟢 Tactical
+**Description:** The `lint` CI signal shipped from setup as `echo 'lint placeholder - Checkstyle/Spotless pending (F3)'` — a step that cannot fail, reporting a green check that verified nothing. It was **removed** from `harness.signals` on 2026-08-24 (feat-014 publish) rather than left faking a pass: visible absence over fake presence, per `instructions/feature-publish.md`. The "F3" the comment referenced was never tracked anywhere. The open question is what should replace it, and when.
+**Impact:** No lint or format enforcement runs in CI. `constitution/03-code-standards.md` names Checkstyle as the enforcement point for import order, field-declaration order and naming conventions — all of which are currently reviewer-enforced only, so they drift silently between audits.
+**Suggested path:** Human decision. Options: (a) **Spotless + a Checkstyle ruleset** matching 03-code-standards, wired with `wf harness signal lint "mvn -B spotless:check checkstyle:check"` — the fullest fit, but expect a first run flagging violations across the existing codebase, so it needs its own feature; (b) Spotless formatting only (cheaper, catches import order and whitespace, not naming); (c) leave it unwired and keep the standards reviewer-enforced, accepting the drift.
+**Depends on:** Human decision.
+**Status:** 🟡 open (2026-08-24).
+
 ## History
 
 | Date | Change |
@@ -278,3 +286,4 @@
 | 2026-08-22 | OQ-23 opened+resolved: navigation tree composes type → group; groups hold records/tasks, tree stops at group nodes. |
 | 2026-08-22 | OQ-24 opened+resolved: deleting a non-empty group un-groups its members; no record or task is deleted (diverges from OQ-14). |
 | 2026-08-22 | OQ-25 opened+resolved: tree siblings ordered by name asc (case-insensitive, id tiebreak); `Ungrouped` pinned last. |
+| 2026-08-24 | OQ-26 opened: lint signal removed from CI rather than left faking a pass; what replaces it is undecided. |
