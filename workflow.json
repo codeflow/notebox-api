@@ -3450,7 +3450,7 @@
             {
               "id": "feat-016-group-counts.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -3460,7 +3460,8 @@
               "produces": [
                 "features/016-group-counts/spec.md"
               ],
-              "started_at": "2026-08-24T13:59:28Z"
+              "started_at": "2026-08-24T13:59:28Z",
+              "completed_at": "2026-08-24T14:04:28Z"
             },
             {
               "id": "feat-016-group-counts.plan",

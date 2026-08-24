@@ -3,7 +3,7 @@
 **ID:** features/016-group-counts
 **User Story:** US-3.1
 **Version:** v1
-**Status:** Draft — awaiting human approval
+**Status:** Approved (human approval 2026-08-24)
 **Date:** 2026-08-24
 
 ## Origin
@@ -57,9 +57,10 @@ and no aggregate scans more than the tenant's own data.
   - **Aggregates for the "ungrouped" row of design screen 14.** `GET /groups` lists *groups*, and a
     synthetic non-group row would corrupt the listing's `total` and its paging (NFR-08). The web can
     already source the ungrouped **counts** from the navigation tree it fetches anyway.
-    **⚠️ Consequence, stated rather than buried:** screen 14's ungrouped **Avg. status** cell (`12%`
-    in the mock) then has *no source*. Either that cell is dropped from the design, or a later slice
-    exposes ungrouped aggregates deliberately. Raised at this spec's gate for a decision.
+    **Consequence, resolved at the gate:** screen 14's ungrouped **Avg. status** cell had *no source*.
+    **Decided by rafaelsantos 2026-08-24: the cell is removed from the design** (notebox-web
+    `2ee5e3f`), rather than commissioning an ungrouped-aggregate surface to fill a mock. The
+    ungrouped **count** survives, derived from the navigation tree.
   - **Counts on type nodes independent of a group**, i.e. "how many records does this type have in
     total". No design screen asks for it and no FR names it.
   - **Caching or materialising the aggregates** (NFR-03/Redis) — out of scope for this slice;
@@ -200,8 +201,8 @@ Feature: Additive by construction (NFR-06, NFR-08)
     itself — one rounding convention across the product.
   - **A group with no tasks has no average at all**, which is deliberately distinct from an average
     of 0. Collapsing them would report an empty group as a stalled one.
-- **⚠️ One consequence needing a human decision at this gate:** scoping the ungrouped row out of
-  `GET /groups` leaves design screen 14's ungrouped **Avg. status** cell without a source. The
-  ungrouped *counts* remain available from the navigation tree, so only that one cell is affected.
-  Drop the cell from the design, or commission a deliberate ungrouped-aggregate surface later —
-  stated here rather than left for the audit to find.
+- **Resolved at this spec's gate (2026-08-24):** scoping the ungrouped row out of `GET /groups`
+  left design screen 14's ungrouped **Avg. status** cell without a source. **rafaelsantos chose to
+  remove the cell from the design** — amended in notebox-web `2ee5e3f`, with the reason recorded on
+  the screen-14 row and inline in the HTML. No API surface was invented to fill a mock, and the
+  ungrouped *count* is unaffected.
