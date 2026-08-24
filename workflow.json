@@ -3551,7 +3551,7 @@
             {
               "id": "feat-016-group-counts.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -3560,7 +3560,8 @@
               "gate": "audit_pass",
               "produces": [
                 "features/016-group-counts/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-24T16:21:17Z"
             },
             {
               "id": "feat-016-group-counts.publish",
