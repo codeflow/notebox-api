@@ -28,11 +28,15 @@ This is an index — it does not duplicate canonical sources:
 ## 2c. Delivered this wave ✅
 - [x] **US-4.2** task dates, card link and rich-text details — feat-012 (api, PR #14, 2026-08-18; second AD-10 observer, first `@Embeddable`, feat-007 sanitizer both ways) + feat-013 (web, PR #13, 2026-08-22; derived dates displayed never typed, inline card, Details tab on the shipped rich-text stack, full-echo builders close the rollout hazard; 402 tests + live pass). On `develop`, promotion pending. **E4 delivered.**
 
+## 2d. Delivered this wave ✅
+- [x] **US-3.1 (API half)** item groups & navigation-tree data — feat-014 (api, PR #16, 2026-08-24; `item_group` table, membership as a nullable FK with `ON DELETE SET NULL` = OQ-24, `GET /navigation` bounded by types × groups; 369 tests). On `develop`, promotion pending. **Web half (feat-015) not started — US-3.1 is not delivered until both ship.**
+
 ## 3. Next waves 🌊
 ### Deferred / dependencies
-- [ ] **Promote develop → main** (`/wf-promote`) — thirteen features stacked, no compliance blockers remaining; ship feat-012 + feat-013 together (PUT-replace × legacy-web rollout note).
-- [ ] **E3** groups & navigation (US-3.1), **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`.
+- [ ] **Promote develop → main** (`/wf-promote`) — **fourteen** features stacked, no compliance blockers remaining; ship feat-012 + feat-013 together, and the feat-014/feat-015 pair together (both carry the PUT-replace × legacy-web rollout note).
+- [ ] **E3** groups & navigation — **feat-015 (web) is the remaining half of US-3.1**; its contract is `features/014-groups-navigation-notebox-api/contracts/groups-navigation.md`.
+- [ ] **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`. The last untouched epic.
 - [ ] **`release` pipeline step** — final handoff, roadmap and memory close-out.
 
 ## 4. Open questions
-➡️ See [`catalogs/open-questions.md`](catalogs/open-questions.md) — single source of truth (none pending as of 2026-08-12).
+➡️ See [`catalogs/open-questions.md`](catalogs/open-questions.md) — single source of truth. **OQ-26 open** (2026-08-24): what replaces the removed placeholder `lint` CI signal.

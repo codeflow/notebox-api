@@ -3408,31 +3408,35 @@
             {
               "id": "feat-014-groups-navigation-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
               "gate": "verify_green",
-              "started_at": "2026-08-24T10:22:49Z"
+              "started_at": "2026-08-24T10:22:49Z",
+              "completed_at": "2026-08-24T12:10:26Z"
             },
             {
               "id": "feat-014-groups-navigation-notebox-api.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-24T12:14:37Z"
             }
           ],
           "github": {
             "issue": 15,
             "card": "PVTI_lADOAuNpyc4BeXx1zg3lBPA",
-            "branch": "feature/groups-navigation"
+            "branch": "feature/groups-navigation",
+            "pr": 16,
+            "merged": "develop"
           }
         },
         {
