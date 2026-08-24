@@ -1,6 +1,7 @@
 package com.notebox.api.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.transaction.Transactional;
@@ -25,7 +26,9 @@ import com.notebox.api.api.dto.GroupDto;
 import com.notebox.api.api.dto.GroupInput;
 import com.notebox.api.api.dto.PageDto;
 import com.notebox.api.api.validation.ValidGroupDomain;
+import com.notebox.api.application.group.GroupAggregates;
 import com.notebox.api.application.group.GroupService;
+import com.notebox.api.domain.Group;
 import com.notebox.api.domain.GroupDomain;
 
 import io.quarkus.security.Authenticated;
@@ -60,8 +63,10 @@ public class GroupResource {
             @Min(value = 1, message = "group.list.size.out_of_bounds")
             @Max(value = 200, message = "group.list.size.out_of_bounds") int size) {
         GroupDomain parsed = GroupDomain.valueOf(domain);
-        List<GroupDto> items = service.list(parsed, page, size).stream()
-                .map(GroupDto::from)
+        List<Group> groups = service.list(parsed, page, size);
+        Map<UUID, GroupAggregates> aggregates = service.aggregatesFor(parsed, groups);
+        List<GroupDto> items = groups.stream()
+                .map(group -> GroupDto.from(group, aggregates.get(group.getId())))
                 .toList();
         return new PageDto<>(items, page, size, service.count(parsed));
     }

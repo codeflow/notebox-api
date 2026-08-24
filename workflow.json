@@ -3524,24 +3524,26 @@
                   "id": "feat-016-group-counts.implement.t2",
                   "title": "T-02 — Listing aggregates: one grouped query per page, keyed by the page's group ids",
                   "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-08-24T15:21:35Z",
+                  "completed_at": "2026-08-24T15:26:46Z"
+                },
+                {
+                  "id": "feat-016-group-counts.implement.t3",
+                  "title": "T-03 — Wire the aggregates out: GroupDto, resource, OpenAPI",
+                  "kind": "task",
                   "status": "in_progress",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-24T15:21:35Z"
-                },
-                {
-                  "id": "feat-016-group-counts.implement.t3",
-                  "title": "T-03 — Wire the aggregates out: GroupDto, resource, OpenAPI",
-                  "kind": "task",
-                  "status": "pending",
-                  "instructions": "instructions/feature-implement.md",
-                  "agent": {
-                    "model": "sonnet",
-                    "effort": "medium"
-                  }
+                  "started_at": "2026-08-24T15:26:46Z"
                 }
               ]
             },

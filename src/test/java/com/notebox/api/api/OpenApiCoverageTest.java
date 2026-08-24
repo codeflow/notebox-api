@@ -68,6 +68,9 @@ class OpenApiCoverageTest {
                 "group item path missing from OpenAPI");
         assertTrue(document.contains("domain"),
                 "the listing GET's domain parameter is documented (feat-014, NFR-06)");
+        assertTrue(document.contains("itemCount") && document.contains("typesUsed")
+                        && document.contains("averageStatus"),
+                "the feat-016 aggregate fields are published in the schema (OQ-27, NFR-06)");
     }
 
     @Test
