@@ -3466,7 +3466,7 @@
             {
               "id": "feat-016-group-counts.plan",
               "title": "Plan — how, with contracts",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -3477,12 +3477,13 @@
                 "features/016-group-counts/plan.md",
                 "features/016-group-counts/data-model.md"
               ],
-              "started_at": "2026-08-24T14:36:10Z"
+              "started_at": "2026-08-24T14:36:10Z",
+              "completed_at": "2026-08-24T14:53:20Z"
             },
             {
               "id": "feat-016-group-counts.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -3491,7 +3492,9 @@
               "gate": "human_approval",
               "produces": [
                 "features/016-group-counts/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-24T14:53:21Z",
+              "completed_at": "2026-08-24T15:15:37Z"
             },
             {
               "id": "feat-016-group-counts.implement",
@@ -3502,7 +3505,42 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-016-group-counts.implement.t1",
+                  "title": "T-01 — Tree counts: DISTINCT -> GROUP BY ... COUNT in the same statements",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-016-group-counts.implement.t2",
+                  "title": "T-02 — Listing aggregates: one grouped query per page, keyed by the page's group ids",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-016-group-counts.implement.t3",
+                  "title": "T-03 — Wire the aggregates out: GroupDto, resource, OpenAPI",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-016-group-counts.audit",

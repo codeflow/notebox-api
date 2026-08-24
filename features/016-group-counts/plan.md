@@ -2,7 +2,7 @@
 
 **ID:** features/016-group-counts
 **User Story:** US-3.1 · **Version:** v1
-**Status:** Draft — awaiting human approval
+**Status:** Approved (human approval 2026-08-24)
 **Date:** 2026-08-24
 **Spec:** [spec.md](spec.md) — approved 2026-08-24, 16 scenarios
 
