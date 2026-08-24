@@ -83,15 +83,18 @@ public class TaskRepository extends TenantScopedRepository<Task> {
     }
 
     /**
-     * Which groups the tenant's tasks actually occupy (FR-09, OQ-23). A null element means at least
-     * one ungrouped task exists — the Tasks root's Ungrouped node.
+     * Which groups the tenant's tasks occupy, and how many sit in each (FR-09, OQ-23, OQ-27). A null
+     * first element means ungrouped tasks exist — the Tasks root's Ungrouped node, and the count is
+     * that bucket's size. Grouping replaces the former DISTINCT: same rows, same single statement.
      *
-     * @return distinct group ids, null included when ungrouped tasks exist
+     * @return (groupId-or-null, count) pairs for the caller's tenant
      */
-    public List<UUID> distinctGroupIdsInTenant() {
+    public List<Object[]> groupCountsInTenant() {
         return em.createQuery(
-                        "select distinct e.groupId from Task e where e.tenantId = :tenant",
-                        UUID.class)
+                        "select e.groupId, count(e) from Task e"
+                                + " where e.tenantId = :tenant"
+                                + " group by e.groupId",
+                        Object[].class)
                 .setParameter("tenant", tenantContext.tenantId())
                 .getResultList();
     }

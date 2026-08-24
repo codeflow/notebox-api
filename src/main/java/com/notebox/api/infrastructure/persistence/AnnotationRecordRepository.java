@@ -110,16 +110,19 @@ public class AnnotationRecordRepository extends TenantScopedRepository<Annotatio
     }
 
     /**
-     * Which groups each type's records actually occupy (FR-09, OQ-23). A null second element means
-     * that type has at least one ungrouped record — its Ungrouped node. Bounded by types x groups,
-     * never by record count, which is why the tree stops at group nodes.
+     * Which groups each type's records occupy, and how many records sit in each (FR-09, OQ-23,
+     * OQ-27). A null second element means that type has ungrouped records — its Ungrouped node, and
+     * the count is that bucket's size. Grouping replaces the former DISTINCT: same rows, same
+     * single statement, with the size retained instead of discarded. Bounded by types x groups,
+     * never by record count.
      *
-     * @return distinct (annotationTypeId, groupId-or-null) pairs for the caller's tenant
+     * @return (annotationTypeId, groupId-or-null, count) triples for the caller's tenant
      */
-    public List<Object[]> distinctTypeGroupPairsInTenant() {
+    public List<Object[]> typeGroupCountsInTenant() {
         return em.createQuery(
-                        "select distinct e.annotationTypeId, e.groupId from AnnotationRecord e"
-                                + " where e.tenantId = :tenant",
+                        "select e.annotationTypeId, e.groupId, count(e) from AnnotationRecord e"
+                                + " where e.tenantId = :tenant"
+                                + " group by e.annotationTypeId, e.groupId",
                         Object[].class)
                 .setParameter("tenant", tenantContext.tenantId())
                 .getResultList();

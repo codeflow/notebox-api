@@ -208,6 +208,123 @@ class NavigationResourceTest {
                 body.contains("a-very-distinctive-task-name"), "no task appears in the tree");
     }
 
+    // ---- feat-016 (OQ-27): every group node reports the size of the listing it opens ----------
+
+    @Test
+    void aGroupNodeUnderATypeCountsThatTypesRecordsInThatGroup() {
+        Tenant tenant = data.createTenant();
+        String auth = newActorAuth(tenant);
+        String typeId = createType(auth, "RabbitMQ");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 12; i++) {
+            createRecord(auth, typeId, "in-infra-" + i, infra);
+        }
+        for (int i = 0; i < 6; i++) {
+            createRecord(auth, typeId, "loose-" + i, null);
+        }
+
+        given().header("Authorization", auth)
+                .when().get("/navigation")
+                .then().statusCode(200)
+                .body("annotations[0].groups[0].name", equalTo("Infrastructure"))
+                .body("annotations[0].groups[0].count", equalTo(12))
+                .body("annotations[0].groups[1].groupId", is(nullValue()))
+                .body("annotations[0].groups[1].count", equalTo(6));
+    }
+
+    /**
+     * The count's whole meaning (OQ-27): it is the total of the listing that clicking the node
+     * opens. Asserting them against each other is what stops the two drifting apart silently.
+     */
+    @Test
+    void aNodesCountEqualsTheTotalOfTheListingItOpens() {
+        Tenant tenant = data.createTenant();
+        String auth = newActorAuth(tenant);
+        String typeId = createType(auth, "RabbitMQ");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 12; i++) {
+            createRecord(auth, typeId, "r" + i, infra);
+        }
+
+        int nodeCount = given().header("Authorization", auth)
+                .when().get("/navigation")
+                .then().statusCode(200)
+                .extract().path("annotations[0].groups[0].count");
+
+        given().header("Authorization", auth)
+                .when().get("/annotation-records?typeId=" + typeId + "&group=" + infra)
+                .then().statusCode(200)
+                .body("total", equalTo(nodeCount));
+    }
+
+    @Test
+    void aTaskGroupNodeCountsTheTasksInThatGroup() {
+        Tenant tenant = data.createTenant();
+        String auth = newActorAuth(tenant);
+        String migration = createGroup(auth, "Migration", "TASK");
+        for (int i = 0; i < 8; i++) {
+            createTask(auth, "in-migration-" + i, migration);
+        }
+        createTask(auth, "loose-1", null);
+        createTask(auth, "loose-2", null);
+
+        given().header("Authorization", auth)
+                .when().get("/navigation")
+                .then().statusCode(200)
+                .body("tasks[0].name", equalTo("Migration"))
+                .body("tasks[0].count", equalTo(8))
+                .body("tasks[1].groupId", is(nullValue()))
+                .body("tasks[1].count", equalTo(2));
+    }
+
+    /** One group occupied by two types counts each independently — not the group's total. */
+    @Test
+    void theSameGroupUnderTwoTypesCountsEachIndependently() {
+        Tenant tenant = data.createTenant();
+        String auth = newActorAuth(tenant);
+        String rabbit = createType(auth, "RabbitMQ");
+        String runbook = createType(auth, "Runbook");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 12; i++) {
+            createRecord(auth, rabbit, "rab-" + i, infra);
+        }
+        for (int i = 0; i < 6; i++) {
+            createRecord(auth, runbook, "run-" + i, infra);
+        }
+
+        given().header("Authorization", auth)
+                .when().get("/navigation")
+                .then().statusCode(200)
+                // types are name-ordered: RabbitMQ then Runbook
+                .body("annotations[0].name", equalTo("RabbitMQ"))
+                .body("annotations[0].groups[0].count", equalTo(12))
+                .body("annotations[1].name", equalTo("Runbook"))
+                .body("annotations[1].groups[0].count", equalTo(6));
+    }
+
+    /** A count is a disclosure: another tenant's size must never appear (C-01, NFR-01). */
+    @Test
+    void countsNeverCrossTenants() {
+        Tenant theirs = data.createTenant();
+        String theirAuth = newActorAuth(theirs);
+        String theirType = createType(theirAuth, "RabbitMQ");
+        String theirGroup = createGroup(theirAuth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 40; i++) {
+            createRecord(theirAuth, theirType, "theirs-" + i, theirGroup);
+        }
+
+        Tenant mine = data.createTenant();
+        String auth = newActorAuth(mine);
+        String myType = createType(auth, "RabbitMQ");
+        String myGroup = createGroup(auth, "Infrastructure", "ANNOTATION");
+        createRecord(auth, myType, "mine", myGroup);
+
+        given().header("Authorization", auth)
+                .when().get("/navigation")
+                .then().statusCode(200)
+                .body("annotations[0].groups[0].count", equalTo(1));
+    }
+
     /** NFR-01: nothing of another tenant's leaks into the tree. */
     @Test
     void theTreeNeverCrossesTenants() {

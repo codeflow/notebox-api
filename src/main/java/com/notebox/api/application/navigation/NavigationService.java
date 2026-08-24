@@ -3,10 +3,9 @@ package com.notebox.api.application.navigation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -72,15 +71,16 @@ public class NavigationService {
             groupNames.put(group.getId(), group.getName());
         }
 
-        Map<UUID, Set<UUID>> groupsByType = new HashMap<>();
-        Set<UUID> typesWithUngrouped = new LinkedHashSet<>();
-        for (Object[] pair : records.distinctTypeGroupPairsInTenant()) {
-            UUID typeId = (UUID) pair[0];
-            UUID groupId = (UUID) pair[1];
+        Map<UUID, Map<UUID, Long>> groupsByType = new HashMap<>();
+        Map<UUID, Long> ungroupedByType = new HashMap<>();
+        for (Object[] row : records.typeGroupCountsInTenant()) {
+            UUID typeId = (UUID) row[0];
+            UUID groupId = (UUID) row[1];
+            long count = (Long) row[2];
             if (groupId == null) {
-                typesWithUngrouped.add(typeId);
+                ungroupedByType.put(typeId, count);
             } else {
-                groupsByType.computeIfAbsent(typeId, k -> new LinkedHashSet<>()).add(groupId);
+                groupsByType.computeIfAbsent(typeId, k -> new LinkedHashMap<>()).put(groupId, count);
             }
         }
 
@@ -89,45 +89,51 @@ public class NavigationService {
             annotations.add(new NavigationTypeNodeDto(
                     type.getId(),
                     type.getName(),
-                    nodes(groupsByType.getOrDefault(type.getId(), Set.of()),
-                            typesWithUngrouped.contains(type.getId()),
+                    nodes(groupsByType.getOrDefault(type.getId(), Map.of()),
+                            ungroupedByType.get(type.getId()),
                             groupNames)));
         }
 
-        List<UUID> taskGroupIds = tasks.distinctGroupIdsInTenant();
-        Set<UUID> namedTaskGroups = new LinkedHashSet<>();
-        boolean ungroupedTasks = false;
-        for (UUID groupId : taskGroupIds) {
+        Map<UUID, Long> taskGroups = new LinkedHashMap<>();
+        Long ungroupedTasks = null;
+        for (Object[] row : tasks.groupCountsInTenant()) {
+            UUID groupId = (UUID) row[0];
+            long count = (Long) row[1];
             if (groupId == null) {
-                ungroupedTasks = true;
+                ungroupedTasks = count;
             } else {
-                namedTaskGroups.add(groupId);
+                taskGroups.put(groupId, count);
             }
         }
 
-        return new NavigationTreeDto(annotations, nodes(namedTaskGroups, ungroupedTasks, groupNames));
+        return new NavigationTreeDto(annotations, nodes(taskGroups, ungroupedTasks, groupNames));
     }
 
     /**
-     * Turns an occupied-group id set into ordered nodes, including Ungrouped when asked. Ungrouped
-     * is added <em>before</em> the sort and lands last because {@link #BY_NAME} puts it there — its
-     * position is the comparator's guarantee, not a side effect of appending it afterwards.
+     * Turns an occupied-group map into ordered nodes, including Ungrouped when it has members.
+     * Ungrouped is added <em>before</em> the sort and lands last because {@link #BY_NAME} puts it
+     * there — its position is the comparator's guarantee, not a side effect of appending it after.
      *
      * <p>A group id with no name in the map cannot occur — membership and the group live in the
      * same tenant — but it is skipped rather than emitted nameless, since a nameless node would be
      * indistinguishable from the Ungrouped node on the wire.
+     *
+     * @param countsByGroup occupied group ids mapped to the number of items each holds
+     * @param ungroupedCount how many ungrouped items exist, or null when there are none
+     * @param groupNames tenant-wide id to name resolution
+     * @return the ordered nodes, Ungrouped last
      */
     private static List<NavigationGroupNodeDto> nodes(
-            Set<UUID> groupIds, boolean withUngrouped, Map<UUID, String> groupNames) {
+            Map<UUID, Long> countsByGroup, Long ungroupedCount, Map<UUID, String> groupNames) {
         List<NavigationGroupNodeDto> nodes = new ArrayList<>();
-        for (UUID groupId : groupIds) {
-            String name = groupNames.get(groupId);
+        for (Map.Entry<UUID, Long> entry : countsByGroup.entrySet()) {
+            String name = groupNames.get(entry.getKey());
             if (name != null) {
-                nodes.add(new NavigationGroupNodeDto(groupId, name));
+                nodes.add(new NavigationGroupNodeDto(entry.getKey(), name, entry.getValue()));
             }
         }
-        if (withUngrouped) {
-            nodes.add(NavigationGroupNodeDto.ungrouped());
+        if (ungroupedCount != null) {
+            nodes.add(NavigationGroupNodeDto.ungrouped(ungroupedCount));
         }
         nodes.sort(BY_NAME);
         return nodes;

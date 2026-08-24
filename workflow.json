@@ -3511,12 +3511,13 @@
                   "id": "feat-016-group-counts.implement.t1",
                   "title": "T-01 — Tree counts: DISTINCT -> GROUP BY ... COUNT in the same statements",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "in_progress",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-24T15:15:37Z"
                 },
                 {
                   "id": "feat-016-group-counts.implement.t2",
@@ -3581,7 +3582,8 @@
           ],
           "github": {
             "issue": 17,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg3yPPg"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg3yPPg",
+            "branch": "feature/group-counts"
           }
         },
         {
