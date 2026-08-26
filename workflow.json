@@ -3625,7 +3625,7 @@
             {
               "id": "feat-015-groups-navigation-notebox-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -3635,7 +3635,8 @@
               "produces": [
                 "features/015-groups-navigation-notebox-web/plan.md",
                 "features/015-groups-navigation-notebox-web/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-26T13:27:41Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.tasks",
