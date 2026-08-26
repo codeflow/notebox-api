@@ -27,6 +27,7 @@
 | FR-16 | Translation-management: CRUD message catalog per locale, tenant-admin only; en/pt fixed in v1. | Must | INTAKE C32 + AD-05,C-03 + OQ-07 | US-5.2 | todo |
 | FR-17 | Multi-tenant identity & isolation: stateless JWT auth, resolve tenant from token, authorize every access. | Must | INTAKE D4 + BR-01,BR-02 + OQ-08 | US-6.1 | todo |
 | FR-18 | Secret field values encrypted at rest (AES-256-GCM, master key from secret manager, key-version rotation); masked on normal reads/listings; cleartext reveal only to elevated role, each reveal audited. | Must | OQ-15 (2026-07-23) + BR-10, AD-14, C-12 | US-2.1 | todo |
+| FR-19 | **`notebox-web` follows the design handoff** (`notebox-web/design/handoff`) as the visual and layout source of truth for every implemented screen — not only for the slice a feature's own FR names. Screens marked design-only (flow map, rationale) are excluded; a screen whose FR is unbuilt is future work, not a conformance gap. | Must | decisão humana 2026-08-26 + AD-06, D1 | US-7.1 | todo |
 
 **Validation baseline (OQ-09):** type name unique per tenant; type/field names + field type required; Number
 fields carry optional per-field min/max; images PNG/JPEG/GIF/WebP; task/annotation names required; details optional.
@@ -45,6 +46,7 @@ fields carry optional per-field min/max; images PNG/JPEG/GIF/WebP; task/annotati
 | NFR-06 | Contract | Every HTTP endpoint documented in OpenAPI, in sync. | 100% coverage; contract lint. | 03-standards |
 | NFR-07 | Observability | Structured logging w/ correlation id; no secrets/PII/cross-tenant data. | Correlation id on every request; log review. | 01-arch, 02-compliance |
 | NFR-08 | Performance / contract | List endpoints paginated. | Default page 50, max 200. | OQ-10 |
+| NFR-09 | UI conformance | Every implemented `notebox-web` screen matches its design-handoff screen in layout and widget set. | 0 widgets present in a design screen and absent app-wide, excluding decisions recorded against a screen; gap report re-run per conformance feature. | FR-19 + AD-06 |
 
 ## Catalog history
 
@@ -53,6 +55,7 @@ fields carry optional per-field min/max; images PNG/JPEG/GIF/WebP; task/annotati
 | 2026-07-19 | v1 | Initial creation. |
 | 2026-07-22 | v1 | Derived FR-01…FR-17, NFR-01…NFR-08 from approved PRD v1. |
 | 2026-07-24 | v2 | Added FR-18 (secret-value encryption + audited reveal) from PRD v2 / OQ-15. Recorded OQ-14 type-delete rule. Reconciled FR-02→US-1.1 and FR-05→US-2.2 (US-1.2 deferred into US-2.2). |
+| 2026-08-26 | v3 | Added **FR-19** and **NFR-09** (UI conformance to the design handoff), from a direct human decision — the source hierarchy ranks an explicit chat decision with the PRD. **Root cause they close:** no requirement covered design conformance, so each feature legitimately built only the slice its own FR named and cited the handoff for that slice; the remainder was never anyone's requirement and the delta accumulated silently across E1–E4. Scoped by the 20-screen gap report in `features/_design-conformance-report.md`. |
 
 ## Rules
 - IDs are immutable; deprecate, never reuse.

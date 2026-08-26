@@ -15,7 +15,8 @@
 | E3 | Groups & navigation | organize items, nav tree | delivered |
 | E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | delivered |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
-| E6 | Identity & tenancy | JWT auth, multi-tenant isolation | speccing |
+| E6 | Identity & tenancy | JWT auth, multi-tenant isolation | delivered |
+| E7 | Design conformance | notebox-web matches the design handoff | speccing |
 
 ## E0 — Foundations & Harness
 
@@ -63,6 +64,12 @@
 |----|------------|-------|--------|---------|
 | US-6.1 | As a tenant member, I want my data isolated from other tenants behind JWT auth, so my organization's data stays private. | FR-17 · BR-01, BR-02 | delivered | feat-001-identity-tenancy (api) ✔ delivered on develop (PR #2, awaiting promotion); feat-002-identity-tenancy-web (notebox-web) ✔ delivered on develop (PR #2, CI green, awaiting promotion) |
 
+## E7 — Design conformance
+
+| ID | User Story | FR/BR | Status | Feature |
+|----|------------|-------|--------|---------|
+| US-7.1 | As a tenant member, I want every screen to match the agreed design, so the product looks and behaves like the thing that was designed. | FR-19 · NFR-09 | speccing | **feat-017-login-layout** (notebox-web) — login layout A, screens 02/03; **created 2026-08-26**, spec pending · _two more to create_: the shell chrome (breadcrumbs on 13 screens, menu bar, `af-tbSep`, sub-headers, footer, drawer dock) and the form widgets (`af-comboField`, `af-iconButton`, `af-spinButtons`, `af-choiceGroup`, `af-noteWindow`, `af-messages`, task-detail drawer). Scoped by `features/_design-conformance-report.md`; the screen-14 shuttle stays deferred (no bulk API surface) and screen 17 belongs to E5 |
+
 ## History
 
 | Date | PRD version | Change |
@@ -90,3 +97,4 @@
 | 2026-08-24 | v19 | feat-016 (US-3.1 counts slice) passed its audit at Round 1 (PASS with findings — 0 blockers; 389 tests). **F-01 was a real defect caught by probing rather than reasoning:** `GET /groups/{id}` published `itemCount: 0` for a group holding 18 records, because T-03's `GroupDto.from(Group)` overload filled the aggregates with zeros — Java records serialise every component, so it could not abstain. Fixed by deleting the overload outright and computing on single reads. F-02 (unanchored cross-check) closed too; **F-03 backlogged**: the statement-budget scenario still has no executable test and needs a Hibernate `StatementInspector`. US-3.1 stays `building` — feat-015 has not started. |
 | 2026-08-26 | v20 | feat-016 (US-3.1 counts slice) merged into `develop` via PR #18 (squash `cbd16a9`; 389 tests; branch + PR CI green). **feat-015's blocking dependency is cleared** — the aggregate fields its approved spec consumes now exist, so its `plan` is unblocked. US-3.1 stays `building`: the story is delivered only when the web half ships. **Fifteen features now stacked on `develop` awaiting promotion**; promote feat-014 + feat-016 + feat-015 together, since the PUT-replace hazard is still live until the web half lands. Backlog carried forward: **F-03** — the statement-budget scenario has no executable test and needs a Hibernate `StatementInspector`. |
 | 2026-08-26 | v21 | **US-3.1 building → delivered (on develop)**: feat-015 (web) merged via PR #15 (squash `4ef2a0f`; 464 tests; branch + PR CI green), joining feat-014 (api, PR #16) and feat-016 (counts, PR #18). **E3 → delivered.** feat-015's audit found **F-01: an approved spec scenario that shipped unimplemented and untested** — deleting a group left a phantom node in the Navigator. Closed test-first; root cause was two plan decisions (mount-once vs. the tree reflecting the groups) that were each right and never reconciled. **Sixteen features now stacked on `develop`.** Promote **feat-014 + feat-016 + feat-015 together** — the PUT-replace hazard is only closed when all three are on the same branch. **E5 (i18n, US-5.1/US-5.2) is now the only untouched epic.** |
+| 2026-08-26 | v22 | **E7 Design conformance opened** with US-7.1, from FR-19/NFR-09 (direct human decision — the source hierarchy ranks an explicit chat decision with the PRD). The handoff was always intended as the target for the whole `notebox-web` surface, but no requirement said so: features cited it only for the slice their own FR named, and the delta accumulated silently across E1–E4. A 20-screen gap report (`features/_design-conformance-report.md`) scoped it into three features; **feat-017-login-layout created first** at the human's direction. The clearest instance of the failure: feat-015's spec scoped out screen 05's chrome as *'no originating FR'* — right against the catalogs, wrong against intent, and recorded as settled instead of raised as a question. Also corrected here: E6 read `speccing` while US-6.1 has been delivered since PR #2. |

@@ -3797,6 +3797,110 @@
             "pr": 15,
             "merged": "develop"
           }
+        },
+        {
+          "id": "feat-017-login-layout",
+          "title": "Login layout A — the two-pane brand card (screens 02/03) (US-7.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-017-login-layout.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/017-login-layout/spec.md"
+              ]
+            },
+            {
+              "id": "feat-017-login-layout.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/017-login-layout/plan.md",
+                "features/017-login-layout/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-017-login-layout.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/017-login-layout/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-017-login-layout.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-017-login-layout.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/017-login-layout/audit.md"
+              ]
+            },
+            {
+              "id": "feat-017-login-layout.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-017-login-layout.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 16,
+            "card": "PVTI_lADOAuNpyc4BeXEnzg4K-rY"
+          }
         }
       ]
     },
