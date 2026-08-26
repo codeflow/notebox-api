@@ -3696,12 +3696,14 @@
                   "id": "feat-015-groups-navigation-notebox-web.implement.t3",
                   "title": "T-03 — The Navigator in the layout: render, one fetch, empty and error states",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-26T16:42:51Z",
+                  "completed_at": "2026-08-26T17:37:45Z"
                 },
                 {
                   "id": "feat-015-groups-navigation-notebox-web.implement.t4",
