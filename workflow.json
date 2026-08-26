@@ -3749,7 +3749,7 @@
             {
               "id": "feat-015-groups-navigation-notebox-web.audit",
               "title": "Audit — adversarial check",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -3759,29 +3759,33 @@
               "produces": [
                 "features/015-groups-navigation-notebox-web/audit.md"
               ],
-              "started_at": "2026-08-26T19:25:01Z"
+              "started_at": "2026-08-26T19:25:01Z",
+              "completed_at": "2026-08-26T19:37:54Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-26T19:42:31Z",
+              "completed_at": "2026-08-26T19:45:38Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-26T19:55:14Z"
             }
           ],
           "project": "notebox-web",
