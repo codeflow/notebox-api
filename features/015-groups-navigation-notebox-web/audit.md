@@ -4,8 +4,9 @@
 **Date:** 2026-08-26 · **Model:** opus/xhigh · **Project:** `notebox-web` (routed satellite)
 **Scope:** `develop..feature/groups-navigation-web` — 6 commits, 46 files
 **Verify at audit time:** `npm run verify` → exit 0, **458 tests, 63 files, 0 unhandled errors**
+**Hardening closed:** 2026-08-26 — all three findings resolved, **464 tests**, 65 files, green
 
-## Verdict — **PASS WITH FINDINGS**
+## Verdict — **PASS WITH FINDINGS** (all three closed 2026-08-26)
 
 Three findings. **F-01 is an approved spec scenario that is neither implemented nor tested** — not a
 polish item, and it should be closed before this merges. It is not a `fail` because 25 of the 26
@@ -173,12 +174,24 @@ so it is its own small piece of work.
 
 ---
 
-## Backlog raised by this audit
+## Hardening — all three closed 2026-08-26
 
-- **F-01** — refresh the tree on group mutation, **and add the missing scenario test**. Recommended
-  before merge.
-- **F-02** — distinguish the Navigator's failure causes, or record the limitation.
-- **F-03** — a translation-not-copy assertion for the web catalogs, mirroring the API's.
+Nothing carried to backlog. Verify green at **464 tests** (458 → 464), 65 files.
+
+| Item | Resolution |
+|---|---|
+| **F-01** | **Closed, test-first.** The failing test was written and confirmed **red** against the old code before any fix, so it demonstrably covers the gap rather than merely coexisting with it. The mechanism is a revision counter (`lib/navigation/treeRevision.ts`) read through `useSyncExternalStore`. `router.refresh()` was rejected — the Navigator fetches in a client `useEffect`, which a server-component refresh does not re-run. It is deliberately a **signal, not shared state**: no tree data lives in it, so the API stays the single source of truth and no second copy can disagree. Once-per-view survives for navigation; only a mutation invalidates. `invalidateNavigationTree()` fires **after** the mutation resolves — optimistic invalidation would show a change that did not happen when a delete fails. |
+| **F-02** | **Closed.** A 401 now reads as the session ending rather than a generic load failure, with its own key in both catalogs and a test asserting the two messages are distinct. |
+| **F-03** | **Closed.** The guard the web side lacked while the API has had it since feat-014. The allow-list is **explicit, not heuristic** — "short strings are probably fine" would let a real miss through — and all 10 entries were inspected by hand: a product name, a mask, a URL sample, and cognates genuinely identical in Portuguese. Two extra tests keep the list honest: an entry that stops being identical must be removed, and it may only name keys that exist. |
+
+### What F-01 says about the plan, not just the code
+
+The gap was not a slip during implementation. Two plan decisions — *"mount once so the tree is
+fetched once per view"* and *"the Navigator reflects the groups"* — were each correct and never
+reconciled, and the task breakdown inherited the blind spot. The scenario had no test, so nothing
+downstream could catch it. **A scenario without a test is not covered by the tasks that cite it**;
+that is the reusable lesson here, and it is why the audit's traceability section counts tests rather
+than intentions.
 
 ## Not found
 
