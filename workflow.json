@@ -3567,13 +3567,14 @@
             {
               "id": "feat-016-group-counts.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-26T03:47:36Z"
             },
             {
               "id": "feat-016-group-counts.review",
