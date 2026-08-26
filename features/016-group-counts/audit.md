@@ -4,8 +4,9 @@
 **Date:** 2026-08-24 · **Model:** opus/xhigh
 **Scope:** `develop..feature/group-counts` — 5 commits, 12 source files
 **Verify at audit time:** `mvn -B verify` → BUILD SUCCESS, **386 tests, 0 failures, 0 errors**
+**Hardening:** 2026-08-24 — F-01 and F-02 closed, F-03 to backlog. **389 tests** green.
 
-## Verdict — **PASS WITH FINDINGS**
+## Verdict — **PASS WITH FINDINGS** (F-01, F-02 closed 2026-08-24; F-03 backlogged)
 
 Three findings, **0 blockers**. One of them — **F-01** — is a wrong value on a published field and
 should be fixed before this merges, even though no approved scenario covers it.
@@ -143,12 +144,27 @@ absence of SQL; the same inspector would let its name become true.
 
 ---
 
-## Backlog raised by this audit
+## Hardening — F-01 and F-02 closed 2026-08-24
 
-- **F-01** — compute aggregates on single-group reads. **Recommended before merge.**
-- **F-02** — anchor the cross-check test to its expected value.
-- **F-03** — a statement-counting inspector, which would cover both the budget scenario and the
-  empty-page guard's name.
+Verify green at **389 tests** (386 → 389).
+
+| Item | Resolution |
+|---|---|
+| **F-01** | **Fixed.** The `GroupDto.from(Group)` overload that published zeros is **deleted**, not patched — leaving it would have kept a way to emit a wrong count. `GroupService.aggregatesOf(group)` computes a single group's aggregates, and `get`/`create`/`replace` all route through it. Three regression tests: the single read now agrees with the listing at 18/1; a rename still reports its aggregates; and a freshly created group reports 0 — *truthfully*, which is the case that distinguishes a real zero from the placeholder. |
+| **F-02** | **Fixed.** `assertEquals(12, nodeCount)` anchors the cross-check before the comparison, so a regression returning 0 from both surfaces can no longer pass as `0 == 0`. |
+| **F-03** | **Backlogged deliberately.** A Hibernate `StatementInspector` is a test-scope bean plus wiring — real work, and improvising it inside a hardening pass is how a half-built harness lands unreviewed. It remains the only scenario without an executable test. |
+
+### Note on the hardening run
+
+The first `mvn -B verify` after the fixes reported `Tests run: 373, Errors: 1, Skipped: 310` — which
+reads as a catastrophic regression and is not one. The Docker daemon had stopped, so Testcontainers
+could not start MySQL and the Quarkus test app failed to boot. Recorded because the failure mode
+mimics a code defect precisely: restarting Docker and re-running gave 389/0/0 with **zero** skips.
+
+## Remaining backlog
+
+- **F-03** — a statement-counting inspector, which would cover both the budget scenario and make
+  `anEmptyPageYieldsNoAggregatesAndIssuesNoQuery`'s name true.
 
 ## Not found
 

@@ -43,15 +43,4 @@ public record GroupDto(
                 group.getCreatedAt(),
                 group.getUpdatedAt());
     }
-
-    /**
-     * Single-group reads (create, get, replace) return the group without computing aggregates —
-     * they are a listing concern, and a write path should not pay for a count nobody asked for.
-     *
-     * @param group the group
-     * @return the representation with zeroed aggregates for its domain
-     */
-    public static GroupDto from(Group group) {
-        return from(group, GroupAggregates.empty(group.getDomain()));
-    }
 }

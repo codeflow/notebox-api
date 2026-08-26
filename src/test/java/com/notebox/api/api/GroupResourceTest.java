@@ -334,6 +334,62 @@ class GroupResourceTest {
                 .body("items[0].averageStatus", is(nullValue()));
     }
 
+    /**
+     * Audit F-01: a single-group read used to publish zeroed aggregates, so a group holding 18
+     * records reported itemCount 0 while the listing reported 18. The two surfaces must agree —
+     * a wrong number on a published field is worse than an absent one.
+     */
+    @Test
+    void aSingleGroupReadReportsTheSameAggregatesAsTheListing() {
+        String auth = newActorAuth();
+        String typeId = createType(auth, "RabbitMQ");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 18; i++) {
+            createRecord(auth, typeId, "r-" + i, infra);
+        }
+
+        given().header("Authorization", auth)
+                .when().get("/groups?domain=ANNOTATION")
+                .then().statusCode(200)
+                .body("items[0].itemCount", equalTo(18))
+                .body("items[0].typesUsed", equalTo(1));
+
+        given().header("Authorization", auth)
+                .when().get("/groups/" + infra)
+                .then().statusCode(200)
+                .body("itemCount", equalTo(18))
+                .body("typesUsed", equalTo(1));
+    }
+
+    /** A rename must not blank the aggregates either — replace goes through the same path. */
+    @Test
+    void replacingAGroupStillReportsItsAggregates() {
+        String auth = newActorAuth();
+        String typeId = createType(auth, "RabbitMQ");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 5; i++) {
+            createRecord(auth, typeId, "r-" + i, infra);
+        }
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body(groupJson("Infra", "ANNOTATION"))
+                .when().put("/groups/" + infra)
+                .then().statusCode(200)
+                .body("name", equalTo("Infra"))
+                .body("itemCount", equalTo(5));
+    }
+
+    /** A freshly created group genuinely has none — zero here is true, not a placeholder. */
+    @Test
+    void aFreshlyCreatedGroupReportsZeroTruthfully() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body(groupJson("Brand New", "ANNOTATION"))
+                .when().post("/groups")
+                .then().statusCode(201)
+                .body("itemCount", equalTo(0))
+                .body("typesUsed", equalTo(0));
+    }
+
     /** C-01: another tenant's group is exactly a group that does not exist. */
     @Test
     void aForeignTenantsGroupIsIndistinguishableFromAMissingOne() {

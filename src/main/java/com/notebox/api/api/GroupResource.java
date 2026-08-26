@@ -75,8 +75,9 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     public Response create(@Valid GroupInput input) {
+        Group group = service.create(input);
         return Response.status(Response.Status.CREATED)
-                .entity(GroupDto.from(service.create(input)))
+                .entity(GroupDto.from(group, service.aggregatesOf(group)))
                 .build();
     }
 
@@ -84,7 +85,8 @@ public class GroupResource {
     @Path("/{id}")
     @Transactional
     public GroupDto get(@PathParam("id") UUID id) {
-        return GroupDto.from(service.get(id));
+        Group group = service.get(id);
+        return GroupDto.from(group, service.aggregatesOf(group));
     }
 
     @PUT
@@ -92,7 +94,8 @@ public class GroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     public GroupDto replace(@PathParam("id") UUID id, @Valid GroupInput input) {
-        return GroupDto.from(service.replace(id, input));
+        Group group = service.replace(id, input);
+        return GroupDto.from(group, service.aggregatesOf(group));
     }
 
     /** Deletes the group only — its members survive and become ungrouped (OQ-24), audited (C-10). */

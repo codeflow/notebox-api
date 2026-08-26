@@ -151,6 +151,18 @@ public class GroupService {
     }
 
     /**
+     * The aggregates for a single group — a create, read or replace response. One grouped query for
+     * one group: a single-row read that published zeroed aggregates instead would report an empty
+     * group where the listing reports 18 (audit F-01). Correctness over a saved statement.
+     *
+     * @param group the group being returned
+     * @return its aggregates, never a zeroed placeholder for a populated group
+     */
+    public GroupAggregates aggregatesOf(Group group) {
+        return aggregatesFor(group.getDomain(), List.of(group)).get(group.getId());
+    }
+
+    /**
      * The aggregates for one page of groups (FR-08, OQ-27) — one grouped query for the whole page,
      * never one per row (NFR-08). A group the query returns no row for is mapped to
      * {@link GroupAggregates#empty}, which is where an empty group's zero count and absent average

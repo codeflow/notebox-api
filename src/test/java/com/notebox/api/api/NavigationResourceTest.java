@@ -251,6 +251,9 @@ class NavigationResourceTest {
                 .then().statusCode(200)
                 .extract().path("annotations[0].groups[0].count");
 
+        // Anchored, so a regression returning 0 from BOTH surfaces cannot pass as 0 == 0 (audit F-02).
+        org.junit.jupiter.api.Assertions.assertEquals(12, nodeCount);
+
         given().header("Authorization", auth)
                 .when().get("/annotation-records?typeId=" + typeId + "&group=" + infra)
                 .then().statusCode(200)
