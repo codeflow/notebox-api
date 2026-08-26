@@ -1,6 +1,8 @@
 package com.notebox.api.application.group;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,8 +16,10 @@ import com.notebox.api.domain.error.GroupDomainMismatchException;
 import com.notebox.api.domain.error.GroupDomainNotModifiableException;
 import com.notebox.api.domain.error.GroupNameTakenException;
 import com.notebox.api.domain.error.GroupNotFoundException;
+import com.notebox.api.infrastructure.persistence.AnnotationRecordRepository;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
 import com.notebox.api.infrastructure.persistence.GroupRepository;
+import com.notebox.api.infrastructure.persistence.TaskRepository;
 import com.notebox.api.infrastructure.security.TenantContext;
 
 /**
@@ -34,11 +38,20 @@ public class GroupService {
     private final GroupRepository groups;
     private final AuditLogRepository auditLog;
     private final TenantContext tenant;
+    private final AnnotationRecordRepository records;
+    private final TaskRepository tasks;
 
-    public GroupService(GroupRepository groups, AuditLogRepository auditLog, TenantContext tenant) {
+    public GroupService(
+            GroupRepository groups,
+            AuditLogRepository auditLog,
+            TenantContext tenant,
+            AnnotationRecordRepository records,
+            TaskRepository tasks) {
         this.groups = groups;
         this.auditLog = auditLog;
         this.tenant = tenant;
+        this.records = records;
+        this.tasks = tasks;
     }
 
     /**
@@ -135,5 +148,50 @@ public class GroupService {
             throw new GroupDomainMismatchException();
         }
         return group.getId();
+    }
+
+    /**
+     * The aggregates for a single group — a create, read or replace response. One grouped query for
+     * one group: a single-row read that published zeroed aggregates instead would report an empty
+     * group where the listing reports 18 (audit F-01). Correctness over a saved statement.
+     *
+     * @param group the group being returned
+     * @return its aggregates, never a zeroed placeholder for a populated group
+     */
+    public GroupAggregates aggregatesOf(Group group) {
+        return aggregatesFor(group.getDomain(), List.of(group)).get(group.getId());
+    }
+
+    /**
+     * The aggregates for one page of groups (FR-08, OQ-27) — one grouped query for the whole page,
+     * never one per row (NFR-08). A group the query returns no row for is mapped to
+     * {@link GroupAggregates#empty}, which is where an empty group's zero count and absent average
+     * come from.
+     *
+     * @param domain the namespace being listed; decides which table is consulted (feat-014 I-8)
+     * @param page the groups on the current page
+     * @return aggregates by group id, one entry per group on the page
+     */
+    public Map<UUID, GroupAggregates> aggregatesFor(GroupDomain domain, List<Group> page) {
+        Map<UUID, GroupAggregates> byGroup = new HashMap<>();
+        if (page.isEmpty()) {
+            return byGroup;
+        }
+        List<UUID> ids = page.stream().map(Group::getId).toList();
+        if (domain == GroupDomain.ANNOTATION) {
+            for (Object[] row : records.aggregatesByGroupInTenant(ids)) {
+                byGroup.put((UUID) row[0],
+                        GroupAggregates.forAnnotations((Long) row[1], (Long) row[2]));
+            }
+        } else {
+            for (Object[] row : tasks.aggregatesByGroupInTenant(ids)) {
+                byGroup.put((UUID) row[0],
+                        GroupAggregates.forTasks((Long) row[1], (Double) row[2]));
+            }
+        }
+        for (Group group : page) {
+            byGroup.putIfAbsent(group.getId(), GroupAggregates.empty(domain));
+        }
+        return byGroup;
     }
 }

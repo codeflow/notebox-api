@@ -3511,41 +3511,47 @@
                   "id": "feat-016-group-counts.implement.t1",
                   "title": "T-01 — Tree counts: DISTINCT -> GROUP BY ... COUNT in the same statements",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-24T15:15:37Z",
+                  "completed_at": "2026-08-24T15:21:35Z"
                 },
                 {
                   "id": "feat-016-group-counts.implement.t2",
                   "title": "T-02 — Listing aggregates: one grouped query per page, keyed by the page's group ids",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-24T15:21:35Z",
+                  "completed_at": "2026-08-24T15:26:46Z"
                 },
                 {
                   "id": "feat-016-group-counts.implement.t3",
                   "title": "T-03 — Wire the aggregates out: GroupDto, resource, OpenAPI",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-24T15:26:46Z",
+                  "completed_at": "2026-08-24T16:15:39Z"
                 }
               ]
             },
             {
               "id": "feat-016-group-counts.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -3554,18 +3560,21 @@
               "gate": "audit_pass",
               "produces": [
                 "features/016-group-counts/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-24T16:21:17Z",
+              "completed_at": "2026-08-26T03:21:03Z"
             },
             {
               "id": "feat-016-group-counts.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-26T03:47:36Z"
             },
             {
               "id": "feat-016-group-counts.review",
@@ -3581,7 +3590,8 @@
           ],
           "github": {
             "issue": 17,
-            "card": "PVTI_lADOAuNpyc4BeXx1zg3yPPg"
+            "card": "PVTI_lADOAuNpyc4BeXx1zg3yPPg",
+            "branch": "feature/group-counts"
           }
         },
         {

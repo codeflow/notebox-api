@@ -1,5 +1,6 @@
 package com.notebox.api.infrastructure.persistence;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,16 +84,41 @@ public class TaskRepository extends TenantScopedRepository<Task> {
     }
 
     /**
-     * Which groups the tenant's tasks actually occupy (FR-09, OQ-23). A null element means at least
-     * one ungrouped task exists — the Tasks root's Ungrouped node.
+     * Which groups the tenant's tasks occupy, and how many sit in each (FR-09, OQ-23, OQ-27). A null
+     * first element means ungrouped tasks exist — the Tasks root's Ungrouped node, and the count is
+     * that bucket's size. Grouping replaces the former DISTINCT: same rows, same single statement.
      *
-     * @return distinct group ids, null included when ungrouped tasks exist
+     * @return (groupId-or-null, count) pairs for the caller's tenant
      */
-    public List<UUID> distinctGroupIdsInTenant() {
+    public List<Object[]> groupCountsInTenant() {
         return em.createQuery(
-                        "select distinct e.groupId from Task e where e.tenantId = :tenant",
-                        UUID.class)
+                        "select e.groupId, count(e) from Task e"
+                                + " where e.tenantId = :tenant"
+                                + " group by e.groupId",
+                        Object[].class)
                 .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
+    }
+
+    /**
+     * Per-group aggregates for one page of task groups (FR-08, OQ-27): how many tasks each holds
+     * and the mean of their derived statuses (BR-06 — averaged here, never redefined). One grouped
+     * statement for the whole page, never one per row (NFR-08).
+     *
+     * <p>A group with no tasks returns <b>no row</b>, which is how it ends up with no average
+     * rather than an average of zero.
+     *
+     * @param groupIds the page's group ids; must not be empty (the caller skips the call instead)
+     * @return (groupId, taskCount, averageStatus) triples
+     */
+    public List<Object[]> aggregatesByGroupInTenant(Collection<UUID> groupIds) {
+        return em.createQuery(
+                        "select e.groupId, count(e), avg(e.status) from Task e"
+                                + " where e.tenantId = :tenant and e.groupId in :groups"
+                                + " group by e.groupId",
+                        Object[].class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .setParameter("groups", groupIds)
                 .getResultList();
     }
 }

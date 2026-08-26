@@ -241,6 +241,155 @@ class GroupResourceTest {
                 .then().statusCode(400);
     }
 
+    // ---- feat-016 (OQ-27): per-group aggregates on the listing --------------------------------
+
+    private String createType(String auth, String name) {
+        return given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\":\"" + name + "\",\"fields\":[{\"name\":\"URL\",\"fieldType\":\"TEXT\"}]}")
+                .when().post("/annotation-types")
+                .then().statusCode(201)
+                .extract().path("id");
+    }
+
+    private void createRecord(String auth, String typeId, String name, String groupId) {
+        String group = groupId == null ? "null" : "\"" + groupId + "\"";
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"annotationTypeId\":\"" + typeId + "\",\"name\":\"" + name
+                        + "\",\"values\":[],\"groupId\":" + group + "}")
+                .when().post("/annotation-records")
+                .then().statusCode(201);
+    }
+
+    @Test
+    void theAnnotationListingReportsRecordsAndTypesUsed() {
+        String auth = newActorAuth();
+        String rabbit = createType(auth, "RabbitMQ");
+        String runbook = createType(auth, "Runbook");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 12; i++) {
+            createRecord(auth, rabbit, "rab-" + i, infra);
+        }
+        for (int i = 0; i < 6; i++) {
+            createRecord(auth, runbook, "run-" + i, infra);
+        }
+
+        given().header("Authorization", auth)
+                .when().get("/groups?domain=ANNOTATION")
+                .then().statusCode(200)
+                .body("items[0].itemCount", equalTo(18))
+                .body("items[0].typesUsed", equalTo(2))
+                .body("items[0].averageStatus", is(nullValue()));
+    }
+
+    @Test
+    void anEmptyGroupReportsZeroOnTheWire() {
+        String auth = newActorAuth();
+        createGroup(auth, "Scratch", "ANNOTATION");
+
+        given().header("Authorization", auth)
+                .when().get("/groups?domain=ANNOTATION")
+                .then().statusCode(200)
+                .body("items[0].itemCount", equalTo(0))
+                .body("items[0].typesUsed", equalTo(0));
+    }
+
+    @Test
+    void theTaskListingReportsTasksAndAverageStatus() {
+        String auth = newActorAuth();
+        String migration = createGroup(auth, "Migration", "TASK");
+        // two tasks with one of two subtasks done -> 50 each -> average 50
+        for (int i = 0; i < 2; i++) {
+            String taskId = given().header("Authorization", auth).contentType(ContentType.JSON)
+                    .body("{\"name\":\"t" + i + "\",\"priority\":\"HIGH\",\"groupId\":\"" + migration + "\"}")
+                    .when().post("/tasks").then().statusCode(201).extract().path("id");
+            given().header("Authorization", auth).contentType(ContentType.JSON)
+                    .body("{\"name\":\"a\",\"done\":true}")
+                    .when().post("/tasks/" + taskId + "/subtasks").then().statusCode(201);
+            given().header("Authorization", auth).contentType(ContentType.JSON)
+                    .body("{\"name\":\"b\",\"done\":false}")
+                    .when().post("/tasks/" + taskId + "/subtasks").then().statusCode(201);
+        }
+
+        given().header("Authorization", auth)
+                .when().get("/groups?domain=TASK")
+                .then().statusCode(200)
+                .body("items[0].itemCount", equalTo(2))
+                .body("items[0].averageStatus", equalTo(50))
+                .body("items[0].typesUsed", is(nullValue()));
+    }
+
+    /**
+     * The domain-shaped nulls are contract, not accident (OQ-27): a task group with NO tasks has no
+     * average — rendering that as 0% would report an empty group as a stalled one.
+     */
+    @Test
+    void aTaskGroupWithNoTasksHasNoAverageOnTheWire() {
+        String auth = newActorAuth();
+        createGroup(auth, "Empty", "TASK");
+
+        given().header("Authorization", auth)
+                .when().get("/groups?domain=TASK")
+                .then().statusCode(200)
+                .body("items[0].itemCount", equalTo(0))
+                .body("items[0].averageStatus", is(nullValue()));
+    }
+
+    /**
+     * Audit F-01: a single-group read used to publish zeroed aggregates, so a group holding 18
+     * records reported itemCount 0 while the listing reported 18. The two surfaces must agree —
+     * a wrong number on a published field is worse than an absent one.
+     */
+    @Test
+    void aSingleGroupReadReportsTheSameAggregatesAsTheListing() {
+        String auth = newActorAuth();
+        String typeId = createType(auth, "RabbitMQ");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 18; i++) {
+            createRecord(auth, typeId, "r-" + i, infra);
+        }
+
+        given().header("Authorization", auth)
+                .when().get("/groups?domain=ANNOTATION")
+                .then().statusCode(200)
+                .body("items[0].itemCount", equalTo(18))
+                .body("items[0].typesUsed", equalTo(1));
+
+        given().header("Authorization", auth)
+                .when().get("/groups/" + infra)
+                .then().statusCode(200)
+                .body("itemCount", equalTo(18))
+                .body("typesUsed", equalTo(1));
+    }
+
+    /** A rename must not blank the aggregates either — replace goes through the same path. */
+    @Test
+    void replacingAGroupStillReportsItsAggregates() {
+        String auth = newActorAuth();
+        String typeId = createType(auth, "RabbitMQ");
+        String infra = createGroup(auth, "Infrastructure", "ANNOTATION");
+        for (int i = 0; i < 5; i++) {
+            createRecord(auth, typeId, "r-" + i, infra);
+        }
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body(groupJson("Infra", "ANNOTATION"))
+                .when().put("/groups/" + infra)
+                .then().statusCode(200)
+                .body("name", equalTo("Infra"))
+                .body("itemCount", equalTo(5));
+    }
+
+    /** A freshly created group genuinely has none — zero here is true, not a placeholder. */
+    @Test
+    void aFreshlyCreatedGroupReportsZeroTruthfully() {
+        given().header("Authorization", newActorAuth()).contentType(ContentType.JSON)
+                .body(groupJson("Brand New", "ANNOTATION"))
+                .when().post("/groups")
+                .then().statusCode(201)
+                .body("itemCount", equalTo(0))
+                .body("typesUsed", equalTo(0));
+    }
+
     /** C-01: another tenant's group is exactly a group that does not exist. */
     @Test
     void aForeignTenantsGroupIsIndistinguishableFromAMissingOne() {

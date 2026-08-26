@@ -1,5 +1,6 @@
 package com.notebox.api.infrastructure.persistence;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -110,18 +111,45 @@ public class AnnotationRecordRepository extends TenantScopedRepository<Annotatio
     }
 
     /**
-     * Which groups each type's records actually occupy (FR-09, OQ-23). A null second element means
-     * that type has at least one ungrouped record — its Ungrouped node. Bounded by types x groups,
-     * never by record count, which is why the tree stops at group nodes.
+     * Which groups each type's records occupy, and how many records sit in each (FR-09, OQ-23,
+     * OQ-27). A null second element means that type has ungrouped records — its Ungrouped node, and
+     * the count is that bucket's size. Grouping replaces the former DISTINCT: same rows, same
+     * single statement, with the size retained instead of discarded. Bounded by types x groups,
+     * never by record count.
      *
-     * @return distinct (annotationTypeId, groupId-or-null) pairs for the caller's tenant
+     * @return (annotationTypeId, groupId-or-null, count) triples for the caller's tenant
      */
-    public List<Object[]> distinctTypeGroupPairsInTenant() {
+    public List<Object[]> typeGroupCountsInTenant() {
         return em.createQuery(
-                        "select distinct e.annotationTypeId, e.groupId from AnnotationRecord e"
-                                + " where e.tenantId = :tenant",
+                        "select e.annotationTypeId, e.groupId, count(e) from AnnotationRecord e"
+                                + " where e.tenantId = :tenant"
+                                + " group by e.annotationTypeId, e.groupId",
                         Object[].class)
                 .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
+    }
+
+    /**
+     * Per-group aggregates for one page of annotation groups (FR-08, OQ-27): how many records each
+     * holds and how many distinct types those records span. One grouped statement for the whole
+     * page — never one per row (NFR-08).
+     *
+     * <p>A group with no records returns <b>no row</b>; the caller maps the missing id to
+     * {@link com.notebox.api.application.group.GroupAggregates#empty}. That absence is where the
+     * zero comes from, so no special case is needed.
+     *
+     * @param groupIds the page's group ids; must not be empty (the caller skips the call instead)
+     * @return (groupId, recordCount, distinctTypeCount) triples
+     */
+    public List<Object[]> aggregatesByGroupInTenant(Collection<UUID> groupIds) {
+        return em.createQuery(
+                        "select e.groupId, count(e), count(distinct e.annotationTypeId)"
+                                + " from AnnotationRecord e"
+                                + " where e.tenantId = :tenant and e.groupId in :groups"
+                                + " group by e.groupId",
+                        Object[].class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .setParameter("groups", groupIds)
                 .getResultList();
     }
 }
