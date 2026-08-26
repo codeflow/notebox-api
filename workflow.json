@@ -3735,12 +3735,14 @@
                   "id": "feat-015-groups-navigation-notebox-web.implement.t6",
                   "title": "T-06 — Assignment on both forms + the page-level integration pass",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-26T19:14:46Z",
+                  "completed_at": "2026-08-26T19:24:25Z"
                 }
               ]
             },

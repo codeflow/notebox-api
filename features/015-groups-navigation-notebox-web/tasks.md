@@ -46,7 +46,7 @@ typecheck → test → build), run **in the satellite**. The hub's `mvn -B verif
       - depends: T-04 · parallel: no
       - verify: `npm run verify` — three that must be asserted rather than assumed: **no domain control exists** on the create dialog (assert its absence, since a picker would make the API's cross-domain rejection reachable); the delete dialog **says the items survive** (OQ-24 — wording is the deliverable, so assert the text); and **`averageStatus: null` renders as "no tasks", never `0%`** — the one misreading the contract warns about.
 
-- [ ] **T-06 · Assignment on both forms + the page-level integration pass**
+- [x] **T-06 · Assignment on both forms + the page-level integration pass** ✔ 2026-08-26, `npm run verify` green (458 tests, 454 → 458; satellite `f40663f`). Hazard scenarios asserted **on the request body**; mutation-checked (removing the `groupId` line from `toTaskInput` fails all 3). Beyond the file list: a **baseline `/groups` handler** in `test/msw/handlers.ts` — `GroupSelect` fetches on mount, so every suite rendering a form now requests it, and 23 requests were escaping MSW to real localhost while all tests still passed. Fixed in the shared fixture layer rather than per suite.
       - files: `components/tasks/TaskForm.tsx`, `components/annotationRecords/RecordForm.tsx` (the group selector), + their tests, + the integration suites for both domains
       - covers: FR-08 assignment at the wire, **W-1** end to end · scenarios: "The selector offers only the item's own namespace", "Assigning a group and saving", "Clearing the group sends null, never an omitted key" (wire half), "An untouched group survives an unrelated edit" (wire half)
       - depends: T-05 · parallel: no
