@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "notebox-api",
+      "runtimeExecutable": "mvn",
+      "runtimeArgs": ["-B", "quarkus:dev"],
+      "port": 8080
+    },
+    {
       "name": "notebox-web",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "../notebox-web", "run", "dev"],
