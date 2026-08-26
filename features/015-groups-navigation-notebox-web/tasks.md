@@ -22,7 +22,7 @@ typecheck → test → build), run **in the satellite**. The hub's `mvn -B verif
       - depends: — · parallel: no
       - verify: `npm run verify` — **`typecheck` is the acceptance criterion here**, not an afterthought: with `groupId` required, every site that forgets it is a compile error, and green means none remained. Assert the builders echo `groupId` on a partial edit (the feat-012 hazard, one layer down) and that `toInput`/`toTaskInput` emit the key with `null` rather than omitting it.
 
-- [ ] **T-02 · The inversion — `toNavigatorTree` and `formatAverageStatus`, pure and unit-tested**
+- [x] **T-02 · The inversion — `toNavigatorTree` and `formatAverageStatus`, pure and unit-tested** ✔ 2026-08-26, `npm run verify` green (427 tests, 414 → 427; satellite `3769559`). **Mutation-checked rather than assumed honest:** accumulate→overwrite (3 failures), an added client-side `sort()` (3 failures incl. the order test), and the `?? 0` collapse (2 failures) — each reverted and re-confirmed green. A drafted `formatTypesUsed` was dropped as an identity function (dead code).
       - files: `lib/navigation/viewModel.ts` (new), `lib/groups/format.ts` (new), + tests
       - covers: **W-2/W-3/W-5/W-6**, OQ-23 as clarified, OQ-25, OQ-27 · scenarios: "Groups sit above the types that occupy them", "A type occupying two groups appears under each", "Sibling order comes from the payload and is not re-sorted", "The Ungrouped node is labelled by the client, not the payload" (shape half), "Tree nodes show their counts"
       - depends: T-01 · parallel: no

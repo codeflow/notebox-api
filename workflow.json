@@ -3683,12 +3683,14 @@
                   "id": "feat-015-groups-navigation-notebox-web.implement.t2",
                   "title": "T-02 — The inversion: toNavigatorTree and formatAverageStatus, pure and unit-tested",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-26T15:17:57Z",
+                  "completed_at": "2026-08-26T15:23:40Z"
                 },
                 {
                   "id": "feat-015-groups-navigation-notebox-web.implement.t3",
