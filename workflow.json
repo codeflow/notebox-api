@@ -3709,12 +3709,14 @@
                   "id": "feat-015-groups-navigation-notebox-web.implement.t4",
                   "title": "T-04 — Click-to-detail: the group filter in the URL, selection derived from it",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-26T17:44:18Z",
+                  "completed_at": "2026-08-26T18:23:11Z"
                 },
                 {
                   "id": "feat-015-groups-navigation-notebox-web.implement.t5",

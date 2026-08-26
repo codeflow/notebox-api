@@ -34,7 +34,7 @@ typecheck → test → build), run **in the satellite**. The hub's `mvn -B verif
       - depends: T-02 · parallel: no
       - verify: `npm run verify` — the single-fetch scenario is asserted by **counting MSW requests**, not by inspecting the component; mounting in the layout is what makes it true and a per-page mount would fail it. The error state must leave the rest of the page rendered, so assert both: the localized error **and** the main panel still present.
 
-- [ ] **T-04 · Click-to-detail — the group filter in the URL, selection derived from it**
+- [x] **T-04 · Click-to-detail — the group filter in the URL, selection derived from it** ✔ 2026-08-26, `npm run verify` green (442 tests, 434 → 442; satellite `e0564b9`). Mutation-checked: dropping `group` from the client call fails 2 tests. Shareability proven by rendering the route **fresh from its URL with no click**, asserting `push` was never called. Two bugs avoided that no scenario named: `group` added to both `useEffect` dep arrays (otherwise switching nodes reuses the previous result), and a **page reset on filter change** (page 3 of an unfiltered set is meaningless in a smaller filtered one). Both integration suites needed `useSearchParams` in their mocks.
       - files: `app/(app)/tasks/page.tsx`, `app/(app)/annotation-types/[id]/records/page.tsx` (read `?group=`, pass to the clients), `components/navigation/TreeNode.tsx` (hrefs), + integration tests
       - covers: FR-09 → C30, **W-7** · scenarios: "A type under a group opens that type's records filtered to the group", "A task group node opens the tasks grid filtered to it", "An Ungrouped node filters to the ungrouped, not to everything", "The filtered view is shareable"
       - depends: T-03 · parallel: no
