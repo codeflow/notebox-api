@@ -3625,7 +3625,7 @@
             {
               "id": "feat-015-groups-navigation-notebox-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -3636,12 +3636,13 @@
                 "features/015-groups-navigation-notebox-web/plan.md",
                 "features/015-groups-navigation-notebox-web/data-model.md"
               ],
-              "started_at": "2026-08-26T13:27:41Z"
+              "started_at": "2026-08-26T13:27:41Z",
+              "completed_at": "2026-08-26T13:56:51Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -3650,7 +3651,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/015-groups-navigation-notebox-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-26T13:56:51Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.implement",
@@ -3661,7 +3663,75 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-015-groups-navigation-notebox-web.implement.t1",
+                  "title": "T-01 — Wire foundation: mirrors, groupId through the echo builders, both new clients",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-015-groups-navigation-notebox-web.implement.t2",
+                  "title": "T-02 — The inversion: toNavigatorTree and formatAverageStatus, pure and unit-tested",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-015-groups-navigation-notebox-web.implement.t3",
+                  "title": "T-03 — The Navigator in the layout: render, one fetch, empty and error states",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-015-groups-navigation-notebox-web.implement.t4",
+                  "title": "T-04 — Click-to-detail: the group filter in the URL, selection derived from it",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-015-groups-navigation-notebox-web.implement.t5",
+                  "title": "T-05 — Groups management: two panels, CRUD dialogs, the aggregates as received",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-015-groups-navigation-notebox-web.implement.t6",
+                  "title": "T-06 — Assignment on both forms + the page-level integration pass",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.audit",

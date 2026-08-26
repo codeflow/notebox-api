@@ -2,7 +2,7 @@
 
 **ID:** features/015-groups-navigation-notebox-web
 **User Story:** US-3.1 · **Version:** v1
-**Status:** Draft — awaiting human approval
+**Status:** Approved (human approval 2026-08-26)
 **Date:** 2026-08-26
 **Project:** `notebox-web` (Next.js App Router + React + TypeScript) — routed satellite
 **Spec:** [spec.md](spec.md) — approved 2026-08-24, 26 scenarios
