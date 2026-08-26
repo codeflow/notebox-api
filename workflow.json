@@ -3722,12 +3722,14 @@
                   "id": "feat-015-groups-navigation-notebox-web.implement.t5",
                   "title": "T-05 — Groups management: two panels, CRUD dialogs, the aggregates as received",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-26T19:04:25Z",
+                  "completed_at": "2026-08-26T19:11:44Z"
                 },
                 {
                   "id": "feat-015-groups-navigation-notebox-web.implement.t6",
