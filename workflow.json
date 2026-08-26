@@ -3778,21 +3778,24 @@
             {
               "id": "feat-015-groups-navigation-notebox-web.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
               "gate": "human_approval",
-              "started_at": "2026-08-26T19:55:14Z"
+              "started_at": "2026-08-26T19:55:14Z",
+              "completed_at": "2026-08-26T20:00:02Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "issue": 14,
             "card": "PVTI_lADOAuNpyc4BeXEnzg3lBQM",
-            "branch": "feature/groups-navigation-web"
+            "branch": "feature/groups-navigation-web",
+            "pr": 15,
+            "merged": "develop"
           }
         }
       ]

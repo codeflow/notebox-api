@@ -34,11 +34,14 @@ This is an index — it does not duplicate canonical sources:
 ## 2e. Delivered this wave ✅
 - [x] **US-3.1 (counts slice)** aggregate counts for the Navigator and group listings — feat-016 (api, PR #18, 2026-08-26; OQ-27; no migration, `DISTINCT`→`GROUP BY` keeps the tree at 4 statements; 389 tests). On `develop`, promotion pending. **Unblocks feat-015's plan.**
 
+## 2f. Delivered this wave ✅
+- [x] **US-3.1** item groups & the navigation tree — feat-014 (api, PR #16) + feat-016 counts (api, PR #18) + feat-015 (web, PR #15, 2026-08-26; Navigator, Groups screen, assignment; 464 tests). On `develop`, promotion pending. **E3 delivered.**
+
 ## 3. Next waves 🌊
 ### Deferred / dependencies
-- [ ] **Promote develop → main** (`/wf-promote`) — **fifteen** features stacked, no compliance blockers remaining; ship feat-012 + feat-013 together, and the feat-014/feat-015 pair together (both carry the PUT-replace × legacy-web rollout note).
+- [ ] **Promote develop → main** (`/wf-promote`) — **sixteen** features stacked, no compliance blockers remaining; ship feat-012 + feat-013 together, and the feat-014/feat-015 pair together (both carry the PUT-replace × legacy-web rollout note).
 - [ ] **E3** groups & navigation — **feat-015 (web) is the remaining half of US-3.1**, spec approved and now unblocked; its contract is `features/014-groups-navigation-notebox-api/contracts/groups-navigation.md`.
-- [ ] **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`. The last untouched epic.
+- [ ] **E5** i18n (US-5.1, US-5.2) — no features yet; scope via `wf feature add`. **The only untouched epic left.**
 - [ ] **`release` pipeline step** — final handoff, roadmap and memory close-out.
 
 ## 4. Open questions
