@@ -3642,7 +3642,7 @@
             {
               "id": "feat-015-groups-navigation-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -3652,7 +3652,8 @@
               "produces": [
                 "features/015-groups-navigation-notebox-web/tasks.md"
               ],
-              "started_at": "2026-08-26T13:56:51Z"
+              "started_at": "2026-08-26T13:56:51Z",
+              "completed_at": "2026-08-26T15:00:16Z"
             },
             {
               "id": "feat-015-groups-navigation-notebox-web.implement",

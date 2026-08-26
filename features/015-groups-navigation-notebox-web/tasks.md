@@ -5,7 +5,7 @@
 typecheck → test → build), run **in the satellite**. The hub's `mvn -B verify` proves nothing here.
 **Source:** plan.md + data-model.md (approved 2026-08-26), against
 `features/014-.../contracts/groups-navigation.md` + `features/016-group-counts/contracts/group-counts.md`
-**Status:** Draft — awaiting human approval
+**Status:** Approved (human approval 2026-08-26)
 
 > Six tasks, strictly sequential. T-03/T-04 and T-05 both touch `lib/i18n/messages/{en,pt}.ts`, and
 > T-06 edits forms whose builders T-01 changes, so no `parallel: yes` anywhere → no worktree
