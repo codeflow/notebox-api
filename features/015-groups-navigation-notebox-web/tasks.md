@@ -16,7 +16,7 @@ typecheck → test → build), run **in the satellite**. The hub's `mvn -B verif
 > widening, the echo builders and the call-site fixes have to land together. Splitting them would
 > leave a red tree between tasks, which the loop forbids. This is feat-013's T-01 shape.
 
-- [ ] **T-01 · Wire foundation — mirrors, `groupId` through the echo builders, both new clients**
+- [x] **T-01 · Wire foundation — mirrors, `groupId` through the echo builders, both new clients** ✔ 2026-08-26, `npm run verify` green (414 tests, 402 → 414; satellite `7470086`). The widening surfaced **16 compile errors** — the intended checklist. **12 pre-existing exact-body assertions were WIDENED, never loosened to `toMatchObject`**: that exactness is what caught the change, and trading it for a laxer matcher would sell the guarantee to silence the alarm.
       - files: `lib/api/types.ts` (Group/Navigation mirrors + `groupId: string | null` **required** on `TaskInput`, `TaskDto`, `TaskListItemDto`, `AnnotationRecordInput`, `AnnotationRecordDto`), `lib/api/groupsClient.ts` + `navigationClient.ts` (new, + tests), `lib/api/tasksClient.ts` + `annotationRecordsClient.ts` (optional `group` param on `list`), `lib/tasks/viewModel.ts` + `lib/annotationRecords/viewModel.ts` (`groupId` in draft + input builders), every construction site the widening breaks, MSW fixtures
       - covers: **W-1** (the rollout fix), W-9 · scenarios: "Clearing the group sends null, never an omitted key", "An untouched group survives an unrelated edit" — both at the builder level, where the guarantee actually lives
       - depends: — · parallel: no

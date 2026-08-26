@@ -3670,12 +3670,14 @@
                   "id": "feat-015-groups-navigation-notebox-web.implement.t1",
                   "title": "T-01 — Wire foundation: mirrors, groupId through the echo builders, both new clients",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-26T15:04:21Z",
+                  "completed_at": "2026-08-26T15:17:25Z"
                 },
                 {
                   "id": "feat-015-groups-navigation-notebox-web.implement.t2",
@@ -3774,7 +3776,8 @@
           "project": "notebox-web",
           "github": {
             "issue": 14,
-            "card": "PVTI_lADOAuNpyc4BeXEnzg3lBQM"
+            "card": "PVTI_lADOAuNpyc4BeXEnzg3lBQM",
+            "branch": "feature/groups-navigation-web"
           }
         }
       ]
