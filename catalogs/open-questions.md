@@ -251,6 +251,21 @@
 **Status:** ✅ resolved (2026-08-24).
 **Decision:** Add the aggregates to the API. `/navigation` group nodes gain a member count; the group listing gains `itemCount` plus `typesUsed` (annotation domain) and `averageStatus` (task domain). **Additive only** — no existing field changes shape, so nothing feat-014 shipped breaks. Because feat-014 is already merged and closed, this lands as its own small API slice that must ship **before** feat-015 can implement the count display. — decided by rafaelsantos, 2026-08-24.
 
+### OQ-28 — Locale control on the sign-in screen (design 02/03): dead affordance, wired for the login screen only, or deferred to E5?
+**Severity:** 🟡 Important
+**Description:** <what is unknown and why it matters>
+**Impact:** Blocks feat-017-login-layout.plan — the spec's action-block scenario names the control. Handoff screens 02/03 place an English/Português select beside Remember me; the app has no locale switcher and runtime locale selection is FR-15/FR-16 (E5), unbuilt. A select that visibly changes and does nothing is a worse lie than an inert link.
+**Suggested path:** <how to resolve>
+**Status:** ✅ resolved (2026-08-27).
+**Decision:** Option (b): the locale control works for the sign-in screen only. It switches that screen's own language (labels, placeholders, validation errors, brand-pane copy), persists nothing, and makes no request. After sign-in the member's stored locale preference supersedes it. No locale switcher is introduced on any other screen — full runtime locale selection stays with FR-15/FR-16 (E5). — decided by rafaelsantos, 2026-08-27.
+
+### OQ-29 — Flaky in-flight assertion in notebox-web LoginForm.test.tsx: adopt the deferred-promise pattern the repo already uses, or something else?
+**Severity:** 🟡 Important
+**Description:** <what is unknown and why it matters>
+**Impact:** `disables the submit control while a sign-in is in flight (scenario A5)` races a synchronous getByRole against an MSW handler's delay(60): under full-suite load the login resolves before the assertion runs and the button has already reverted to 'Entrar'. Observed red once during feat-017 T-01's verify, green on isolation and on re-run — a load-dependent flake, not a regression. It will keep breaking CI at random. The repo already solves this shape in components/annotationTypes/TypeBuilderForm.test.tsx with a manually released promise instead of a timed delay. Out of scope for feat-017's diff (feature-implement.md: bugs noticed elsewhere go to backlog, not into the feature diff).
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -289,6 +304,9 @@
 | 2026-08-13 | OQ-22 opened: Task status representation for non-integer proportions (feat-010 spec) |
 | 2026-08-13 | OQ-21 resolved: Newest first mirroring OQ-20 (createdAt desc, id tiebreak) — uniform li… |
 | 2026-08-13 | OQ-22 resolved: Integer percent, rounded half up (1/3 → 33); 0% with no subtasks per BR… |
+| 2026-08-26 | OQ-28 opened: Locale control on the sign-in screen (design 02/03): dead affordance,  |
+| 2026-08-27 | OQ-28 resolved: Option (b): the locale control works for the sign-in screen only. It s… |
+| 2026-08-27 | OQ-29 opened: Flaky in-flight assertion in notebox-web LoginForm.test.tsx: adopt the |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
