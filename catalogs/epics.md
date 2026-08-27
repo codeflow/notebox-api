@@ -16,7 +16,7 @@
 | E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | delivered |
 | E5 | Internationalization | localized strings + translation mgmt | todo |
 | E6 | Identity & tenancy | JWT auth, multi-tenant isolation | delivered |
-| E7 | Design conformance | notebox-web matches the design handoff | speccing |
+| E7 | Design conformance | notebox-web matches the design handoff | delivered (feat-017/018/019; OQ-30/OQ-31 open as API gaps) |
 
 ## E0 — Foundations & Harness
 
