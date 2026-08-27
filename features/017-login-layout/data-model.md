@@ -92,7 +92,8 @@ What `implement` builds and `audit` checks. Class names are the contract; text c
 div.nb-loginShell                          ← radial-gradient backdrop, centres the card
 └ form.nb-loginCard                        ← the card itself: border, white, shadow. NO af-panelBox
   ├ div.nb-loginBrand                      ← grows (flex: 1), gradient, light text
-  │ ├ div.nb-brandLockup   → NoteboxLogo + span.nb-brandWordmark ("NOTEBOX")
+  │ ├ div.nb-brandLockup   → NoteboxLogo  (its own .nb-logo-word carries NOTEBOX — audit F-03:
+│ │                          the shared lockup is reused rather than the wordmark duplicated) ("NOTEBOX")
   │ ├ div.nb-brandTagline  → login.brand.tagline
   │ ├ ul.nb-brandPoints    → 3 × li  (login.brand.point.1..3)
   │ └ div.nb-brandRelease  → login.brand.release, above a hairline rule

@@ -266,6 +266,20 @@
 **Suggested path:** <how to resolve>
 **Status:** open.
 
+### OQ-30 — The branding bar shows the tenant UUID where design 05 shows the tenant slug ('acme-ops') — add tenant name/slug to the /me response, or render nothing?
+**Severity:** 🟡 Important
+**Description:** <what is unknown and why it matters>
+**Impact:** notebox-web renders `me.tenantId` because the /me contract carries no tenant name or slug. Design screen 05 shows 'Tenant: acme-ops'. Fixing it properly is an API change (feat-006's /me contract), so it is out of scope for a web-only conformance feature. Rendering a raw UUID to the member is worse than useless — it is unreadable and it publishes an internal id in the chrome of every protected screen. Found in feat-018's live pass 2026-08-27.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
+### OQ-31 — Design 05's Overview screen has summary boxes (types defined, records, with images, secret fields; tasks in flight) that the app's home screen does not render — build them, or drop them from the conformance scope?
+**Severity:** 🟡 Important
+**Description:** <what is unknown and why it matters>
+**Impact:** The workspace home currently shows only a greeting. Design 05 fills the main panel with af-panelBox summary cards and an 'af-subHeader: Tasks in flight' section. The numbers would need aggregate endpoints that do not exist (annotations count by type, records with images, secret-field count), so this is an API feature, not a styling gap. Found in feat-018's live pass 2026-08-27.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -307,6 +321,8 @@
 | 2026-08-26 | OQ-28 opened: Locale control on the sign-in screen (design 02/03): dead affordance,  |
 | 2026-08-27 | OQ-28 resolved: Option (b): the locale control works for the sign-in screen only. It s… |
 | 2026-08-27 | OQ-29 opened: Flaky in-flight assertion in notebox-web LoginForm.test.tsx: adopt the |
+| 2026-08-27 | OQ-30 opened: The branding bar shows the tenant UUID where design 05 shows the tenan |
+| 2026-08-27 | OQ-31 opened: Design 05's Overview screen has summary boxes (types defined, records, |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

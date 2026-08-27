@@ -118,6 +118,7 @@ client, publishing the dependency list to ship one version string.
 | `lib/i18n/I18nProvider.tsx` | override state + `setLocale` on the context | **every screen** |
 | `lib/i18n/messages/en.ts`, `pt.ts` | new keys (see `data-model.md`) | additive |
 | `lib/i18n/translationNotCopy.test.ts` | two autonym entries on the allow-list | test-only |
+| `lib/release.ts`, `lib/release.test.ts` | the testable half of A5 — reads the inlined value, falls back | login only *(added at `tasks`; **audit F-02** — this plan's table omitted it)* |
 | `next.config.mjs`, `.env.example` | `NEXT_PUBLIC_APP_RELEASE` from the manifest | build/deploy |
 | `components/LoginForm.test.tsx` | new structural + locale tests appended | test-only |
 | `app/(auth)/login/page.tsx` | **unchanged** — stays a server component | — |

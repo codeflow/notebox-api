@@ -151,3 +151,28 @@ behaviour change.
 
 F-01 does not contradict that. It says the one scenario nobody built a test for is the one nobody
 noticed was untested — which is exactly the class of gap this step exists to find.
+
+---
+
+# Round 2 — 2026-08-27
+
+**Verify:** `npm run verify` → 66 files, **489 tests**, 0 failures, build compiled.
+**Standing approval:** the human authorised the remaining work without per-step gates in chat on
+2026-08-27 ("*implemente todas as telas, não precisa me perguntar nada*"). Recorded here so the gate
+trail shows where the approval came from.
+
+## Verdict — **PASS**
+
+| Finding | Status |
+|---|---|
+| **F-01** blocker — scenario 9 untested | **closed.** T-08 walks every visible text node of the rendered card and requires each to be a pt catalog value. **Re-ran the original probe:** the hardcoded English sentence that passed 487/487 now fails, naming the stray string. |
+| **F-02** plan blast radius omitted `lib/release.ts` | **closed.** `plan.md`'s table now lists it, attributed to this finding. |
+| **F-03** `data-model.md` named a widget the code does not build | **closed.** The contract now describes what the code actually does — reuse the shared lockup — rather than the duplicated wordmark it originally specified. The code was not changed; it was already the better choice. |
+
+T-08's exceptions are two, both named with their reason in the test: the `*` required marker
+(punctuation) and the `NOTEBOX` wordmark (owned by the shared lockup, same category as
+`branding.appName` on the existing allow-list). `aria-hidden` subtrees are skipped, which is correct:
+the ✉/🔒 adornments carry nothing to translate.
+
+Traceability is now complete — all 13 scenarios have a test that can fail, and scenario 9's row in
+`tasks.md` was corrected from T-02 to T-08 so the artifact no longer claims coverage it never had.

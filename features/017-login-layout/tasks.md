@@ -107,11 +107,20 @@ All 13 spec scenarios are claimed; none is left uncovered.
 | 6 · empty form sends no request | T-05 *(structure)* + the existing suite *(behaviour)* |
 | 7 · malformed email sends no request | T-05 *(structure)* + the existing suite *(behaviour)* |
 | 8 · expired-session warning placement | T-04 |
-| 9 · every string in Portuguese | T-02 |
+| 9 · every string in Portuguese | **T-08** *(was wrongly mapped to T-02's catalog tests — audit F-01)* |
 | 10 · locale control switches the screen | T-06 *(mechanism: T-01)* |
 | 11 · the choice is not persisted | T-01 |
 | 12 · stored preference wins after sign-in | T-01 |
 | 13 · rendered geometry | **T-07 — live browser only** |
+
+- [x] **T-08 · Screen-level Portuguese sweep (audit F-01)** ✔ 2026-08-27, `npm run verify` green
+      (66 files, **489 tests**, 487 → 489). Walks every visible text node of the rendered card and
+      requires each to be a Portuguese catalog value, skipping `aria-hidden` subtrees and two named
+      exceptions (the `*` marker, the `NOTEBOX` wordmark). **The F-01 probe now fails against it**,
+      naming the stray string — the same mutation that passed 487/487 before.
+      - files: `components/LoginForm.test.tsx`
+      - covers: C-09 · scenario: "Every string on the screen exists in Portuguese"
+      - depends: T-06 · parallel: no
 
 Scenarios 6 and 7 are the one place where a task does not carry its scenario alone: the *behaviour*
 they describe already ships and is already tested, and this feature's obligation is to not break it.
