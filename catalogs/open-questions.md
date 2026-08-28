@@ -264,14 +264,16 @@
 **Description:** <what is unknown and why it matters>
 **Impact:** `disables the submit control while a sign-in is in flight (scenario A5)` races a synchronous getByRole against an MSW handler's delay(60): under full-suite load the login resolves before the assertion runs and the button has already reverted to 'Entrar'. Observed red once during feat-017 T-01's verify, green on isolation and on re-run — a load-dependent flake, not a regression. It will keep breaking CI at random. The repo already solves this shape in components/annotationTypes/TypeBuilderForm.test.tsx with a manually released promise instead of a timed delay. Out of scope for feat-017's diff (feature-implement.md: bugs noticed elsewhere go to backlog, not into the feature diff).
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-08-28).
+**Decision:** Adopt the repo's existing deferred-promise pattern (TypeBuilderForm.test.tsx): the login handler now awaits a promise released by hand instead of a timed delay(60), and the in-flight assertion uses findByRole. The clock is out of the test entirely. — decided by rafaelsantos, 2026-08-28.
 
 ### OQ-30 — The branding bar shows the tenant UUID where design 05 shows the tenant slug ('acme-ops') — add tenant name/slug to the /me response, or render nothing?
 **Severity:** 🟡 Important
 **Description:** <what is unknown and why it matters>
 **Impact:** notebox-web renders `me.tenantId` because the /me contract carries no tenant name or slug. Design screen 05 shows 'Tenant: acme-ops'. Fixing it properly is an API change (feat-006's /me contract), so it is out of scope for a web-only conformance feature. Rendering a raw UUID to the member is worse than useless — it is unreadable and it publishes an internal id in the chrome of every protected screen. Found in feat-018's live pass 2026-08-27.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-08-28).
+**Decision:** Add tenantName and tenantSlug to the /me response. A new TenantRepository reads the tenant row directly — deliberately NOT tenant-scoped, since the tenant is not a row inside a tenant — and the isolation rests on the caller passing the id from the token, which MeResource does. notebox-web now names the workspace instead of printing its UUID. — decided by rafaelsantos, 2026-08-28.
 
 ### OQ-31 — Design 05's Overview screen has summary boxes (types defined, records, with images, secret fields; tasks in flight) that the app's home screen does not render — build them, or drop them from the conformance scope?
 **Severity:** 🟡 Important
@@ -323,6 +325,8 @@
 | 2026-08-27 | OQ-29 opened: Flaky in-flight assertion in notebox-web LoginForm.test.tsx: adopt the |
 | 2026-08-27 | OQ-30 opened: The branding bar shows the tenant UUID where design 05 shows the tenan |
 | 2026-08-27 | OQ-31 opened: Design 05's Overview screen has summary boxes (types defined, records, |
+| 2026-08-28 | OQ-29 resolved: Adopt the repo's existing deferred-promise pattern (TypeBuilderForm.te… |
+| 2026-08-28 | OQ-30 resolved: Add tenantName and tenantSlug to the /me response. A new TenantReposit… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
