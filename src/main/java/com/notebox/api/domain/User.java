@@ -122,4 +122,17 @@ public class User implements TenantOwned {
     public void setLocalePreference(String localePreference) {
         this.localePreference = localePreference;
     }
+
+    /** Replaces the stored hash. Callers pass an already-hashed value — never a raw password. */
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }
