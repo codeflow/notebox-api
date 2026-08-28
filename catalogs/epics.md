@@ -9,12 +9,12 @@
 
 | ID | Epic | Focus | Status |
 |----|------|-------|--------|
-| E0 | Foundations & Harness | repo, CI/CD, agentic pipeline | todo |
+| E0 | Foundations & Harness | repo, CI/CD, agentic pipeline | delivered (harness + CI; lint signal added 2026-08-28, OQ-26) |
 | E1 | Annotation types | define typed note schemas | delivered |
 | E2 | Annotations | typed records + listing/detail | delivered |
 | E3 | Groups & navigation | organize items, nav tree | delivered |
 | E4 | Tasks & subtasks | tasks, derived progress, cards, rich text | delivered |
-| E5 | Internationalization | localized strings + translation mgmt | todo |
+| E5 | Internationalization | localized strings + translation mgmt | delivered (FR-15 shipped; FR-16 runtime catalog 2026-08-28) |
 | E6 | Identity & tenancy | JWT auth, multi-tenant isolation | delivered |
 | E7 | Design conformance | notebox-web matches the design handoff | delivered (feat-017/018/019; OQ-30/OQ-31 open as API gaps) |
 
