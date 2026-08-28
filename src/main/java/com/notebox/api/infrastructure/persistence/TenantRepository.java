@@ -28,4 +28,35 @@ public class TenantRepository {
     public Optional<Tenant> findById(UUID tenantId) {
         return Optional.ofNullable(entityManager.find(Tenant.class, tenantId));
     }
+
+    /**
+     * Whether a slug is already taken.
+     *
+     * <p>The one lookup here that is NOT by the caller's own id, and it exists only so signup can
+     * refuse a duplicate address cleanly instead of failing on the unique constraint. It returns a
+     * boolean and never the tenant, so it cannot become a way to read another organization.
+     */
+    public boolean slugExists(String slug) {
+        return entityManager.createQuery(
+                        "select count(t) from Tenant t where t.slug = :slug", Long.class)
+                .setParameter("slug", slug)
+                .getSingleResult() > 0;
+    }
+
+    /** Persists a brand new organization. */
+    public Tenant persist(Tenant tenant) {
+        entityManager.persist(tenant);
+        return tenant;
+    }
+
+    /**
+     * Persists the first administrator of a brand new organization.
+     *
+     * <p>This bypasses {@code UserRepository}'s tenant scoping deliberately and is the ONLY place
+     * that may: at signup there is no caller tenant to scope to. Every other write to a user goes
+     * through the scoped repository.
+     */
+    public void persistUser(com.notebox.api.domain.User admin) {
+        entityManager.persist(admin);
+    }
 }
