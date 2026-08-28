@@ -30,12 +30,14 @@
     "signals": [
       "typecheck",
       "test",
-      "build"
+      "build",
+      "lint"
     ],
     "commands": {
       "test": "mvn -B test",
       "build": "mvn -B package",
-      "typecheck": "mvn -B compile"
+      "typecheck": "mvn -B compile",
+      "lint": "mvn -B checkstyle:check"
     }
   },
   "github": {

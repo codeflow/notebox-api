@@ -8,11 +8,11 @@ import jakarta.transaction.Transactional;
 
 import com.notebox.api.application.auth.PasswordHasher;
 import com.notebox.api.domain.AuditLog;
+import com.notebox.api.domain.Role;
+import com.notebox.api.domain.User;
 import com.notebox.api.domain.error.CannotDeactivateSelfException;
 import com.notebox.api.domain.error.EmailAlreadyRegisteredException;
 import com.notebox.api.domain.error.MemberNotFoundException;
-import com.notebox.api.domain.Role;
-import com.notebox.api.domain.User;
 import com.notebox.api.infrastructure.persistence.AuditLogRepository;
 import com.notebox.api.infrastructure.persistence.CredentialLookup;
 import com.notebox.api.infrastructure.persistence.UserRepository;

@@ -24,7 +24,8 @@ public record AnnotationValueDto(
 
     public static AnnotationValueDto from(AnnotationValue value, TypeField field, RichTextSanitizer sanitizer) {
         if (field.isSecret()) {
-            return new AnnotationValueDto(field.getId(), field.getFieldType().name(), true, true, null, null, null, null);
+            return new AnnotationValueDto(
+                    field.getId(), field.getFieldType().name(), true, true, null, null, null, null);
         }
         String text = null;
         BigDecimal number = null;

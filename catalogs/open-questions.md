@@ -240,7 +240,8 @@
 **Impact:** No lint or format enforcement runs in CI. `constitution/03-code-standards.md` names Checkstyle as the enforcement point for import order, field-declaration order and naming conventions — all of which are currently reviewer-enforced only, so they drift silently between audits.
 **Suggested path:** Human decision. Options: (a) **Spotless + a Checkstyle ruleset** matching 03-code-standards, wired with `wf harness signal lint "mvn -B spotless:check checkstyle:check"` — the fullest fit, but expect a first run flagging violations across the existing codebase, so it needs its own feature; (b) Spotless formatting only (cheaper, catches import order and whitespace, not naming); (c) leave it unwired and keep the standards reviewer-enforced, accepting the drift.
 **Depends on:** Human decision.
-**Status:** 🟡 open (2026-08-24).
+**Status:** ✅ resolved (2026-08-28).
+**Decision:** Wire Checkstyle into the Maven build at the validate phase and register 'lint' as a harness signal, so it runs in verify and as its own CI step. The config enforces the enforceable half of constitution/03-code-standards.md — naming, import grouping, Javadoc on the public surface, line length — and deliberately omits field declaration order, which the constitution itself says no formatter can express and leaves to review and /audit. It uses ImportOrder rather than the CustomImportOrder the constitution names, because the documented rule has four package families and CustomImportOrder expresses only three. — decided by rafaelsantos, 2026-08-28.
 
 ### OQ-27 — Aggregate counts for the Navigator and the groups screens
 **Severity:** 🟡 Important
@@ -329,6 +330,7 @@
 | 2026-08-28 | OQ-29 resolved: Adopt the repo's existing deferred-promise pattern (TypeBuilderForm.te… |
 | 2026-08-28 | OQ-30 resolved: Add tenantName and tenantSlug to the /me response. A new TenantReposit… |
 | 2026-08-28 | OQ-31 resolved: Build them. A read-only GET /overview returns the counts the design's … |
+| 2026-08-28 | OQ-26 resolved: Wire Checkstyle into the Maven build at the validate phase and registe… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.

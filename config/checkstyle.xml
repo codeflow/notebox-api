@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  The enforceable half of constitution/03-code-standards.md (OQ-26).
+
+  Scope is deliberate: this checks what a tool can decide without argument — naming, the import
+  grouping the constitution spells out, and Javadoc on the public surface. Field DECLARATION order
+  is explicitly not expressible here; the constitution says so and leaves it to review and /audit.
+  Adding a rule that only half-works would make the signal worth less, not more.
+-->
+<module name="Checker">
+  <property name="severity" value="error"/>
+  <property name="fileExtensions" value="java"/>
+
+  <module name="LineLength">
+    <property name="max" value="120"/>
+    <property name="ignorePattern" value="^\s*(\*|//).*https?://"/>
+  </module>
+
+  <module name="TreeWalker">
+    <!-- Naming: Java conventions, identifiers in English (code_naming: english). -->
+    <module name="TypeName"/>
+    <module name="MethodName"/>
+    <module name="MemberName"/>
+    <module name="ParameterName"/>
+    <module name="LocalVariableName"/>
+    <module name="ConstantName"/>
+    <module name="PackageName"/>
+
+    <!--
+      §Import order: group by top-level package family, one blank line between groups, alphabetical
+      inside a group. The constitution names `CustomImportOrder`, but that module expresses only
+      three groups and this codebase's families are four — java, jakarta, com.notebox, everything
+      else. `ImportOrder` states the documented rule exactly; using the module that can express the
+      standard is worth more than using the one the standard happened to name.
+    -->
+    <module name="ImportOrder">
+      <property name="groups" value="java,javax,jakarta,com.notebox,*"/>
+      <property name="separated" value="true"/>
+      <property name="ordered" value="true"/>
+      <property name="option" value="top"/>
+      <property name="sortStaticImportsAlphabetically" value="true"/>
+    </module>
+    <module name="UnusedImports"/>
+    <module name="RedundantImport"/>
+
+    <!--
+      Javadoc on the public surface (comments: reference_docs = javadoc). The constitution asks for
+      a doc comment on the public surface, NOT a @param for every record component — demanding the
+      latter would be churn the policy never asked for, on dozens of DTOs whose component names
+      already say what they are.
+    -->
+    <module name="JavadocType">
+      <property name="scope" value="public"/>
+      <property name="allowMissingParamTags" value="true"/>
+    </module>
+
+    <!-- Things that are always mistakes rather than style. -->
+    <module name="EqualsHashCode"/>
+    <module name="StringLiteralEquality"/>
+    <module name="EmptyBlock">
+      <property name="option" value="text"/>
+    </module>
+    <module name="MissingOverride"/>
+  </module>
+</module>

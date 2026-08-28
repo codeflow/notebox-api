@@ -18,3 +18,5 @@ jobs:
         run: mvn -B test
       - name: build
         run: mvn -B package
+      - name: lint
+        run: mvn -B checkstyle:check
