@@ -1,7 +1,9 @@
 package com.notebox.api.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -20,7 +22,10 @@ import jakarta.ws.rs.core.Response;
 
 import com.notebox.api.api.dto.AnnotationTypeDto;
 import com.notebox.api.api.dto.AnnotationTypeInput;
+import com.notebox.api.api.dto.AnnotationTypeListItemDto;
 import com.notebox.api.application.annotation.AnnotationTypeService;
+import com.notebox.api.domain.AnnotationType;
+import com.notebox.api.infrastructure.persistence.AnnotationRecordRepository;
 
 import io.quarkus.security.Authenticated;
 
@@ -34,9 +39,11 @@ import io.quarkus.security.Authenticated;
 public class AnnotationTypeResource {
 
     private final AnnotationTypeService service;
+    private final AnnotationRecordRepository records;
 
-    public AnnotationTypeResource(AnnotationTypeService service) {
+    public AnnotationTypeResource(AnnotationTypeService service, AnnotationRecordRepository records) {
         this.service = service;
+        this.records = records;
     }
 
     @POST
@@ -49,10 +56,16 @@ public class AnnotationTypeResource {
 
     @GET
     @Transactional
-    public List<AnnotationTypeDto> list(
+    public List<AnnotationTypeListItemDto> list(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("50") int size) {
-        return service.list(page, size).stream().map(AnnotationTypeDto::from).toList();
+        List<AnnotationType> types = service.list(page, size);
+        // One grouped count for the whole tenant, not one query per row.
+        Map<UUID, Long> counts = records.recordCountsByTypeInTenant().stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
+        return types.stream()
+                .map(type -> AnnotationTypeListItemDto.from(type, counts.getOrDefault(type.getId(), 0L)))
+                .toList();
     }
 
     @GET

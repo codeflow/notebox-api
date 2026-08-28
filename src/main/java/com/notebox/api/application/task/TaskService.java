@@ -2,8 +2,10 @@ package com.notebox.api.application.task;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -197,5 +199,19 @@ public class TaskService {
             throw new TaskDetailsTooLongException();
         }
         return sanitized;
+    }
+
+    /**
+     * Subtask counts for a page of tasks, keyed by task id. Absence means zero — the query only
+     * returns tasks that HAVE subtasks, and flattening that to a stored zero would be a second
+     * source of truth for the same fact.
+     *
+     * @param page the page just listed
+     * @return count by task id, missing entries meaning none
+     */
+    public Map<UUID, Long> subtaskCounts(List<Task> page) {
+        List<UUID> ids = page.stream().map(Task::getId).toList();
+        return tasks.subtaskCountsFor(ids).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
     }
 }

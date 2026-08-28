@@ -111,6 +111,29 @@ public class TaskRepository extends TenantScopedRepository<Task> {
      * @param groupIds the page's group ids; must not be empty (the caller skips the call instead)
      * @return (groupId, taskCount, averageStatus) triples
      */
+    /**
+     * Subtask counts for one page of tasks, keyed by task id — ONE grouped query for the page, never
+     * one per row. The listing deliberately does not load subtasks (they are unbounded), so the
+     * count has to come from the database rather than from {@code task.getSubtasks().size()}, which
+     * would be an N+1 dressed as a field access.
+     *
+     * @param taskIds the ids on the page; an empty collection yields an empty result
+     * @return rows of [taskId, count] for tasks that HAVE subtasks — absence means zero
+     */
+    public List<Object[]> subtaskCountsFor(Collection<UUID> taskIds) {
+        if (taskIds.isEmpty()) {
+            return List.of();
+        }
+        return em.createQuery(
+                        "select t.id, count(s) from Task t join t.subtasks s"
+                                + " where t.tenantId = :tenant and t.id in :ids"
+                                + " group by t.id",
+                        Object[].class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .setParameter("ids", taskIds)
+                .getResultList();
+    }
+
     public List<Object[]> aggregatesByGroupInTenant(Collection<UUID> groupIds) {
         return em.createQuery(
                         "select e.groupId, count(e), avg(e.status) from Task e"

@@ -152,4 +152,20 @@ public class AnnotationRecordRepository extends TenantScopedRepository<Annotatio
                 .setParameter("groups", groupIds)
                 .getResultList();
     }
+
+    /**
+     * Record counts per annotation type across the caller's tenant — ONE grouped query, so the types
+     * list can show how much each type actually holds without paging through the records.
+     *
+     * @return rows of [annotationTypeId, count]; a type with no records does not appear
+     */
+    public List<Object[]> recordCountsByTypeInTenant() {
+        return em.createQuery(
+                        "select e.annotationTypeId, count(e) from AnnotationRecord e"
+                                + " where e.tenantId = :tenant"
+                                + " group by e.annotationTypeId",
+                        Object[].class)
+                .setParameter("tenant", tenantContext.tenantId())
+                .getResultList();
+    }
 }

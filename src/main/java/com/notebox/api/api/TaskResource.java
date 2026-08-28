@@ -1,6 +1,7 @@
 package com.notebox.api.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import jakarta.transaction.Transactional;
@@ -28,6 +29,7 @@ import com.notebox.api.api.dto.TaskListItemDto;
 import com.notebox.api.application.content.RichTextSanitizer;
 import com.notebox.api.application.group.GroupFilter;
 import com.notebox.api.application.task.TaskService;
+import com.notebox.api.domain.Task;
 
 import io.quarkus.security.Authenticated;
 
@@ -62,8 +64,11 @@ public class TaskResource {
             @Min(value = 1, message = "task.list.size.out_of_bounds")
             @Max(value = 200, message = "task.list.size.out_of_bounds") int size) {
         GroupFilter filter = GroupFilter.parse(group);
-        List<TaskListItemDto> items = service.list(filter, page, size).stream()
-                .map(TaskListItemDto::from)
+        List<Task> tasks = service.list(filter, page, size);
+        // One grouped count for the whole page, not one per row.
+        Map<UUID, Long> subtasks = service.subtaskCounts(tasks);
+        List<TaskListItemDto> items = tasks.stream()
+                .map(task -> TaskListItemDto.from(task, subtasks.getOrDefault(task.getId(), 0L)))
                 .toList();
         return new PageDto<>(items, page, size, service.count(filter));
     }
