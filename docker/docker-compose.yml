@@ -1,0 +1,71 @@
+# Notebox — the whole system, locally, surviving a restart.
+#
+# Everything that must outlive a container lives under ./data, which is bind-mounted rather than
+# left in a named volume: you can see it, back it up, and delete it deliberately. `docker compose
+# down` keeps it; removing ./data is the only thing that does not.
+#
+#   ./data/mysql   the database
+#   ./data/keys    this deployment's own JWT keypair and secret-field master key
+#
+# Run ./bootstrap.sh once first — it generates the keys and writes .env.
+
+name: notebox
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?run ./bootstrap.sh first}
+      MYSQL_DATABASE: notebox
+      MYSQL_USER: notebox
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?run ./bootstrap.sh first}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    ports:
+      # Exposed so you can inspect the database from the host. Drop this line to keep it internal.
+      - '3307:3306'
+    healthcheck:
+      # The API's Flyway migration runs at startup, so it must not start against a half-open MySQL.
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-u', 'root', '-p${MYSQL_ROOT_PASSWORD}']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:mysql://db:3306/notebox
+      QUARKUS_DATASOURCE_USERNAME: notebox
+      QUARKUS_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      MP_JWT_VERIFY_PUBLICKEY_LOCATION: file:/keys/publicKey.pem
+      SMALLRYE_JWT_SIGN_KEY_LOCATION: file:/keys/privateKey.pem
+      NOTEBOX_CRYPTO_KEY_1: ${NOTEBOX_CRYPTO_KEY_1:?run ./bootstrap.sh first}
+      NOTEBOX_SIGNUP_ENABLED: ${NOTEBOX_SIGNUP_ENABLED:-true}
+      # The origin the CLIENT is served from. The browser calls this API cross-origin, so without
+      # it every request is blocked. Not wildcarded on purpose.
+      NOTEBOX_CORS_ORIGINS: ${NOTEBOX_CORS_ORIGINS:-http://localhost:3000}
+    volumes:
+      - ./data/keys:/keys:ro
+    ports:
+      - '8080:8080'
+
+  web:
+    build:
+      context: ../../notebox-web
+      dockerfile: ../notebox-api/docker/Dockerfile.web
+      args:
+        # The BROWSER resolves this, not the compose network — so it is localhost, not `api`.
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - '3000:3000'

@@ -1,0 +1,3 @@
+# This deployment's own secrets and data — never committed.
+.env
+data/

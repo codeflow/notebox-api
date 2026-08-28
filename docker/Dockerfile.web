@@ -1,0 +1,35 @@
+# notebox-web — build and run the Next.js client.
+#
+# NEXT_PUBLIC_* values are inlined at BUILD time, so the API base URL is a build argument rather
+# than a runtime environment variable. It must be the URL the BROWSER can reach — not the compose
+# service name, which only resolves inside the network.
+
+FROM node:22-alpine AS build
+WORKDIR /build
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+COPY . .
+
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
+RUN npm run build
+
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Next's standalone output ships its own minimal server plus only the modules it actually uses.
+COPY --from=build /build/.next/standalone ./
+COPY --from=build /build/.next/static ./.next/static
+# No `public/` copy: this app has no public directory — its only static asset is app/icon.svg,
+# which the App Router serves through the build itself. Copying a directory that does not exist
+# fails the build rather than being skipped.
+
+RUN addgroup -g 10001 notebox && adduser -u 10001 -G notebox -D notebox
+USER notebox
+
+EXPOSE 3000
+ENV PORT=3000 HOSTNAME=0.0.0.0
+CMD ["node", "server.js"]

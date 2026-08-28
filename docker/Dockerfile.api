@@ -1,0 +1,36 @@
+# notebox-api — build and run the Quarkus service.
+#
+# Two stages so the runtime image carries a JRE and the application, not Maven and the whole
+# dependency cache. The build runs -DskipTests on purpose: `mvn verify` needs Docker itself
+# (Testcontainers), and a container that starts its own containers is not a build, it is a knot.
+# Tests are the harness's job, not the image's.
+
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /build
+
+# Dependencies first, so a source-only change does not re-download the world.
+COPY pom.xml ./
+RUN mvn -B -q dependency:go-offline
+
+# Checkstyle runs at the validate phase, so its config has to be here too — the image build
+# enforces the same lint the harness does.
+COPY config ./config
+COPY src ./src
+RUN mvn -B -q package -DskipTests
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+
+# Quarkus' fast-jar layout: the layers are copied oldest-changing first.
+COPY --from=build /build/target/quarkus-app/lib/ ./lib/
+COPY --from=build /build/target/quarkus-app/*.jar ./
+COPY --from=build /build/target/quarkus-app/app/ ./app/
+COPY --from=build /build/target/quarkus-app/quarkus/ ./quarkus/
+
+# Runs as a non-root user; the image writes nothing outside /tmp.
+RUN useradd --uid 10001 --create-home notebox && chown -R notebox:notebox /app
+USER notebox
+
+EXPOSE 8080
+ENV QUARKUS_PROFILE=prod
+ENTRYPOINT ["java", "-jar", "/app/quarkus-run.jar"]
