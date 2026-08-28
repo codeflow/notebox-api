@@ -5,13 +5,19 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * Resolves messages from the {@code messages[_xx].properties} bundles. English is the default bundle,
  * so a key missing in the request locale falls back to English (OQ-07). Bundles are read as UTF-8.
+ *
+ * <p>These are the PRODUCT's words. A tenant's own wording is layered over them by
+ * {@code TenantMessageResolver} (FR-16); this class knows nothing about that and stays the floor
+ * every lookup can always reach.
  */
 @ApplicationScoped
+@Priority(1)
 public class ResourceBundleMessageResolver implements MessageResolver {
 
     private static final String BASE_NAME = "messages";
