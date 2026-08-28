@@ -280,7 +280,8 @@
 **Description:** <what is unknown and why it matters>
 **Impact:** The workspace home currently shows only a greeting. Design 05 fills the main panel with af-panelBox summary cards and an 'af-subHeader: Tasks in flight' section. The numbers would need aggregate endpoints that do not exist (annotations count by type, records with images, secret-field count), so this is an API feature, not a styling gap. Found in feat-018's live pass 2026-08-27.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-08-28).
+**Decision:** Build them. A read-only GET /overview returns the counts the design's boxes need — types, records, records with images, secret fields, open tasks, subtasks done/total, tasks ending this week — computed in the database and scoped to the caller's tenant with no caller-supplied filter. The home screen renders the two panels from it. — decided by rafaelsantos, 2026-08-28.
 
 ## History
 
@@ -327,6 +328,7 @@
 | 2026-08-27 | OQ-31 opened: Design 05's Overview screen has summary boxes (types defined, records, |
 | 2026-08-28 | OQ-29 resolved: Adopt the repo's existing deferred-promise pattern (TypeBuilderForm.te… |
 | 2026-08-28 | OQ-30 resolved: Add tenantName and tenantSlug to the /me response. A new TenantReposit… |
+| 2026-08-28 | OQ-31 resolved: Build them. A read-only GET /overview returns the counts the design's … |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
