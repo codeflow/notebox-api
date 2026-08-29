@@ -37,6 +37,31 @@ with (C-12), and deleting it makes those values unreadable even with the databas
 `bootstrap.sh` is safe to re-run: it never overwrites an existing key or `.env`, because rotating the
 JWT key signs every live session out and rotating the master key loses the secrets.
 
+## Working on the client
+
+The containerised client is built into its image, so seeing a change means rebuilding it — around
+two minutes. For a tight loop, run the client on the host instead and leave the database and API in
+containers:
+
+```bash
+cd docker
+./dev.sh          # db + api in Docker, client on the host with hot reload
+```
+
+A change then shows in under a second. Nothing needs reconfiguring: `.env.local` already points the
+client at `http://localhost:8080/api`, and the API's CORS already allows `http://localhost:3000` —
+the containerised API serves the host client exactly as it serves the containerised one.
+
+Ctrl+C to stop, then put the container back with:
+
+```bash
+docker compose up -d --build web
+```
+
+**Why not a bind-mounted container?** It would work, but file watching through Docker's macOS
+filesystem is slow and usually needs polling, which costs more than the rebuild it saves. The host
+watches natively.
+
 ## Things worth knowing
 
 **The client's API URL is baked in at build time.** `NEXT_PUBLIC_*` values are inlined by Next, so
