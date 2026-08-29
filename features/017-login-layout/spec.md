@@ -183,6 +183,7 @@ minor. Each names why the handoff cannot be followed literally.
 |---|---|---|---|
 | D-1 | Brand footer `Release 1.0 · acme-ops` | Release identifier only; **no tenant slug** | `acme-ops` is a tenant. The visitor is **unauthenticated** on this screen — there is no session and therefore no tenant to name. Rendering a hardcoded one would be a lie on the login page of a multi-tenant product. |
 | D-2 | Hardcoded English strings in the pane | Catalog keys resolved in en + pt | The handoff is a static mock and does not model i18n; C-09 governs. |
+| D-3 | Field adornments as the emoji `✉` and `🔒` | Inline SVG, and a **person** on the email field | Emoji render at the inherited 11px and each platform draws its own, so they came out tiny and off-theme beside flat ADF chrome. The person icon is the product owner's call (2026-08-28): the field identifies **who you are**, and an envelope reads as "send mail". |
 
 ## Compliance pre-flight
 
