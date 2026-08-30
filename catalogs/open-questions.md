@@ -284,6 +284,13 @@
 **Status:** ✅ resolved (2026-08-28).
 **Decision:** Build them. A read-only GET /overview returns the counts the design's boxes need — types, records, records with images, secret fields, open tasks, subtasks done/total, tasks ending this week — computed in the database and scoped to the caller's tenant with no caller-supplied filter. The home screen renders the two panels from it. — decided by rafaelsantos, 2026-08-28.
 
+### OQ-32 — Records sub-grid inside the annotation types list (screen 07)
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** The types list shows a Records count that leads nowhere; seeing what a type holds costs two clicks through an intermediate screen. Product-owner asked for an expandable sub-grid per row, in the ADF Fusion idiom (af:table detailStamp: a disclosure column, the detail rendered full-width beneath the row). DECIDED 2026-08-30, option A over a uniform preview: each row expands into that type's OWN record grid, with the columns its visible fields define. Cost accepted: the column set changes per expanded row, so rows are not comparable, and a type with no records still draws a header over nothing. UNDECIDED and blocking the spec: (1) pagination inside an expanded row — NFR-08 defaults list endpoints to 50, and a row cannot hold a 50-row grid; cap, page-within-row, or truncate-with-a-link? (2) what an empty type shows when expanded; (3) whether more than one row may be open at once; (4) keyboard reachability of the nested grid's row actions. Deviation from the handoff, which draws 07 and 11 as separate screens — NFR-09 measures against it, so this needs recording like the Administration tab did.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -331,6 +338,7 @@
 | 2026-08-28 | OQ-30 resolved: Add tenantName and tenantSlug to the /me response. A new TenantReposit… |
 | 2026-08-28 | OQ-31 resolved: Build them. A read-only GET /overview returns the counts the design's … |
 | 2026-08-28 | OQ-26 resolved: Wire Checkstyle into the Maven build at the validate phase and registe… |
+| 2026-08-30 | OQ-32 opened: Records sub-grid inside the annotation types list (screen 07) |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
