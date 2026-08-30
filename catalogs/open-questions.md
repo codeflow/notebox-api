@@ -289,7 +289,8 @@
 **Description:** <what is unknown and why it matters>
 **Impact:** The types list shows a Records count that leads nowhere; seeing what a type holds costs two clicks through an intermediate screen. Product-owner asked for an expandable sub-grid per row, in the ADF Fusion idiom (af:table detailStamp: a disclosure column, the detail rendered full-width beneath the row). DECIDED 2026-08-30, option A over a uniform preview: each row expands into that type's OWN record grid, with the columns its visible fields define. Cost accepted: the column set changes per expanded row, so rows are not comparable, and a type with no records still draws a header over nothing. UNDECIDED and blocking the spec: (1) pagination inside an expanded row — NFR-08 defaults list endpoints to 50, and a row cannot hold a 50-row grid; cap, page-within-row, or truncate-with-a-link? (2) what an empty type shows when expanded; (3) whether more than one row may be open at once; (4) keyboard reachability of the nested grid's row actions. Deviation from the handoff, which draws 07 and 11 as separate screens — NFR-09 measures against it, so this needs recording like the Administration tab did.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-08-30).
+**Decision:** Option A confirmed, in the af:table detailStamp idiom: a disclosure column on the types grid, the detail rendered full-width beneath the row, carrying that type's OWN record grid with the columns its visible fields define. (1) VOLUME — the expanded row lists the first 10 records and closes with a link naming the true total ('see all 47 records'), which navigates to the full grid. One request per opened row at size=10; no pagination state inside a row. Honest about what it is not showing, and NFR-08's default is respected rather than excepted. (2) MULTIPLE ROWS — each row keeps its own open state and several may be open at once, as the navigator's folders already do and as ADF's detailStamp does; nothing closes that the user did not close. (3) EMPTY TYPE — the expanded band shows the grid's existing empty row, no new widget. (4) KEYBOARD — not a product choice: the disclosure control is in the tab order, aria-expanded reflects its state, and the nested grid's row actions are reachable. Accepted cost, restated so it is not relitigated: the column set changes per expanded row, so rows are not comparable across the list, and a type with no records still draws its header over an empty band. — decided by rafaelsantos, 2026-08-30.
 
 ## History
 
@@ -339,6 +340,7 @@
 | 2026-08-28 | OQ-31 resolved: Build them. A read-only GET /overview returns the counts the design's … |
 | 2026-08-28 | OQ-26 resolved: Wire Checkstyle into the Maven build at the validate phase and registe… |
 | 2026-08-30 | OQ-32 opened: Records sub-grid inside the annotation types list (screen 07) |
+| 2026-08-30 | OQ-32 resolved: Option A confirmed, in the af:table detailStamp idiom: a disclosure co… |
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
