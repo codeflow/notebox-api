@@ -3995,13 +3995,15 @@
             {
               "id": "feat-017-login-layout.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-30T19:52:32Z",
+              "completed_at": "2026-08-30T19:52:33Z"
             },
             {
               "id": "feat-017-login-layout.review",
@@ -4019,7 +4021,8 @@
           "github": {
             "issue": 16,
             "card": "PVTI_lADOAuNpyc4BeXEnzg4K-rY",
-            "branch": "feature/login-layout"
+            "branch": "feature/shell-chrome",
+            "pr": 17
           }
         },
         {
@@ -4187,7 +4190,11 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "pr": 17,
+            "branch": "feature/shell-chrome"
+          }
         },
         {
           "id": "feat-019-form-widgets",
@@ -4292,7 +4299,11 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "pr": 17,
+            "branch": "feature/shell-chrome"
+          }
         },
         {
           "id": "feat-020-records-subgrid",
