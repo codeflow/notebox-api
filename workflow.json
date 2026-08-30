@@ -4008,13 +4008,15 @@
             {
               "id": "feat-017-login-layout.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-30T20:14:05Z",
+              "completed_at": "2026-08-30T20:14:06Z"
             }
           ],
           "project": "notebox-web",
@@ -4022,7 +4024,8 @@
             "issue": 16,
             "card": "PVTI_lADOAuNpyc4BeXEnzg4K-rY",
             "branch": "feature/shell-chrome",
-            "pr": 17
+            "pr": 17,
+            "merged": "develop"
           }
         },
         {
@@ -4170,30 +4173,35 @@
             {
               "id": "feat-018-shell-chrome.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-30T20:14:11Z",
+              "completed_at": "2026-08-30T20:14:12Z"
             },
             {
               "id": "feat-018-shell-chrome.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-30T20:14:12Z",
+              "completed_at": "2026-08-30T20:14:12Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "pr": 17,
-            "branch": "feature/shell-chrome"
+            "branch": "feature/shell-chrome",
+            "merged": "develop"
           }
         },
         {
@@ -4279,30 +4287,35 @@
             {
               "id": "feat-019-form-widgets.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-30T20:14:12Z",
+              "completed_at": "2026-08-30T20:14:12Z"
             },
             {
               "id": "feat-019-form-widgets.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-30T20:14:13Z",
+              "completed_at": "2026-08-30T20:14:13Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "pr": 17,
-            "branch": "feature/shell-chrome"
+            "branch": "feature/shell-chrome",
+            "merged": "develop"
           }
         },
         {
