@@ -4454,13 +4454,15 @@
                   "id": "feat-020-records-subgrid.implement.t6",
                   "title": "T-06 — A 401 inside a band ends the session, not the band",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium",
                     "isolation": "worktree"
-                  }
+                  },
+                  "started_at": "2026-08-31T12:07:21Z",
+                  "completed_at": "2026-08-31T12:09:57Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t7",

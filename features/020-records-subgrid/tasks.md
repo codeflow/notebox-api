@@ -56,13 +56,16 @@ compliance argument moves, and changing the plan is cheapest before anything els
         · **run 2026-08-31**: `if (opening)` in place of `if (opening && !bands.has(id))` fails
         *"serves a reopened row from what it already fetched"*, and nothing else
 
-- [ ] **T-06 · A 401 inside a band ends the session, not the band**
+- [x] **T-06 · A 401 inside a band ends the session, not the band**
       - files: `components/annotationTypes/AnnotationTypeList.test.tsx`
       - covers: scenario *"An expired session inside a band ends the session"* · risk **R6**
       - test-only: the behaviour comes from `authFetch`; this asserts the band did not swallow it into a local error state
       - depends: T-05
-      - parallel: yes
+      - parallel: yes — **run in the main thread anyway**: T-06 and T-07 both write
+        `AnnotationTypeList.test.tsx`, so two worktrees would have conflicted on merge
       - verify: `npx vitest run components/annotationTypes/AnnotationTypeList`
+      - probe: have the band fetch with bare `fetch` instead of the client — the session-expired
+        assertion fails (**run 2026-08-31**, along with 9 other band tests)
 
 - [ ] **T-07 · Keyboard operation and the announced state**
       - files: `components/annotationTypes/AnnotationTypeList.tsx`, its test
