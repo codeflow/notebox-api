@@ -341,6 +341,26 @@
 | 2026-08-28 | OQ-26 resolved: Wire Checkstyle into the Maven build at the validate phase and registe… |
 | 2026-08-30 | OQ-32 opened: Records sub-grid inside the annotation types list (screen 07) |
 | 2026-08-30 | OQ-32 resolved: Option A confirmed, in the af:table detailStamp idiom: a disclosure co… |
+| 2026-08-31 | OQ-33 opened: the Navigator's Annotations root node reaches no list screen, so feat-020's sub-grid has no route from the tree |
+| 2026-08-31 | OQ-33 resolved: option (a) — the Navigator's root nodes navigate (Annotations → the types list, Tasks → the tasks list); recorded deviation from design 05's inert root labels |
+
+### OQ-33 — The Navigator's `Annotations` node does not reach the types list, where feat-020's sub-grid lives
+**Severity:** 🟡 Important
+**Description:** In the Navigator, the `Annotations` root is a plain `<span className="nb-treeLabel">` (`components/navigation/Navigator.tsx:163`): only its twisty responds, and the node itself navigates nowhere. Its leaves — the types — go straight to `/annotation-types/{id}/records`, skipping the types list entirely. So from inside the tree there is no route to `/annotation-types`.
+
+**Not a regression, and not introduced by feat-020.** The tree has been shaped this way since feat-015, and `/annotation-types` IS reachable: the level-1 `Annotations` tab in `AppNav` goes there (verified live 2026-08-31), as does the `Annotations` breadcrumb on the records screen. What changed is the cost of the gap: feat-020 put a records sub-grid on the types list, so that screen is now worth visiting, while the tree's only annotation destination is the one screen that bypasses it. The same asymmetry exists for `Tasks`, whose root node is also inert.
+
+**Impact:** A member working from the tree — the primary navigation surface on every annotation screen — cannot reach the sub-grid without going up to the tab strip. Discoverability of the feature just built depends on a control in a different region of the chrome.
+
+**Suggested path:** Three options, in ascending cost:
+(a) make the `Annotations` root node navigate to `/annotation-types` (and `Tasks` to `/tasks`), matching what the tab already does — the tree gains a destination it visibly lacks, one component, no new screen;
+(b) leave the tree as an index of *content* and treat the tab strip as the only route to list screens — record the asymmetry as intentional so no future audit reopens it;
+(c) point the type leaves at the types list with the row pre-expanded, making the sub-grid the tree's landing surface — the largest change, and it would displace today's records destination.
+
+Design screen 05 draws the tree without root-node links, which is why it was built this way; a deviation here would need recording like the Administration tab did.
+
+**Status:** ✅ resolved (2026-08-31). Raised by rafaelsantos from live use during feat-020's audit stage. **Deliberately NOT folded into feat-020's diff** (CLAUDE.md §7: a defect noticed elsewhere goes to the backlog or an OQ, never into a feature diff under audit) — it ships as its own feature.
+**Decision:** Option (a). The Navigator's root nodes navigate: `Annotations` → `/annotation-types`, `Tasks` → `/tasks`, matching the destinations the level-1 tabs already carry. The tree keeps its shape and its twisties; what changes is that the root label becomes a control rather than dead text, and the tree stops being the one surface from which a member cannot reach a list screen. **Recorded deviation from design 05**, which draws the tree with inert root labels — the same kind of deviation as the Administration tab (NFR-09 measures against the handoff, so it is written down rather than applied silently). — decided by rafaelsantos, 2026-08-31.
 
 ## Rules
 - IDs immutable. Resolved → mark ✅ with a reference. New → next sequential ID.
