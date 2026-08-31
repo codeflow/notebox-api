@@ -9,16 +9,18 @@ finding that out costs least before anything else is built.
 
 ---
 
-- [ ] **T-01 · The Annotations root becomes a destination**
+- [x] **T-01 · The Annotations root becomes a destination**
       - files: `components/navigation/Navigator.tsx`, `components/navigation/Navigator.test.tsx`
       - covers: scenarios *"The Annotations root opens the annotation types list"*, *"A root already showing its screen reports itself as the current page"* · **INV-N1**
       - the assertion that matters: the push carries `/annotation-types` exactly, and `aria-current` is derived from `pathname`
       - depends: —
       - parallel: no (everything else builds on the shape)
       - verify: `npx vitest run components/navigation/Navigator`
-      - probe: hardcode `aria-current="page"` on the root — the detail-route assertion in T-03 must fail
+      - probe: hardcode `aria-current="page"` on the root — the detail-route assertion must fail
+        · **run 2026-08-31**: fails *"does NOT mark the root current on a detail route beneath the
+        list"* and nothing else (the assertion lives in T-02, not T-03 — the task list said T-03)
 
-- [ ] **T-02 · The Tasks root, and the boundary of "current"**
+- [x] **T-02 · The Tasks root, and the boundary of "current"**
       - files: same two
       - covers: scenarios *"The Tasks root opens the tasks list"*, and the **R4** boundary — a type-detail route must NOT light the Annotations root
       - `/annotation-types` matches the list route exactly, never a route beneath it
@@ -26,15 +28,18 @@ finding that out costs least before anything else is built.
       - parallel: no (same file)
       - verify: `npx vitest run components/navigation/Navigator`
 
-- [ ] **T-03 · Collapsing and navigating stay two different jobs**
+- [x] **T-03 · Collapsing and navigating stay two different jobs**
       - files: same two
       - covers: scenarios *"Collapsing a branch does not navigate"* and *"Navigating does not collapse the branch"* · **INV-N2**, risk **R1**
       - both directions asserted; this is the regression the change most plausibly causes
+      - **found while writing it:** collapsing is `af-treeNode closed`, which hides children via
+        CSS — they stay in the DOM. Asserting their absence would assert something the app never
+        does, so the test asserts the class and `aria-expanded`; that the hiding is real is T-07's
       - depends: T-01
       - parallel: no (same file)
       - verify: `npx vitest run components/navigation/Navigator`
 
-- [ ] **T-04 · A root with no children still reaches its list, from the keyboard, in both locales**
+- [x] **T-04 · A root with no children still reaches its list, from the keyboard, in both locales**
       - files: same two
       - covers: scenarios *"A root with no children still reaches its list"*, *"The root destination is operable from the keyboard"*, and the locale Scenario Outline · **C-09**
       - no new i18n key is expected — the outline exists to catch one being invented
@@ -42,7 +47,7 @@ finding that out costs least before anything else is built.
       - parallel: no (same file)
       - verify: `npx vitest run components/navigation/Navigator lib/i18n`
 
-- [ ] **T-05 · The band's link is asserted on its destination, not its callback (OQ-34a)**
+- [x] **T-05 · The band's link is asserted on its destination, not its callback (OQ-34a)**
       - files: `app/(app)/annotation-types/annotationTypes.integration.test.tsx`
       - covers: scenario *"The band's link lands on that type's records screen"* · audit finding **F-04**
       - test-only: renders the real page, expands a row, activates the line, asserts the navigation carries `/annotation-types/{id}/records`
@@ -50,8 +55,9 @@ finding that out costs least before anything else is built.
       - parallel: yes (`isolation: worktree`)
       - verify: `npx vitest run app/\\(app\\)/annotation-types`
       - probe: break the route template in `page.tsx` (`/records` → `/record`) — this test must fail, and only this one
+        · **run 2026-08-31**: 1 failed, 18 passed — it failed alone, as required
 
-- [ ] **T-06 · Two toggles in one tick fetch once, and end collapsed (OQ-34b)**
+- [x] **T-06 · Two toggles in one tick fetch once, and end collapsed (OQ-34b)**
       - files: `components/annotationTypes/AnnotationTypeList.tsx`, its test
       - covers: scenarios *"Two toggles in one tick fetch once"* and *"A row toggled twice ends collapsed, and reopening still serves the cache"* · **INV-B5′**, **INV-N3**, risks **R3/R5**
       - functional `setOpen` + a `requested` ref; `bands` is untouched — it is empty while a request is in flight, which is why a cache-reading guard would still fire twice
@@ -59,8 +65,10 @@ finding that out costs least before anything else is built.
       - parallel: yes (`isolation: worktree`)
       - verify: `npx vitest run components/annotationTypes/AnnotationTypeList`
       - probe: revert to the closure read (`!bands.has(id)`) — the two-toggles assertion must fail while feat-020's reopen assertion keeps passing
+        · **run 2026-08-31**: exactly the two new assertions fail; feat-020's reopen-from-cache
+        assertion keeps passing, which is what proves the guard did not simply replace the cache
 
-- [ ] **T-07 · Live browser pass**
+- [x] **T-07 · Live browser pass**
       - files: — (evidence, recorded in the audit)
       - covers: nothing new; it is the tier the others cannot reach
       - **why it is a task and not a habit:** feat-020's own live pass found a defect (a `border`
@@ -72,6 +80,14 @@ finding that out costs least before anything else is built.
       - depends: T-04, T-06
       - parallel: no
       - verify: measured in a browser, numbers stated in the report — not a screenshot alone
+      - **report: `_live-pass-2026-08-31.md`** · row height 18 / label 44px / 11px Tahoma /
+        twisty 8+10 identical across the root that became a button, a span that did not and a
+        leaf that already was one (R2 closed with numbers); collapsing measured at 36px → 0 with
+        `display: none` and no navigation (R1); two toggles in one tick now 1 request, row ends
+        collapsed (was 2 and open)
+      - **found and fixed one defect no test could see:** the root carried `aria-current="page"`
+        but not `nb-treeRow-selected`, so it was the current page for a screen reader and for
+        nobody looking at the screen. Test extended to assert both halves, both directions
 
 ---
 

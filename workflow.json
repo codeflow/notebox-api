@@ -4631,13 +4631,14 @@
             {
               "id": "feat-021-navigator-root-destinations.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-31T19:14:37Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.audit",
@@ -4676,7 +4677,10 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "branch": "feature/navigator-root-destinations"
+          }
         }
       ]
     },
