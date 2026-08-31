@@ -4582,7 +4582,7 @@
             {
               "id": "feat-021-navigator-root-destinations.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -4592,12 +4592,13 @@
               "produces": [
                 "features/021-navigator-root-destinations/spec.md"
               ],
-              "started_at": "2026-08-31T18:25:44Z"
+              "started_at": "2026-08-31T18:25:44Z",
+              "completed_at": "2026-08-31T18:32:35Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -4607,7 +4608,8 @@
               "produces": [
                 "features/021-navigator-root-destinations/plan.md",
                 "features/021-navigator-root-destinations/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-31T18:32:35Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.tasks",
