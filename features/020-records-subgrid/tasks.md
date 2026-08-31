@@ -8,7 +8,7 @@ compliance argument moves, and changing the plan is cheapest before anything els
 
 ---
 
-- [ ] **T-01 · Render one type's records through the shared cell renderer**
+- [x] **T-01 · Render one type's records through the shared cell renderer**
       - files: `components/annotationTypes/TypeRecordsBand.tsx`, `components/annotationTypes/TypeRecordsBand.test.tsx`
       - covers: FR-05, BR-09 · scenario: *"Expanding a row shows that type's records with that type's columns"*
       - also proves: **INV-B1**, **INV-B2**, and risks **R1/R2** — a Secret visible field renders masked with no reveal request; a hostile-markup FREE_TEXT renders as plain text
@@ -17,7 +17,7 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - verify: `npx vitest run components/annotationTypes/TypeRecordsBand`
       - probe: render `value.text` directly instead of `RecordGridCell` — the Secret and markup assertions must both fail
 
-- [ ] **T-02 · The empty and failed states of a band**
+- [x] **T-02 · The empty and failed states of a band**
       - files: `components/annotationTypes/TypeRecordsBand.tsx`, its test
       - covers: scenarios *"A type with no records draws no empty table"* and *"A band whose records fail to load says so and stays dismissible"*
       - note: the empty case asserts **no column header row** — the accepted cost of option A is that a header over nothing looks wrong, so the band shows none

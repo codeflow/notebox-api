@@ -4361,7 +4361,7 @@
             {
               "id": "feat-020-records-subgrid.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -4371,7 +4371,8 @@
               "produces": [
                 "features/020-records-subgrid/tasks.md"
               ],
-              "started_at": "2026-08-31T01:49:20Z"
+              "started_at": "2026-08-31T01:49:20Z",
+              "completed_at": "2026-08-31T02:01:51Z"
             },
             {
               "id": "feat-020-records-subgrid.implement",
@@ -4388,23 +4389,27 @@
                   "id": "feat-020-records-subgrid.implement.t1",
                   "title": "T-01 — Render one type's records through the shared cell renderer",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-31T02:13:07Z",
+                  "completed_at": "2026-08-31T02:13:08Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t2",
                   "title": "T-02 — The empty and failed states of a band",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-31T02:13:08Z",
+                  "completed_at": "2026-08-31T02:18:52Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t3",
