@@ -4428,23 +4428,27 @@
                   "id": "feat-020-records-subgrid.implement.t4",
                   "title": "T-04 — The disclosure column, and expansion state that survives a re-render",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-31T11:38:55Z",
+                  "completed_at": "2026-08-31T11:44:51Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t5",
                   "title": "T-05 — Fetch on open, once per type, and not before",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-31T11:46:13Z",
+                  "completed_at": "2026-08-31T11:48:19Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t6",

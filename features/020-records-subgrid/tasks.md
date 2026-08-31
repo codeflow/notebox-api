@@ -34,15 +34,18 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - verify: `npx vitest run components/annotationTypes/TypeRecordsBand`
       - probe: source the number from `items.length` — the test must fail
 
-- [ ] **T-04 · The disclosure column, and expansion state that survives a re-render**
+- [x] **T-04 · The disclosure column, and expansion state that survives a re-render**
       - files: `components/annotationTypes/AnnotationTypeList.tsx`, `components/annotationTypes/AnnotationTypeList.test.tsx`
+      - also touched, because the band cannot be wired without them: `app/(app)/annotation-types/page.tsx`
+        (the new `onOpenRecords` prop → `/annotation-types/{id}/records`, the band's link target) and
+        `lib/i18n/messages/{en,pt}.ts` (`annotationType.band.disclosure`, the accessible name T-08 will assert)
       - covers: scenarios *"Two types expanded at once keep their own columns"*, *"Collapsing a row removes its band and leaves its neighbours alone"* · risks **R3**, **R5**
       - reuses `ExpandIcon`/`CollapseIcon`; the lane is 28px like the navigator's `.tw` (**R4**: the other columns' widths are asserted unchanged)
       - depends: T-01
       - parallel: no
       - verify: `npx vitest run components/annotationTypes/AnnotationTypeList`
 
-- [ ] **T-05 · Fetch on open, once per type, and not before**
+- [x] **T-05 · Fetch on open, once per type, and not before**
       - files: `components/annotationTypes/AnnotationTypeList.tsx`, its test
       - covers: scenarios *"The rows' data is fetched when a row opens"* (spec v2: **one type request and one records request**) and *"Reopening a row does not refetch"* · **INV-B4**, **INV-B5**
       - this is where the `Map` cache and the `Set` of open rows earn their separation
@@ -50,6 +53,8 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - parallel: no
       - verify: `npx vitest run components/annotationTypes/AnnotationTypeList`
       - probe: key the cache on the open set alone — the reopen assertion must fail
+        · **run 2026-08-31**: `if (opening)` in place of `if (opening && !bands.has(id))` fails
+        *"serves a reopened row from what it already fetched"*, and nothing else
 
 - [ ] **T-06 · A 401 inside a band ends the session, not the band**
       - files: `components/annotationTypes/AnnotationTypeList.test.tsx`
