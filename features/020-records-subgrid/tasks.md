@@ -79,13 +79,23 @@ compliance argument moves, and changing the plan is cheapest before anything els
         keyboard activation needed no code, which is what a native `<button>` buys
       - verify: `npx vitest run components/annotationTypes/AnnotationTypeList`
 
-- [ ] **T-08 · The band's four strings, in both locales**
+- [x] **T-08 · The band's four strings, in both locales**
       - files: `lib/i18n/messages/en.ts`, `lib/i18n/messages/pt.ts`, `components/annotationTypes/TypeRecordsBand.test.tsx`
       - covers: Scenario Outline *"Every string the band emits exists in both locales"* · **C-09**
       - the four: disclosure accessible name, "see all N records", empty message, failure message
       - the existing keyset coverage test already fails on a key present in one locale only
+      - **no catalog change was needed**: the four keys were added as their tasks landed
+        (`band.failed`/`band.seeAll` in T-01..T-03, `band.disclosure` in T-04, and the empty
+        message is the records grid's own). This task is the assertion that they are all
+        *rendered*, in both locales, in all four band states
+      - **finding for the audit**: a key missing from **pt only** falls back to English rather
+        than rendering the key, so the raw-key assertion cannot see a one-sided miss —
+        `keysetCoverage` is what catches that, and the probe below confirms both halves
       - depends: T-03
-      - parallel: yes
+      - parallel: yes — **main thread** (the run order was already serial by then)
+      - probes (**run 2026-08-31**): drop `{total}` from the pt line → 2 fail; delete the pt
+        `band.failed` key → 5 fail, including both keyset guards; point the band at a key in
+        neither catalog → 4 fail, the raw-key assertion among them in both locales
       - verify: `npx vitest run lib/i18n components/annotationTypes/TypeRecordsBand`
 
 - [ ] **T-09 · Band styling in the theme's banded row**

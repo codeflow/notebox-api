@@ -4482,13 +4482,15 @@
                   "id": "feat-020-records-subgrid.implement.t8",
                   "title": "T-08 — The band's four strings, in both locales",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium",
                     "isolation": "worktree"
-                  }
+                  },
+                  "started_at": "2026-08-31T12:17:42Z",
+                  "completed_at": "2026-08-31T12:20:37Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t9",
