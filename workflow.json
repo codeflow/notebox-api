@@ -4598,7 +4598,7 @@
             {
               "id": "feat-021-navigator-root-destinations.plan",
               "title": "Plan — how, with contracts",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -4609,12 +4609,13 @@
                 "features/021-navigator-root-destinations/plan.md",
                 "features/021-navigator-root-destinations/data-model.md"
               ],
-              "started_at": "2026-08-31T18:32:35Z"
+              "started_at": "2026-08-31T18:32:35Z",
+              "completed_at": "2026-08-31T18:34:26Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -4623,7 +4624,9 @@
               "gate": "human_approval",
               "produces": [
                 "features/021-navigator-root-destinations/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-31T18:34:27Z",
+              "completed_at": "2026-08-31T19:14:27Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.implement",
