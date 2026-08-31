@@ -117,7 +117,7 @@ compliance argument moves, and changing the plan is cheapest before anything els
         /_not-found` because a dev server from an earlier session was writing into `.next` while
         `npm run clean` deleted it — environment, not code, confirmed by the clean re-run)
 
-- [ ] **T-10 · Live browser pass**
+- [x] **T-10 · Live browser pass**
       - files: — (evidence, recorded in the audit)
       - covers: nothing new; it is the tier the other nine cannot reach
       - **why it is a task and not a habit:** jsdom loads no stylesheet and no layout engine. On 2026-08-30 seven defects shipped with a green suite for exactly that reason, including a dialog that was invisible in a browser while every assertion passed. A band is a `<tr>` inside a `<table>` with a `colspan` — precisely the kind of thing that asserts fine and renders wrong.
@@ -125,6 +125,20 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - depends: T-09
       - parallel: no
       - verify: measured in a browser, numbers stated in the report — not a screenshot alone
+      - **report: `_live-pass-2026-08-31.md`** · lane exactly 28px; two bands contiguous with
+        zero overlap (198→234→268→304→558); band is its row's next sibling, `colspan=8`, inner
+        grid 10 rows over a 13-record total; hidden field absent as a column; reopen issued
+        **zero** requests (INV-B5 live)
+      - **found and fixed one defect no test could see**: the failure notice drew a red border
+        instead of the theme's `#d98c8c`, because T-09 used the `border` shorthand, which resets
+        `border-color` to `currentColor`, after `.nb-msg-error`
+      - **R4 correction**: "the other columns' widths are unchanged" is not achievable in a
+        width-constrained table and is not what happens — Icon (fixed 46px) holds, the six
+        flexible columns give up 3–8px each. Nothing reorders or overflows. Read R4 as "the
+        column set is not disturbed"
+      - **not verified here**: keyboard *activation* — synthetic Enter triggers no native button
+        activation in this harness (proved with a plain control button), so it rests on T-07's
+        jsdom tests. `aria-expanded` WAS read live per row
 
 ---
 

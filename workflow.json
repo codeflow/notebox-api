@@ -4510,12 +4510,14 @@
                   "id": "feat-020-records-subgrid.implement.t10",
                   "title": "T-10 — Live browser pass",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-08-31T12:38:13Z",
+                  "completed_at": "2026-08-31T12:54:37Z"
                 }
               ]
             },
