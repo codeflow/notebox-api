@@ -4540,13 +4540,15 @@
             {
               "id": "feat-020-records-subgrid.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-08-31T15:10:15Z",
+              "completed_at": "2026-08-31T15:10:15Z"
             },
             {
               "id": "feat-020-records-subgrid.review",
@@ -4560,7 +4562,11 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 18,
+            "branch": "feature/records-subgrid"
+          }
         },
         {
           "id": "feat-021-navigator-root-destinations",
