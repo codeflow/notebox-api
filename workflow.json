@@ -4631,19 +4631,20 @@
             {
               "id": "feat-021-navigator-root-destinations.implement",
               "title": "Implement — code + tests",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
               "gate": "verify_green",
-              "started_at": "2026-08-31T19:14:37Z"
+              "started_at": "2026-08-31T19:14:37Z",
+              "completed_at": "2026-08-31T19:33:14Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -4652,7 +4653,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/021-navigator-root-destinations/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-31T19:33:19Z",
+              "completed_at": "2026-08-31T19:37:14Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.publish",
