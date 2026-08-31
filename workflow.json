@@ -4328,7 +4328,7 @@
             {
               "id": "feat-020-records-subgrid.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -4338,7 +4338,8 @@
               "produces": [
                 "features/020-records-subgrid/spec.md"
               ],
-              "started_at": "2026-08-30T20:16:17Z"
+              "started_at": "2026-08-30T20:16:17Z",
+              "completed_at": "2026-08-31T01:37:21Z"
             },
             {
               "id": "feat-020-records-subgrid.plan",
