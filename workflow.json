@@ -4468,13 +4468,15 @@
                   "id": "feat-020-records-subgrid.implement.t7",
                   "title": "T-07 — Keyboard operation and the announced state",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium",
                     "isolation": "worktree"
-                  }
+                  },
+                  "started_at": "2026-08-31T12:12:55Z",
+                  "completed_at": "2026-08-31T12:17:12Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t8",

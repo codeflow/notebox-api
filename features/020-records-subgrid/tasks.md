@@ -67,12 +67,16 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - probe: have the band fetch with bare `fetch` instead of the client — the session-expired
         assertion fails (**run 2026-08-31**, along with 9 other band tests)
 
-- [ ] **T-07 · Keyboard operation and the announced state**
+- [x] **T-07 · Keyboard operation and the announced state**
       - files: `components/annotationTypes/AnnotationTypeList.tsx`, its test
       - covers: scenario *"The disclosure is operable from the keyboard and announces its state"* (OQ-32 §4)
       - `aria-expanded` on the disclosure; the footer link reachable by tabbing onward
+      - the tab-order assertion pins the path, not merely reachability: name link → View → … →
+        the band's link, and never the *next* row's twisty first
       - depends: T-04
-      - parallel: yes
+      - parallel: yes — **main thread**, same test file as T-06
+      - probe: the three state assertions were red before `aria-expanded` was added (2026-08-31);
+        keyboard activation needed no code, which is what a native `<button>` buys
       - verify: `npx vitest run components/annotationTypes/AnnotationTypeList`
 
 - [ ] **T-08 · The band's four strings, in both locales**
