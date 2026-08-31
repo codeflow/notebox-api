@@ -4344,7 +4344,7 @@
             {
               "id": "feat-020-records-subgrid.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -4354,12 +4354,14 @@
               "produces": [
                 "features/020-records-subgrid/plan.md",
                 "features/020-records-subgrid/data-model.md"
-              ]
+              ],
+              "started_at": "2026-08-31T01:49:20Z",
+              "completed_at": "2026-08-31T01:49:20Z"
             },
             {
               "id": "feat-020-records-subgrid.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -4368,7 +4370,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/020-records-subgrid/tasks.md"
-              ]
+              ],
+              "started_at": "2026-08-31T01:49:20Z"
             },
             {
               "id": "feat-020-records-subgrid.implement",
@@ -4379,7 +4382,123 @@
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-020-records-subgrid.implement.t1",
+                  "title": "T-01 — Render one type's records through the shared cell renderer",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t2",
+                  "title": "T-02 — The empty and failed states of a band",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t3",
+                  "title": "T-03 — The footer line names the true total and links out",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t4",
+                  "title": "T-04 — The disclosure column, and expansion state that survives a re-render",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t5",
+                  "title": "T-05 — Fetch on open, once per type, and not before",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t6",
+                  "title": "T-06 — A 401 inside a band ends the session, not the band",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t7",
+                  "title": "T-07 — Keyboard operation and the announced state",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t8",
+                  "title": "T-08 — The band's four strings, in both locales",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t9",
+                  "title": "T-09 — Band styling in the theme's banded row",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  }
+                },
+                {
+                  "id": "feat-020-records-subgrid.implement.t10",
+                  "title": "T-10 — Live browser pass",
+                  "kind": "task",
+                  "status": "pending",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  }
+                }
+              ]
             },
             {
               "id": "feat-020-records-subgrid.audit",

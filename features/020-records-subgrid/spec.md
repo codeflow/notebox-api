@@ -2,8 +2,8 @@
 
 **ID:** features/020-records-subgrid
 **User Story:** US-2.2
-**Version:** v1
-**Status:** Draft
+**Version:** v2 (amended 2026-08-30, see § Amendments)
+**Status:** Approved
 **Date:** 2026-08-30
 **Project:** notebox-web (satellite)
 
@@ -103,12 +103,13 @@ Feature: FR-05 — a type's records, read from the list that names the type
     Then the first band is gone
     And the second band is unchanged
 
-  Scenario: The records are fetched when the row opens, not when the list loads
+  Scenario: The rows' data is fetched when a row opens, not when the list loads
     Given a list of 12 types, none expanded
     When the list finishes loading
-    Then no request for records has been issued
+    Then no request for a type's fields or records has been issued
     When the member expands one row
-    Then exactly one records request is issued, for that type, with size 10
+    Then exactly one type request and one records request are issued, both for that type
+    And the records request carries size 10
 
   Scenario: Reopening a row does not refetch what it already has
     Given a row that has been expanded and then collapsed
@@ -199,3 +200,23 @@ the hub.
 None open. **OQ-32 is resolved** (2026-08-30) and its four answers are the source of S3, S4, S2
 and the keyboard scenario respectively. Any new question found while planning gets its own OQ
 rather than a silent assumption.
+
+## Amendments
+
+### v2 — 2026-08-30 · the cost of opening a row
+
+**What changed.** Scenario *"the records are fetched when the row opens"* said **one** records
+request. It now reads **one type request and one records request**.
+
+**Why.** The plan's survey found that `GET /annotation-types` returns
+`AnnotationTypeListItemDto` — `fieldCount`, `visibleFieldCount`, `recordCount` — **counts, not
+fields**. The band's columns *are* the type's visible fields, and it is `FieldDto` that carries
+`secret` and `fieldType`, the two properties C-12 and C-08 depend on. So the fields must be
+fetched too, via `GET /annotation-types/:id`.
+
+**What did not change.** No API change is still in scope-out: both endpoints already ship. The
+alternative — embedding fields in the list DTO — was rejected in the plan because it makes the
+common case, a list with nothing expanded, pay for the rare one.
+
+**How this was handled.** The plan raised it as a requested amendment rather than reinterpreting
+an approved spec, and the product owner approved the change before `tasks` began.
