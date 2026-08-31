@@ -4553,19 +4553,23 @@
             {
               "id": "feat-020-records-subgrid.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-08-31T18:09:43Z",
+              "completed_at": "2026-08-31T18:09:44Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "issue": 18,
-            "branch": "feature/records-subgrid"
+            "branch": "feature/records-subgrid",
+            "pr": 19,
+            "merged": "develop"
           }
         },
         {
