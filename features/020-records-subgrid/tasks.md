@@ -25,7 +25,7 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - parallel: no (same file as T-01)
       - verify: `npx vitest run components/annotationTypes/TypeRecordsBand`
 
-- [ ] **T-03 · The footer line names the true total and links out**
+- [x] **T-03 · The footer line names the true total and links out**
       - files: `components/annotationTypes/TypeRecordsBand.tsx`, its test
       - covers: scenario *"A type with more records than the band shows says so, and links out"* · **INV-B3**
       - the assertion that matters: 10 rows rendered, the line reads 47, and 47 comes from `PageDto.total`
