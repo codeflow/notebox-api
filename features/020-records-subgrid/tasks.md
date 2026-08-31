@@ -16,6 +16,15 @@ compliance argument moves, and changing the plan is cheapest before anything els
       - parallel: no (everything else builds on its shape)
       - verify: `npx vitest run components/annotationTypes/TypeRecordsBand`
       - probe: render `value.text` directly instead of `RecordGridCell` — the Secret and markup assertions must both fail
+      - **reopened 2026-08-31 by the audit (F-01)**: the C-12 assertion watched
+        `imagesClient.fetchObjectUrl` (the IMAGE path) while the reveal path is
+        `annotationRecordsClient.reveal`, which this file did not even mock — it could not fail.
+        Fixed in two parts, because the first was not enough: (1) mock the reveal client and
+        assert `reveal` was not called; (2) render the band **as ADMIN**, since the affordance is
+        ADMIN-gated and under a roleless mock the new assertion would have been just as vacuous.
+        Probe: rendering `RevealableValue` for a Secret field inside `RecordGridCell` now fails
+        this test on the affordance assertion (the request needs a click, so the two assertions
+        cover different halves and both are kept).
 
 - [x] **T-02 · The empty and failed states of a band**
       - files: `components/annotationTypes/TypeRecordsBand.tsx`, its test

@@ -4395,8 +4395,8 @@
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-31T02:13:07Z",
-                  "completed_at": "2026-08-31T02:13:08Z"
+                  "started_at": "2026-08-31T13:37:31Z",
+                  "completed_at": "2026-08-31T13:44:32Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t2",
@@ -4408,8 +4408,8 @@
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-31T02:13:08Z",
-                  "completed_at": "2026-08-31T02:18:52Z"
+                  "started_at": "2026-08-31T13:44:41Z",
+                  "completed_at": "2026-08-31T13:44:42Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t3",
@@ -4421,8 +4421,8 @@
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-31T02:20:25Z",
-                  "completed_at": "2026-08-31T02:26:27Z"
+                  "started_at": "2026-08-31T13:44:43Z",
+                  "completed_at": "2026-08-31T13:44:43Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t4",
@@ -4434,8 +4434,8 @@
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-31T11:38:55Z",
-                  "completed_at": "2026-08-31T11:44:51Z"
+                  "started_at": "2026-08-31T13:44:44Z",
+                  "completed_at": "2026-08-31T13:44:44Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t5",
@@ -4447,8 +4447,8 @@
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-31T11:46:13Z",
-                  "completed_at": "2026-08-31T11:48:19Z"
+                  "started_at": "2026-08-31T13:44:45Z",
+                  "completed_at": "2026-08-31T13:44:45Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t6",
@@ -4461,8 +4461,8 @@
                     "effort": "medium",
                     "isolation": "worktree"
                   },
-                  "started_at": "2026-08-31T12:07:21Z",
-                  "completed_at": "2026-08-31T12:09:57Z"
+                  "started_at": "2026-08-31T13:44:46Z",
+                  "completed_at": "2026-08-31T13:44:46Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t7",
@@ -4475,8 +4475,8 @@
                     "effort": "medium",
                     "isolation": "worktree"
                   },
-                  "started_at": "2026-08-31T12:12:55Z",
-                  "completed_at": "2026-08-31T12:17:12Z"
+                  "started_at": "2026-08-31T13:44:46Z",
+                  "completed_at": "2026-08-31T13:44:46Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t8",
@@ -4489,8 +4489,8 @@
                     "effort": "medium",
                     "isolation": "worktree"
                   },
-                  "started_at": "2026-08-31T12:17:42Z",
-                  "completed_at": "2026-08-31T12:20:37Z"
+                  "started_at": "2026-08-31T13:44:47Z",
+                  "completed_at": "2026-08-31T13:44:47Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t9",
@@ -4503,8 +4503,8 @@
                     "effort": "medium",
                     "isolation": "worktree"
                   },
-                  "started_at": "2026-08-31T12:24:26Z",
-                  "completed_at": "2026-08-31T12:37:59Z"
+                  "started_at": "2026-08-31T13:44:47Z",
+                  "completed_at": "2026-08-31T13:44:47Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t10",
@@ -4516,15 +4516,15 @@
                     "model": "sonnet",
                     "effort": "medium"
                   },
-                  "started_at": "2026-08-31T12:38:13Z",
-                  "completed_at": "2026-08-31T12:54:37Z"
+                  "started_at": "2026-08-31T13:44:48Z",
+                  "completed_at": "2026-08-31T13:44:48Z"
                 }
               ]
             },
             {
               "id": "feat-020-records-subgrid.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -4533,7 +4533,9 @@
               "gate": "audit_pass",
               "produces": [
                 "features/020-records-subgrid/audit.md"
-              ]
+              ],
+              "started_at": "2026-08-31T13:53:30Z",
+              "completed_at": "2026-08-31T13:53:30Z"
             },
             {
               "id": "feat-020-records-subgrid.publish",

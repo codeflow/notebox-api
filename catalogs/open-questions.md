@@ -292,6 +292,13 @@
 **Status:** ✅ resolved (2026-08-30).
 **Decision:** Option A confirmed, in the af:table detailStamp idiom: a disclosure column on the types grid, the detail rendered full-width beneath the row, carrying that type's OWN record grid with the columns its visible fields define. (1) VOLUME — the expanded row lists the first 10 records and closes with a link naming the true total ('see all 47 records'), which navigates to the full grid. One request per opened row at size=10; no pagination state inside a row. Honest about what it is not showing, and NFR-08's default is respected rather than excepted. (2) MULTIPLE ROWS — each row keeps its own open state and several may be open at once, as the navigator's folders already do and as ADF's detailStamp does; nothing closes that the user did not close. (3) EMPTY TYPE — the expanded band shows the grid's existing empty row, no new widget. (4) KEYBOARD — not a product choice: the disclosure control is in the tab order, aria-expanded reflects its state, and the nested grid's row actions are reachable. Accepted cost, restated so it is not relitigated: the column set changes per expanded row, so rows are not comparable across the list, and a type with no records still draws its header over an empty band. — decided by rafaelsantos, 2026-08-30.
 
+### OQ-34 — feat-020 left two small test-coverage gaps: the band link's route string is asserted only by hand, and two toggles in one tick fire two identical records requests
+**Severity:** 🟢 Tactical
+**Description:** <what is unknown and why it matters>
+**Impact:** F-04: a typo in page.tsx's route template ships a 404 from the band's only control with the whole suite green — the live pass caught it by navigating, no test does. F-05: toggle() reads open/bands from the render closure, so a second toggle before React re-renders sees an empty cache and calls load() again; measured as two identical GET /annotation-records requests, violating INV-B5. NOT reachable by a real double-click (verified: one request), so it is a latent path, not a user-facing defect. Both are cheap: an integration assertion on the route, and functional setState plus an in-flight guard. Decide whether to fix them in feat-021 (which already touches navigation) or leave them tracked.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -343,6 +350,7 @@
 | 2026-08-30 | OQ-32 resolved: Option A confirmed, in the af:table detailStamp idiom: a disclosure co… |
 | 2026-08-31 | OQ-33 opened: the Navigator's Annotations root node reaches no list screen, so feat-020's sub-grid has no route from the tree |
 | 2026-08-31 | OQ-33 resolved: option (a) — the Navigator's root nodes navigate (Annotations → the types list, Tasks → the tasks list); recorded deviation from design 05's inert root labels |
+| 2026-08-31 | OQ-34 opened: feat-020 left two small test-coverage gaps: the band link's route stri |
 
 ### OQ-33 — The Navigator's `Annotations` node does not reach the types list, where feat-020's sub-grid lives
 **Severity:** 🟡 Important

@@ -4,7 +4,12 @@
 `feature/records-subgrid` @ notebox-web (8 files, +1253/−61) · **Harness:** `npm run verify`
 exit 0, 624 tests, 78 files.
 
-## Verdict — **FAIL**, reopen `implement`
+## Verdict — Round 1 **FAIL** · Round 2 (2026-08-31) **PASS with findings**
+
+> **Round 2 outcome:** F-01 fixed and proved to bite; `npm run verify` exit 0, 624 tests, 78
+> files. F-02…F-06 stand as non-blocking, tracked below and in OQ-34. The gate opens.
+
+### Round 1 — FAIL, reopen `implement`
 
 One finding blocks: **C-12's declared evidence does not exist** (F-01). The *behaviour* is
 correct and provable; the assertion the spec named as its evidence cannot fail, and its comment
@@ -199,3 +204,57 @@ Recorded because it is the argument for keeping T-10 as a task: it found a defec
 Fix F-01 (the assertion C-12 was promised), then re-run `verify` and re-audit. F-02 through F-06
 need no code change before publish: F-02 and F-03 are corrections to the plan's own wording, F-04
 and F-05 are backlog candidates, F-06 is a note.
+
+
+---
+
+# Round 2 — 2026-08-31, after `wf reopen … --cascade`
+
+## F-01 — closed, and the fix needed two parts
+
+**Part 1.** `annotationRecordsClient` is now mocked in `TypeRecordsBand.test.tsx` and the test
+asserts `reveal` was not called — the assertion its comment always claimed.
+
+**Part 2, which the first part alone would not have delivered.** `RevealableValue` renders its
+button only for `me?.role === 'ADMIN'`. With no auth mock, the band's tests ran roleless, so a
+`RecordGridCell` that started rendering `RevealableValue` would have produced neither a button
+nor a request, and the corrected assertion would have been *just as vacuous as the one it
+replaced* — F-01 one level down. The band is now rendered **as ADMIN**: the adversarial case,
+because an ADMIN-gated leak looks innocent to every other role.
+
+**Probe (run 2026-08-31).** Pointing `RecordGridCell` at `RevealableValue` for Secret fields —
+the hole C-12 forbids — now fails this test:
+
+```
+× masks a Secret field and asks for no reveal (C-12)
+  → expect(element).not.toBeInTheDocument()
+```
+
+It fails on the **affordance** assertion, not the request one: the request needs a click. Both
+assertions are kept because they cover different halves — rendering must issue no reveal, and no
+control may exist to issue one. The comment in the test now says which is which.
+
+**C-12's evidence row is now satisfied as the spec worded it.**
+
+## Re-checks
+
+| Check | Round 2 |
+|---|---|
+| Diff since Round 1 | one test file (`TypeRecordsBand.test.tsx`), +2 mocks and +1 assertion. No production code touched. |
+| `verify` | exit 0 — 624 tests, 78 files, on a tree with **no dev server running** (the `.next` collision that produced two false diagnoses earlier is excluded). |
+| The other five findings | unchanged; none was introduced or worsened by the fix. |
+| New risk from the fix | the `useAuth` and `annotationRecordsClient` mocks are inert for every other test in the file — the band uses neither, and `RecordGridCell` uses neither. Verified by the 23 tests passing unchanged. |
+
+## Disposition of the non-blocking findings
+
+| Finding | Disposition |
+|---|---|
+| **F-02** page.tsx outside the blast radius | Recorded in `tasks.md` (T-04) and here. It is a correction to the plan's own table, not work. |
+| **F-03** R4 not satisfiable as worded | Recorded in `_live-pass-2026-08-31.md` §1, `tasks.md` (T-09/T-10) and here. Correction to the plan's wording. |
+| **F-04** route asserted only by hand | **OQ-34** — tracked, decision pending. |
+| **F-05** two toggles in one tick → two requests | **OQ-34** — tracked, decision pending. Proved reachable programmatically and **not** reachable by a real double-click. |
+| **F-06** `TYPES_GRID_COLUMNS` duplicates the column count | Observation. The header test fails if the list's column count changes, so the drift is not silent; nothing ties the `colSpan` itself. |
+
+## Gate
+
+`audit_pass` — **open**. Publishing and the PR follow; nothing merges here.
