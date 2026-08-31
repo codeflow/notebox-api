@@ -4496,13 +4496,15 @@
                   "id": "feat-020-records-subgrid.implement.t9",
                   "title": "T-09 — Band styling in the theme's banded row",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium",
                     "isolation": "worktree"
-                  }
+                  },
+                  "started_at": "2026-08-31T12:24:26Z",
+                  "completed_at": "2026-08-31T12:37:59Z"
                 },
                 {
                   "id": "feat-020-records-subgrid.implement.t10",

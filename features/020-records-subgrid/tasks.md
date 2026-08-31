@@ -98,14 +98,24 @@ compliance argument moves, and changing the plan is cheapest before anything els
         neither catalog → 4 fail, the raw-key assertion among them in both locales
       - verify: `npx vitest run lib/i18n components/annotationTypes/TypeRecordsBand`
 
-- [ ] **T-09 · Band styling in the theme's banded row**
+- [x] **T-09 · Band styling in the theme's banded row**
       - files: `src/styles/adf-fusion.overrides.css`
       - covers: no scenario of its own — it is the visual half of T-01..T-04
       - uses `.af-table tbody tr.band`, which the theme already defines
       - the `classCoverage` guard added on 2026-08-30 fails if a class is written with no rule, so this task cannot be skipped silently
+      - **but that guard only proves a rule MENTIONS the class** — it scans the sheets for `.name`.
+        It cannot see a rule that does nothing, which is precisely why T-10 exists
+      - two traps worth recording: `.nb-msg-error` carries only colours (the `border: 1px solid`
+        lives on `.nb-msg`, which a band notice does not wear, and `border-color` with no
+        `border-style` draws nothing); and the muted notice colour needed `:not(.nb-msg-error)`
+        because this rule sits later in the file and at equal specificity would repaint the
+        failure grey
       - depends: T-04
-      - parallel: yes
-      - verify: `npx vitest run src/styles/classCoverage`
+      - parallel: yes — **main thread**
+      - verify: `npx vitest run src/styles/classCoverage` → green; full `npm run verify` → **exit 0**
+        (**2026-08-31**; a first run failed in `next build` with `Cannot find module for page:
+        /_not-found` because a dev server from an earlier session was writing into `.next` while
+        `npm run clean` deleted it — environment, not code, confirmed by the clean re-run)
 
 - [ ] **T-10 · Live browser pass**
       - files: — (evidence, recorded in the audit)
