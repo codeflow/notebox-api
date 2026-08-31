@@ -4582,7 +4582,7 @@
             {
               "id": "feat-021-navigator-root-destinations.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -4591,7 +4591,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/021-navigator-root-destinations/spec.md"
-              ]
+              ],
+              "started_at": "2026-08-31T18:25:44Z"
             },
             {
               "id": "feat-021-navigator-root-destinations.plan",

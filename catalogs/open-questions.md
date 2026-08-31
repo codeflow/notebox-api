@@ -297,7 +297,8 @@
 **Description:** <what is unknown and why it matters>
 **Impact:** F-04: a typo in page.tsx's route template ships a 404 from the band's only control with the whole suite green — the live pass caught it by navigating, no test does. F-05: toggle() reads open/bands from the render closure, so a second toggle before React re-renders sees an empty cache and calls load() again; measured as two identical GET /annotation-records requests, violating INV-B5. NOT reachable by a real double-click (verified: one request), so it is a latent path, not a user-facing defect. Both are cheap: an integration assertion on the route, and functional setState plus an in-flight guard. Decide whether to fix them in feat-021 (which already touches navigation) or leave them tracked.
 **Suggested path:** <how to resolve>
-**Status:** open.
+**Status:** ✅ resolved (2026-08-31).
+**Decision:** Fold both into feat-021, which already touches navigation — the route assertion lands next to the tree's own destination tests, and the double-toggle guard next to the band's fetch. Neither is worth a feature of its own, and leaving them tracked-but-unfixed would let a known-latent path age into a surprise. — decided by rafaelsantos, 2026-08-31.
 
 ## History
 
@@ -351,6 +352,7 @@
 | 2026-08-31 | OQ-33 opened: the Navigator's Annotations root node reaches no list screen, so feat-020's sub-grid has no route from the tree |
 | 2026-08-31 | OQ-33 resolved: option (a) — the Navigator's root nodes navigate (Annotations → the types list, Tasks → the tasks list); recorded deviation from design 05's inert root labels |
 | 2026-08-31 | OQ-34 opened: feat-020 left two small test-coverage gaps: the band link's route stri |
+| 2026-08-31 | OQ-34 resolved: Fold both into feat-021, which already touches navigation — the route … |
 
 ### OQ-33 — The Navigator's `Annotations` node does not reach the types list, where feat-020's sub-grid lives
 **Severity:** 🟡 Important
