@@ -97,6 +97,60 @@ which had been answering the same situation two different ways.
 
 ---
 
+## Second and third rounds
+
+### Icon affordances everywhere (items 5.2–5.3, 6, 13, 14, 20.2)
+
+Every one of these is the same move: a text control becomes a Fusion icon whose accessible name
+comes from the catalog, following the `RowActions` precedent — so nothing is lost by dropping the
+visible label. New i18n keys in both locales for each tooltip.
+
+- The **icon picker** keeps the native input as the REAL control (it owns the file dialog and the
+  keyboard path) but takes it out of the flow. The row is now a thumbnail plus two icon buttons,
+  and `Remove icon` finally lines up with the field beside it.
+- The **tasks grid** gained an actions column. **Delete routes to the task's detail rather than
+  deleting from the row** — BR-05 requires a confirmation and building one for the grid is OQ-35's
+  scope, so this reuses the confirmation that already exists.
+- **Task detail**, **subtasks grid** and the **Groups panel** likewise.
+
+### The type detail as a grid (item 4)
+
+One row per field, flags as icons, and a **Secret column the card layout never showed at all**.
+Read-only: inline editing is OQ-35's subject and this screen becomes one of its callers.
+
+> Caught by the integration suite while rewriting it: I had dropped the colour NAME from badge
+> options, leaving only the swatch — unreadable to anyone who cannot distinguish it. Restored.
+
+### The remaining chrome (items 1.2, 7.2, 20.1, 22.1, 24.1–24.2, 24.4)
+
+- **Message catalog toolbar**: it had no side borders while the grid below it was boxed, the
+  locale label/select pair inherited the 140px form column, and the coverage count sat wherever
+  the flow left it. Now a bordered strip, label beside its select, count at the far end.
+- **`af-subHeader`** gained a rule under it — a section now announces itself instead of floating
+  as bold text above whatever follows. This is what made Members and Groups read as unstyled.
+- **Members**: the provisioning form sits in a panel body under its heading rather than on bare
+  white.
+- **Groups**: the "groups are flat" note moved out of the heading line into its own quiet line.
+- **Workspace home**: the two summary boxes were stretching to half the viewport each, so four
+  short numbers floated in a lot of nothing. The row is capped and the figures are emphasised.
+- **Record detail**: the rich-text value gets room and a boundary. The renderer already handled
+  rich text and highlighted code with line numbers; what it lacked was a box to live in.
+
+### The i18n audit (item 24.6)
+
+Swept `title` / `aria-label` / `placeholder` / `alt` across `components` and `app` for literals.
+**The app is in better shape than the brief assumed** — two findings only:
+
+- the rich-text editor's `https://` placeholder was a literal → now a catalog key, added to
+  `translationNotCopy`'s allowlist as a URL sample (it is identical in both locales on purpose);
+- `NoteboxLogo`'s `aria-label="Notebox"` is the product name, which the catalog already treats as
+  untranslatable (`branding.appName` is in the same allowlist). Left alone.
+
+**Item 24.5 — the coverage text "not in the catalog":** it IS in the catalog
+(`translations.coverage`). What the human could not find is the KEY on that screen, because the
+message-catalog screen lists the **server's** messages, not the client's. Two separate catalogs.
+Not a defect; worth knowing before someone goes looking again.
+
 ## NOT delivered, and why
 
 **Everything routed to OQ-35** — the side panel and inline editing (items 2.3, 2.4, 4.4, 7.1, 8.1,
@@ -116,21 +170,12 @@ Feature work.
 pass. Worth doing, and item 4's own note flags the ordering question: it gains inline editing at
 OQ-35, so building it as a grid now means building it twice.
 
-**Items 13.1–13.2, 14.1–14.3, 20.2 — action-icon columns** (tasks grid, task detail, subtasks,
-Groups). Not reached. Each needs localized tooltips, so each adds i18n keys — real work, not
-decoration. `RowActions` is the precedent to copy.
-
-**Item 16 — code-block line numbers and highlighting in the EDITOR.** Investigated: **lowlight is
-already installed** and `RichTextValue` already highlights with line numbers on the read side. So
-this is fix-lane, not a new dependency — but it is editor styling that was not reached.
-
-**Items 1.2, 20.1, 22.1, 23, 24.9 — the open-ended "embelezar" requests** (workspace, Groups,
-Members, the password dialog, the message catalog). The dialog *layout* was fixed generically
-(items 3/21/23 shared one cause), but the per-screen restyles were not attempted.
-
-**Item 24.5–24.6 — the i18n audit.** `0 of 80 reworded by this workspace` is not in the catalog,
-and the rule "every text and every tooltip localizable" needs a sweep over the whole app, not an
-edit.
+**Item 16 — line numbers inside the EDITOR's code block.** The highlighting works
+(`CodeBlockLowlight` is configured and lowlight was already installed) and the numbering CSS
+already serves both sides. But the numbers come from wrapping each line in `.nb-codeLine`, which
+`RichTextValue` does by hand on the read side. Doing it inside the editor needs a **ProseMirror
+decoration** — not CSS, and a real risk of breaking typing. That is past what this lane should
+attempt; it wants a spec and its own tests.
 
 **Item 9.1 — the tree root's highlight.** Belongs to **feat-021's PR #21**, not here: that change
 is what paints it, and it is not merged yet. Adjusting it in this branch would edit a feature
