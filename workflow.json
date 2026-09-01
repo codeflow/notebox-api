@@ -4835,7 +4835,7 @@
             {
               "id": "feat-023-records-panel.plan",
               "title": "Plan — how, with contracts",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -4846,12 +4846,13 @@
                 "features/023-records-panel/plan.md",
                 "features/023-records-panel/data-model.md"
               ],
-              "started_at": "2026-09-01T20:07:38Z"
+              "started_at": "2026-09-01T20:07:38Z",
+              "completed_at": "2026-09-01T20:21:16Z"
             },
             {
               "id": "feat-023-records-panel.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -4860,7 +4861,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/023-records-panel/tasks.md"
-              ]
+              ],
+              "started_at": "2026-09-01T20:21:17Z"
             },
             {
               "id": "feat-023-records-panel.implement",
