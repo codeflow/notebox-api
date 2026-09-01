@@ -532,3 +532,484 @@ Three things:
 > The actions column itself (items 1 and 2 above) is fix-lane work **only if** the actions it
 > triggers already exist: task edit and delete screens do exist today, so an icon column that
 > routes to them is presentation. The moment those icons must open the popup instead, it is OQ-35.
+
+---
+
+### 14 — The task detail screen: text buttons → Fusion icons with i18n tooltips, everywhere
+
+**Screenshot supplied** (1430×735, `Workspace > Tasks > Task`, viewing the task "Teste"). What it
+shows:
+
+- Title `Teste`, right-aligned **text buttons `Edit` and `Delete`**.
+- Left panel **`Derived metrics`** (blue header): `Status` with a 0% progress bar; `Start date` —
+  with the hint `min(subtask start)`; `End date` — with `max(subtask end)`; `Priority Medium`.
+- Right panel **`Card`**: "No card" and the note "Not a shared entity: the card lives on this task
+  (and can also live on a subtask)."
+- Tabs **`Subtasks (0)`** (selected) and **`Details`**.
+- The Subtasks panel: header `Subtasks` with a **text link `Add subtask`** on the right; a grid with
+  columns `Done · Subtask · Start date · End date · Card · Actions`; the row `No subtasks yet`; and
+  a footer `0 subtasks`. **The `Actions` column header exists but the empty state draws nothing in
+  it.**
+- A vertical **`Notes`** tab docked on the right edge (the `af-drawer` from design 16).
+
+**The human's words, verbatim:**
+
+> Na tela de task específica, os botoes Edit e Delete podiam ser substituidos por ícones estilo
+> Fusion com tooltips internaciolizaveis.
+>
+> O botão Add subtask podia ser um ícone estilo Fusion com tooltip internacionzalivel. E o grid de
+> subtask também deve ter uma coluna de ações de edição e exclusão com icones estilo Fusion com
+> tooltips internacionalizaveis e nesse grid a edição também abre um popup
+
+Four things:
+
+1. **`Edit` / `Delete` become Fusion icons with localized tooltips.**
+2. **`Add subtask` becomes a Fusion icon with a localized tooltip.**
+3. **The subtasks grid gets edit + delete action icons**, Fusion style, localized tooltips.
+4. **The subtasks grid ALSO edits via popup**, not inline. → a SECOND exception to item 2's
+   system-wide rule, alongside the tasks grid (item 13). Recorded in OQ-35.
+
+> Notes for `start`:
+> - **Every one of these needs a localized tooltip**, so this item adds i18n keys — C-09 applies and
+>   the keyset guard will enforce both locales. That is real work, not decoration.
+> - The **icon-with-tooltip pattern already exists**: `RowActions` (used by the annotation-types
+>   grid) renders `af-iconButton` with `title` + `aria-label` from the catalog. So this is reuse,
+>   not invention — the same component may serve here.
+> - Turning a **text** button into an icon-only button is an accessibility trade: the accessible
+>   name must come from the tooltip's key, never disappear. `RowActions` already does this
+>   correctly and is the precedent to follow.
+
+---
+
+### 15 — The task Details tab: check the image bug here too, and another short rule
+
+**Screenshot supplied** (1436×743, `Workspace > Tasks > Task`, the **Details** tab selected on task
+"Teste"). What it shows:
+
+- Same header as item 14 (`Teste`, text buttons `Edit` / `Delete`), same `Derived metrics` and
+  `Card` panels, same `Notes` drawer tab on the right edge.
+- Tabs `Subtasks (0)` and **`Details`** (selected).
+- The Details panel holds a **rich-text editor**, empty, cursor visible. Toolbar: **B I U S**,
+  bullet list, ordered list, quote, `<>`, code block, **a solid black square** (a colour control,
+  rendering as a filled black swatch), a `https://` URL input, a link button and an image button.
+- `Save` `Cancel` buttons, **right-aligned**, beneath the editor.
+- **A horizontal rule under the title that stops short**: it ends at ~1393px while the panel
+  beneath it runs to ~1420px.
+
+**The human's words, verbatim:**
+
+> Na tela de details o ponto é ver no richtext se vai falhar ao inserir a imagem igual reportado
+> anteriormente. E a linha horizontal não vai até o fim
+
+Two things:
+
+1. **Check whether the image bug of item 8 reproduces in THIS editor too.** The human is asking for
+   verification, not asserting it — *"o ponto é ver ... se vai falhar"*. Same rich-text component,
+   different screen, so it very likely shares the cause; but that is to be confirmed at `start`,
+   not assumed here.
+2. **The rule does not reach the full width** — the third instance of the rule-width problem
+   (items 8 and 10). Reinforces the conclusion recorded in item 10: fix it once, as a rule for all
+   form screens, rather than per screen.
+
+> Also visible, not raised by the human — recording it because it is in the frame and cheap to
+> settle while nearby: the toolbar's colour control renders as a **plain black square**, which
+> reads as a filled swatch rather than a Fusion control. Worth including in the icon work of items
+> 3 / 9 / 11 / 14 if the human agrees; NOT to be changed on my own initiative.
+
+---
+
+### 16 — Code blocks in the rich text: no line numbers, no syntax highlighting
+
+**Screenshot supplied** (1121×258, a crop of the task **Details** tab with a code block in use).
+What it shows, and it differs from item 15's frame in a way that matters:
+
+- The toolbar now shows the **code-block button in a PRESSED/active state** (boxed), and next to
+  the black colour swatch there is a **language select reading `Plain`** — a control that was not
+  visible in item 15's empty editor, so it appears only when a code block is active.
+- The editor body holds a code block containing `teste`, rendered as a **full-width pale grey band
+  in a monospace font**, with **no line-number gutter** and no colouring.
+- `Save` `Cancel` right-aligned below, and the short rule of item 15 visible above.
+
+**The human's words, verbatim:**
+
+> Reparei que o code block dentro do rich text não exibe o numero da linha (quero um syntax
+> hightlight bonito) precisa ver se no outro lugar onde tem o richtext também está assim
+
+Three things:
+
+1. **Code blocks show no line numbers.**
+2. **Wants proper syntax highlighting** — *"um syntax highlight bonito"*.
+3. **Check the other rich-text location** (the record's Free-text field, item 8's editor) for the
+   same behaviour — again a request to verify, not an assertion.
+
+> Notes for `start`, and one of them may change the lane:
+> - There **is** a language select (`Plain`), so the editor already models a language per block —
+>   highlighting has somewhere to read from. Whether the renderer just does not colour, or no
+>   highlighter is installed at all, is unknown until looked at.
+> - **If a syntax highlighter has to be added, this is not a CSS change**: it is a new dependency
+>   shipped to the browser, with a bundle-size cost and a language list to choose. That is a
+>   decision with trade-offs, which under this lane's own rule points at `/wf-feature`. If instead
+>   the highlighter is already present and merely unstyled, it is fix-lane. **To be established at
+>   `start` before promising anything.**
+> - Item 7 asked for the record DETAIL view to present rich text and code blocks well. Same
+>   subject, different surface: whatever is decided here must also serve the read-only view, not
+>   just the editor.
+
+---
+
+### 17 — SYSTEM RULE: Save/Cancel always right-aligned, on every screen
+
+No new screenshot — a rule the human states, prompted by the Details tab of items 15/16.
+
+**The human's words, verbatim:**
+
+> Ainda mais um ponto nessa tela e precisa ver com as demais telas, o botão de save e cancel talvez
+> devessem ficar sempre no final da margem direita, tem algumas telas se não me engano estão na
+> margem esquerda. Coloque esse padrão pra sempre ficarem na margem direita
+
+**The rule:** form footers (`Save` / `Cancel`) are **always right-aligned**, on every screen.
+
+**The human's recollection is correct — this brief already contains both alignments**, observed
+across four frames:
+
+| Screen | Brief item | Footer alignment today |
+|---|---|---|
+| New annotation type | 6 | **left** |
+| Record edit (rich text) | 8 | **left** |
+| New task | 10 | right |
+| Task Details tab | 15, 16 | right |
+
+So at least two screens change. The audit of this lane should check every remaining form, not just
+these four — the brief only covers the screens the human happened to visit.
+
+> Related, and NOT settled by this rule — flagged so it is decided deliberately rather than by
+> accident while implementing:
+> - **The confirm dialog** (item 3) has its buttons right-aligned but STACKED. This rule is about
+>   alignment; item 3 is about them being side by side. Both point the same way, so they should be
+>   done together.
+> - **Detail screens** (`Edit` / `Delete` in items 4, 7, 14) are already right-aligned, but those
+>   are page actions in a header, not a form footer. This rule as stated covers `Save`/`Cancel`;
+>   whether it extends to header actions is not something the human said, and I will not assume it.
+> - Item 10's note stands: **rule width** is inconsistent across the same screens. Alignment and
+>   rule width are two halves of one "form chrome" pass and are cheaper done together.
+
+---
+
+### 18 — The chrome: dead links, menus to remove, and Administration in a panel
+
+No new screenshot — the branding bar and menu bar visible in every frame collected so far
+(`Workspace · Edit · View · Administration · Help` on the menu bar; `Preferences | Help | Sign out`
+on the right of the branding bar).
+
+**The human's words, verbatim:**
+
+> Agora no topo os links de Preferences e Help não estão funcionando. Deveriam funcionar. Os menus
+> Edit e View acho que não ha necessidade de ter eles. Os itens do menu administration podem abrir
+> num popup, pode ser um sidebar com extensão. Inclusive no menu Administration faltou o item
+> groups que também pode abrir num popup
+
+Four things, in three different lanes:
+
+1. **`Preferences` and `Help` (branding bar) do nothing and should work.** → **Not fix-lane, and
+   not a bug either — there is nothing behind them.** "Should work" does not say WHAT they do:
+   Preferences implies a settings surface that does not exist (locale? theme? what is
+   configurable?), and Help implies content nobody has written. Both need a product decision
+   before any code. Whether a dead affordance should instead be REMOVED until it has a
+   destination is itself a question — that is exactly what OQ-28 decided for the login screen's
+   locale control ("dead affordance"), so there is precedent to follow.
+2. **Remove the `Edit` and `View` menus** — the human sees no need for them. → fix-lane in the
+   sense that it is deletion, not construction. But it is a **product decision about the chrome**,
+   and design screens 05/15 draw those menus; removing them is a **recorded deviation** like the
+   Administration tab was. Cheap to do, must not be done silently.
+3. **Administration items open in a popup / expandable sidebar** → **OQ-35**, same panel as items
+   2, 7, 8, 10. Administration currently routes to `/groups`, `/members`, `/translations`.
+4. **`Groups` is MISSING from the Administration menu** — and should be there, also opening in a
+   popup. → The *missing menu item* is fix-lane (the route exists, the Navigator already lists
+   Groups under its Administration branch, so this is a gap in the menu bar only); the *popup
+   part* is OQ-35.
+
+> To verify at `start`, not assumed now: whether `Preferences`/`Help` are truly inert or merely
+> unrouted, and whether `Groups` is absent from the menu by oversight or by an earlier decision —
+> the Navigator DOES list it under Administration, so the menu bar disagreeing with the tree is
+> itself the smell.
+
+---
+
+### 19 — Administration disappears from the tree once its items open in a panel
+
+No screenshot — a consequence of item 18, stated by the human.
+
+**The human's words, verbatim:**
+
+> Um detalhe, como os itens do menu Administration já abrem no popup, eles não devem aparecer no
+> treeview
+
+**The rule:** once Administration's items open in the side panel, the Navigator must **not** list
+them. They are reached from the menu bar only.
+
+> **This depends on item 18's panel, so it lands with OQ-35, not in this lane.** Removing the
+> branch before the panel exists would leave Groups / Members / Translations reachable from the
+> menu bar alone — which today routes to full screens, so nothing would break, but the human's
+> reason ("they already open in a popup") would not yet be true.
+>
+> Consequences to carry into the spec, recorded now while the thread is fresh:
+> - The Navigator currently renders the Administration branch with its three destinations
+>   (Groups / Members / Translations) when the section is Administration. Removing it means the
+>   tree becomes **content-only** — Annotations and Tasks — which is a cleaner rule than the one it
+>   has now, and worth stating that way in the spec.
+> - **This collides with feat-021**, just built: that feature made the tree's ROOT nodes navigate,
+>   and its plan explicitly left the Administration root out of scope as "a separate product
+>   question". This item answers that question in a different direction — Administration leaves the
+>   tree entirely. Worth noting in feat-021's record so the two decisions are not read as
+>   contradictory later.
+> - Item 18's point 4 (add `Groups` to the Administration MENU) becomes more important, not less:
+>   if the tree stops listing it, the menu is the only way in.
+
+---
+
+### 20 — The Groups screen, and a genuinely open question: a dialog inside a panel
+
+**Screenshot supplied** (1184×320, `Workspace > Groups`, an empty tenant). What it shows:
+
+- Title `Groups`, and on the same line, right-aligned, the note
+  *"Groups are flat — no nesting; an item belongs to one group or none."*
+- Two side-by-side panels, **`Annotation groups`** and **`Task groups`**, each with a blue header
+  carrying **three TEXT links on the right: `New` `Rename` `Delete`**.
+- Each panel body shows the centred text `No groups yet`, and a footer strip reading `0 groups`.
+- Nothing else on the screen.
+
+**The human's words, verbatim:**
+
+> Essa tela que abrirá dentro de um popup, de uma melhorada nela (carregue um estilo Fusion bonito
+> nela). Os itens New Rename e Delete podem ser icones estilo Fusion com tooltips
+> internacionalizaveis e verifique se as 3 ações New, rename e delete estão funcionando certinho.
+> Como o groups já abre num popup o delete abre um popup de confirmacao. Como fica um popup de uma
+> tela que está num popup?
+
+Five things:
+
+1. **Restyle the screen** properly in the Fusion idiom.
+2. **`New` / `Rename` / `Delete` become Fusion icons with localized tooltips** — same treatment as
+   item 14, same `RowActions` precedent.
+3. **Verify the three actions actually work.** A request to test, not a bug report.
+4. **The screen moves into the panel** → OQ-35.
+5. **A real design question the human is asking, not stating:** *"Como fica um popup de uma tela
+   que está num popup?"* — Groups opens in a panel; Delete needs a confirmation dialog; what does a
+   dialog inside a panel look like?
+
+> **Item 5 is the best question in this whole brief, and it has no obvious answer.** It is exactly
+> the kind of thing that must be decided once, in a spec, rather than improvised per screen — every
+> destructive action inside the panel will face it. Recorded into OQ-35, with the options as I see
+> them so the spec starts from something concrete rather than from zero:
+> - the confirmation **replaces the panel's content** and offers back/confirm (no stacking at all);
+> - the confirmation is a **small dialog centred over the panel only**, dimming the panel;
+> - the confirmation is a **normal app-level dialog** over everything, panel included;
+> - the panel **stays and the confirmation appears inline within it**, near the row being deleted.
+>
+> Not my call. But BR-05 requires a confirmation for destructive actions, so "no dialog at all" is
+> not one of the options.
+
+---
+
+### 21 — The "New group" dialog: the nesting question generalises, and the form is misaligned
+
+**Screenshot supplied** (386×101, a crop of the **New group** dialog). What it shows:
+
+- A small ADF dialog, blue title bar reading **`New group`**.
+- One row: the label **`Name`** and a text input. **The label sits close to the input's left edge
+  and the pair is not centred in the dialog** — there is far more empty space on the left of the
+  label than the layout implies, and the input runs almost to the dialog's right edge.
+- Footer: **`Save`** and **`Cancel`**, right-aligned, below a separator.
+- The whole dialog is roughly 386×101 — very tight, with little padding around the field row.
+
+**The human's words, verbatim:**
+
+> E os popups de new annotation e new task também é a mesma pergunta, como ficam estando dentro de
+> um popup?
+>
+> Outro ponto, ta meio feio esse popup com o campo meio desalinhado
+
+Two things:
+
+1. **The nesting question generalises beyond delete.** Item 20 asked it for a confirmation dialog;
+   this asks it for **creation forms** — `new annotation`, `new task`, `new group` — which will
+   also be opened from inside a panel. So OQ-35 must answer it for **two** cases, not one:
+   a destructive confirmation, and a form that creates. They may deserve different answers (a
+   confirmation is transient; a creation form holds unsaved input, so replacing the panel's
+   content risks losing it).
+2. **The `New group` dialog is visually poor** — the field is misaligned and the dialog is cramped.
+   → fix lane, and independent of the panel question: this dialog exists today and looks like this
+   today, whatever happens to it later.
+
+> Note for `start`: item 17's rule (Save/Cancel right-aligned) is already satisfied here, so this
+> dialog is a good reference for the alignment pass — the problem is the FIELD row, not the footer.
+
+---
+
+### 22 — The Members screen: restyle, another short rule, and it moves into the panel too
+
+**Screenshot supplied** (1184×455, `Workspace > Members`). What it shows:
+
+- Title `Members`, a horizontal rule beneath it that **stops at ~1170px** while the content runs
+  wider — the fourth short-rule sighting (items 8, 10, 15).
+- Sub-heading **`Members of this workspace`**, then a grid: `Name · Email · Role · Status ·
+  Actions`, one row — `Live Pass` / `live-pass@feat020.dev` / `Administrator` / `Active`, with a
+  single magnifier (view) icon in Actions.
+- Sub-heading **`Provision a member`** and a form: `*Display name`, `*Email`, `Role` (select,
+  `Member`), `*Password` with the hint *"at least 10 characters"* to its right.
+- A second short rule, then a **`Provision` button, LEFT-aligned and rendered disabled/greyed**
+  (the form is empty).
+- The two sub-headings are plain bold blue text, not `af-subHeader` panels; the grid and the form
+  sit directly on white with no panel chrome.
+
+**The human's words, verbatim:**
+
+> o popup de membros, precisa ser embelezada no estilo Fusion. E a linha horizontal não vai até o
+> final. Lembrando que essa tela ficará num popup também
+
+Three things:
+
+1. **Restyle in the Fusion idiom** — same open-ended request as items 1, 9 and 20; concrete options
+   at `start`, not my unilateral taste.
+2. **The rule does not reach the end** — fourth instance. The "one rule for all form screens"
+   conclusion from item 10 now covers four screens and should be treated as a single change.
+3. **This screen moves into the panel** → OQ-35, joining Groups (item 20) and the rest of
+   Administration (items 18, 19).
+
+> Also in the frame, not raised by the human — recorded because the alignment pass will touch it:
+> the `Provision` button is **left-aligned**, which item 17's rule (`Save`/`Cancel` always right)
+> does not literally cover, since it is neither Save nor Cancel. Whether a single-action form
+> footer follows the same rule is a small decision worth taking once, with items 6 and 8's footers,
+> rather than three times.
+>
+> And a security note for whoever implements the restyle, **not a request from the human**: this
+> form takes a **password** for provisioning. Any change to it must keep the field `type=password`
+> and must not add anything that echoes or logs the value — C-04/C-05 territory. Recorded so a
+> "make it prettier" pass does not quietly weaken it.
+
+---
+
+### 23 — The "Set a new password" dialog: restyle
+
+**Screenshot supplied** (386×198, a crop of the **Set a new password** dialog, reached from the
+Members screen). What it shows:
+
+- Blue title bar **`Set a new password`**.
+- Body: *"You are setting a new password for Live Pass."*, then a `Password` label with an input
+  beside it, then a two-line note in muted blue: *"The member is not notified — this product sends
+  no email. Give them the new password yourself."*
+- Footer: **`Set password`** (greyed/disabled, the field being empty) and **`Cancel`**,
+  right-aligned.
+- Same cramped feel as item 21's `New group`: little padding, the label/input row sitting tight
+  against the body text.
+
+**The human's words, verbatim:**
+
+> Esse popup aqui precisa dar uma embelezada estilo Fusion
+
+One thing: **restyle it in the Fusion idiom.**
+
+> Notes for `start`:
+> - Same shape of problem as item 21 (`New group`): a small dialog with a single labelled field,
+>   cramped, the field row not sitting well. **Two dialogs with the same defect → fix the dialog
+>   FORM layout once**, not each dialog by hand. Item 3's confirm dialog makes three.
+> - The footer here is already right-aligned, consistent with item 17's rule.
+> - **Same security note as item 22, and stronger here:** this dialog exists to set another
+>   member's password. It must keep `type=password`, must not gain a "show password" affordance
+>   without an explicit decision, and the explanatory note about no email being sent is
+>   **information the member relies on** — a restyle must not shorten it away.
+
+---
+
+### 24 — The Message catalog screen: several defects, one DATA LOSS, and a system-wide i18n rule
+
+**Screenshot supplied** (1180×655, `Workspace > Message catalog`). What it shows:
+
+- Title `Message catalog`, rule beneath it.
+- A header strip: `Locale` label + a select reading `English`, and to its right the text
+  `0 of 80 reworded by this workspace`. **The strip has no left/right border** — it runs edge to
+  edge while the grid below it has borders on both sides.
+- Grid columns: `Key · Product wording · Your wording · State · Actions`.
+- First row `AUTH_INVALID_CREDENTIALS` is **in edit mode**: `Your wording` holds a text input
+  containing "Invalid email or password." with a caret, and Actions shows a **✓ (confirm) and ✕
+  (cancel)** pair.
+- Every other row shows `—` under `Your wording`, `Product default` under `State`, and a single
+  **pencil** icon under Actions. Visible keys: AUTH_REQUIRED, AUTH_TOKEN_EXPIRED,
+  AUTH_TOKEN_INVALID, RESOURCE_NOT_FOUND, VALIDATION_FAILED, annotation.field.name.required,
+  annotation.field.number.bounds.invalid, annotation.field.option.colour.invalid,
+  annotation.field.option.label.required, annotation.field.options.not_allowed,
+  annotation.field.secret.not_allowed, annotation.field.type.unknown, annotation.image.not_found,
+  annotation.image.too_large.
+
+**The human's words, verbatim:**
+
+> E por fim na tela de locales, o combo de locale está meio desalinhado, o panel onde está o combo
+> não tem borda de linha nas margens esquerda e direita, deve ter uma opção pra adicionar um novo
+> locale (só tem english e portugues), o texto 0 of 80 reworded by this workspace está meio
+> desalinhado, inclusive esse texto é um que eu não vi no locale pra alterar, e pra revisar, todas
+> os textos em qualquer tela devem ser internacionalizaveis, inclusive todos os tooltips. Uma coisa
+> que reparei que esse datagrid já edição inline. Outro ponto eu cliquei no botao de excluir uma
+> linha do locale ele não exibiu uma confirmacao e excluiu a linha do locale, e aliás vou pedir pra
+> você voltar essa linha, inclusive nem deveria ter botao de exclusao do locale. E por fim veja o
+> que dá pra embelezar nessa tela estilo Fusion. Lembrando que ela deve vir num popup também
+
+Nine things:
+
+1. **The locale combo is misaligned.** → fix lane.
+2. **The strip holding the combo has no left/right border** → fix lane.
+3. **There should be a way to ADD a new locale** — today only English and Portuguese. → **NOT fix
+   lane.** New locales mean new catalogs, a translation surface, and a decision about what an
+   empty locale falls back to. Feature work.
+4. **`0 of 80 reworded by this workspace` is misaligned** → fix lane.
+5. **That same text is NOT itself in the catalog** — the human could not find it to translate.
+   → a real gap: a screen about localization containing an unlocalized string.
+6. **SYSTEM RULE: every text on every screen must be localizable, including all tooltips.** →
+   this is the rule item 14's tooltips already implied; now stated generally. It needs an audit
+   pass over the whole app, not a single edit.
+7. **Observation, not a complaint:** this grid ALREADY edits inline. → **valuable for OQ-35**: the
+   pattern the human wants everywhere already exists here, so the spec has a working precedent to
+   copy rather than a design to invent.
+8. ~~**DATA LOSS — deleting a catalog row asked for no confirmation and deleted it.**~~
+   **WITHDRAWN by the human, minutes later and before anything was done:**
+
+   > Alias acho que me enganei, esse ícone não é de excluir um locale, é só de cancelar a ediçao
+
+   The `✕` beside the `✓` on the row being edited is **cancel-edit**, not delete. There was no
+   deletion, no data loss, and no BR-05 violation. Nothing to restore, and no affordance to remove.
+
+   > Kept in the brief rather than deleted, because the near-miss is worth remembering: an `✕`
+   > sitting in an `Actions` column read as "delete" to the person using the screen. Whether the
+   > confirm/cancel pair should look less like the destructive icons used elsewhere in the app
+   > (the red trash in the types grid) is a legitimate — and much smaller — question for the icon
+   > work of items 3 / 9 / 11 / 14. **Not raised by the human; do not action it without asking.**
+
+9. **Restyle in the Fusion idiom**, and the screen **moves into the panel** → OQ-35.
+
+---
+
+### 25 — Inline editing needs its own cancel icon, distinct from delete
+
+No screenshot — the human's conclusion drawn from item 24's near-miss.
+
+**The human's words, verbatim:**
+
+> ah um detalhe, nas outras telas realmente tem um ícone de excluir nos grids, mas como a edição
+> será inline na grande maioria dos grids, deve ter um ícone estilo fusion pra cancelar a edição
+> inline
+
+**The rule:** grids carry BOTH kinds of icon and they must not be confused —
+
+- a **delete** icon (the red trash already used in the annotation-types grid), and
+- a **cancel-inline-edit** icon, Fusion style, shown while a row is in edit mode.
+
+> This closes the loop the human opened in item 24: they misread the catalog's `✕` as delete, then
+> corrected themselves, and have now turned the near-miss into a design requirement — the two
+> icons must be **visually distinct**, because both live in the same `Actions` column and one of
+> them is irreversible.
+>
+> → **OQ-35**, since inline editing is that feature's subject and this is part of its icon
+> vocabulary. Recorded there alongside the confirm/cancel pair the catalog grid already ships.
+>
+> Note the full inline-edit vocabulary now implied across items 14, 24 and 25: **confirm edit**,
+> **cancel edit**, **delete row**, plus **edit** to enter the mode — four icons, all needing
+> localized tooltips (item 24's rule), in one column.
