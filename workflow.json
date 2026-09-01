@@ -4689,6 +4689,109 @@
             "issue": 20,
             "pr": 21
           }
+        },
+        {
+          "id": "feat-022-fix-visual-pass",
+          "title": "Visual pass: form chrome, Fusion icons, empty states, and three real bugs (26-item brief)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-022-fix-visual-pass.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "skipped",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/022-fix-visual-pass/spec.md"
+              ],
+              "notes": "fast lane — brief at fixes/2026-08-31-visual-pass/brief.md"
+            },
+            {
+              "id": "feat-022-fix-visual-pass.plan",
+              "title": "Plan — how, with contracts",
+              "status": "skipped",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/022-fix-visual-pass/plan.md",
+                "features/022-fix-visual-pass/data-model.md"
+              ],
+              "notes": "fast lane — brief at fixes/2026-08-31-visual-pass/brief.md"
+            },
+            {
+              "id": "feat-022-fix-visual-pass.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "skipped",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/022-fix-visual-pass/tasks.md"
+              ],
+              "notes": "fast lane — brief at fixes/2026-08-31-visual-pass/brief.md"
+            },
+            {
+              "id": "feat-022-fix-visual-pass.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-022-fix-visual-pass.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/022-fix-visual-pass/audit.md"
+              ]
+            },
+            {
+              "id": "feat-022-fix-visual-pass.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-022-fix-visual-pass.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
         }
       ]
     },
