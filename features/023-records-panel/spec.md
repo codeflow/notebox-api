@@ -126,7 +126,30 @@ Feature: FR-05 — a record is edited where it is listed
     Examples:
       | grid          |
       | tasks grid    |
-      | subtasks grid |
+
+  # AMENDMENT 2026-09-01, at T-07 — the subtasks grid leaves this outline. Raised, not resolved
+  # silently: the audit should judge it.
+  #
+  # This spec listed the subtasks grid here, but its own rule contradicts the listing. The rule is
+  # *a grid edits inline when its listed fields ARE its editable fields* — and the subtasks grid
+  # lists name, start, end and card, which is the whole of a subtask. Nothing about it needs a
+  # bigger surface.
+  #
+  # Three further facts, any one of which would be enough on its own:
+  #
+  #   1. That row editor is **feat-010's specced behaviour** (its spec S13, with a tested server
+  #      violation matrix from feat-012). An "Out" bullet in a later feature does not get to
+  #      delete an earlier feature's scenario — that is what the source hierarchy's precedent
+  #      layer is for.
+  #   2. **There is no destination.** This feature's own data model gives `PanelContent` no
+  #      subtask kind. "Routes to the panel" was never designed for it, so honouring the line
+  #      literally would mean moving the subtask mutation and its error matrix into the panel —
+  #      a rewrite of tested behaviour on a surface this feature does not otherwise touch.
+  #   3. feat-022 already read the product owner's words this way, in a code comment written at
+  #      the time: the subtask row editor is not what they meant by "editing inline".
+  #
+  # What holds instead, pinned by a test in `SubtasksPanel.test.tsx`: every column the subtasks
+  # grid lists has an editable control, and it uses its own editor rather than the records grid's.
 
 Feature: FR-05 — the panel is where a record is read and written
 

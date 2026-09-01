@@ -11,7 +11,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
 
 ---
 
-- [ ] **T-01 · One panel, one opener**
+- [x] **T-01 · One panel, one opener**
       - files: `components/panel/PanelHost.tsx`, `usePanel.ts`, `PanelHost.test.tsx`, `app/(app)/layout.tsx`
       - covers: scenario *"One destination, many callers"* · **INV-P1**, **INV-P2**, risk **R3**
       - the assertion that matters: the same `PanelContent` opened from three different callers
@@ -21,7 +21,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - verify: `npx vitest run components/panel`
       - probe: let `open()` accept a ReactNode — the identical-content assertion must fail
 
-- [ ] **T-02 · The panel's chrome: expand, close, and focus**
+- [x] **T-02 · The panel's chrome: expand, close, and focus**
       - files: `components/panel/PanelChrome.tsx`, its test, `src/styles/adf-fusion.overrides.css`
       - covers: scenario *"Expanding the panel"* · **[A-5]**
       - reuses `af-drawer` / `af-drawerDock` from `NotesDrawer` — the CSS idiom, not the component
@@ -32,7 +32,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - verify: `npx vitest run components/panel`
       - **live check (T-09):** jsdom cannot see a width. The two widths are measured in a browser.
 
-- [ ] **T-03 · Closing with unsaved input asks first**
+- [x] **T-03 · Closing with unsaved input asks first**
       - files: `components/panel/PanelChrome.tsx`, `usePanel.ts`, tests
       - covers: scenarios *"Closing a creation form with unsaved input"* and *"…with nothing typed"* · **INV-P3**, risk **R2**
       - the dirty flag is **owned by the form**, never a diff of drafts — a diff nags on every close
@@ -41,7 +41,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - parallel: no
       - verify: `npx vitest run components/panel`
 
-- [ ] **T-04 · A Secret field has no editable control — the compliance task**
+- [x] **T-04 · A Secret field has no editable control — the compliance task**
       - files: `components/grids/RowEditorCell.tsx`, its test
       - covers: scenario *"A Secret field is not editable in a grid"* · **INV-E4**, **C-12**, risk **R1**
       - `RowEditorCell` returns the mask for `field.secret` with **no editable branch at all** —
@@ -55,7 +55,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - verify: `npx vitest run components/grids`
       - probe: render an input for a secret field — both assertions must fail
 
-- [ ] **T-05 · Inline editing: enter, confirm, cancel**
+- [x] **T-05 · Inline editing: enter, confirm, cancel**
       - files: `components/grids/useRowEditor.ts`, `RowEditorCell.tsx`, tests
       - covers: scenarios *"Editing a visible field in place"*, *"Confirming writes the row once"*, *"Cancelling discards"* · **INV-E1**, **INV-E2**, **[A-1]**, **[A-2]**
       - extracted from `TranslationsTable`, which already ships this pattern — copied, not designed
@@ -64,7 +64,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - verify: `npx vitest run components/grids`
       - probe: send one request per field instead of per row — the count assertion must fail
 
-- [ ] **T-06 · A failed save keeps the member's work**
+- [x] **T-06 · A failed save keeps the member's work**
       - files: `components/grids/useRowEditor.ts`, its test
       - covers: scenario *"A failed save keeps the member's work"* · **INV-E3**, **[A-2]**
       - both halves: the row stays in edit with the typed values, and nothing was written
@@ -72,7 +72,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - parallel: no
       - verify: `npx vitest run components/grids`
 
-- [ ] **T-07 · The grids that opt out, and the rule behind it**
+- [x] **T-07 · The grids that opt out, and the rule behind it**
       - files: `components/tasks/TasksTable.tsx`, `SubtasksPanel.tsx`, `RecordsGrid.tsx`, tests
       - covers: Scenario Outline *"A grid whose listed fields are not its editable fields opens the panel"* · **[A-7]**
       - records grid gains the editor; tasks and subtasks route their edit icon to the panel
@@ -80,7 +80,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - parallel: no
       - verify: `npx vitest run components/tasks components/annotationRecords`
 
-- [ ] **T-08 · The six surfaces move in, and the routes stay**
+- [x] **T-08 · The six surfaces move in, and the routes stay**
       - files: the six screens, `MenuBar.tsx`, `app/(app)/**` route wrappers, integration tests
       - covers: the panel content scenarios · **INV-R1**, risk **R6**
       - **routes are kept as thin wrappers, never deleted** — a shared link must not 404; it opens
@@ -90,7 +90,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - parallel: no
       - verify: `npx vitest run "app/(app)"`
 
-- [ ] **T-09 · Live browser pass**
+- [x] **T-09 · Live browser pass**
       - files: — (evidence, recorded in the audit)
       - **why it is a task:** jsdom loads no stylesheet. feat-020 and feat-021 each shipped a defect
         that only a browser could see — a `border` shorthand resetting a colour, and a root that was
@@ -103,7 +103,7 @@ field cannot be kept out of an inline editor, the feature's scope changes.
       - parallel: no
       - verify: measured in a browser, numbers stated — not a screenshot alone
 
-- [ ] **T-10 · Administration leaves the tree**
+- [x] **T-10 · Administration leaves the tree**
       - files: `components/navigation/Navigator.tsx`, its test
       - covers: scenario *"Administration leaves the tree"* · risk **R5**
       - **deliberately last:** removing the branch before the panel serves those three destinations

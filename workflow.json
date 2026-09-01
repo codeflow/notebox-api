@@ -4852,7 +4852,7 @@
             {
               "id": "feat-023-records-panel.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -4862,18 +4862,20 @@
               "produces": [
                 "features/023-records-panel/tasks.md"
               ],
-              "started_at": "2026-09-01T20:21:17Z"
+              "started_at": "2026-09-01T20:21:17Z",
+              "completed_at": "2026-09-01T20:23:28Z"
             },
             {
               "id": "feat-023-records-panel.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-09-01T20:23:39Z"
             },
             {
               "id": "feat-023-records-panel.audit",
@@ -4912,7 +4914,10 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "branch": "feature/records-panel"
+          }
         }
       ]
     },
