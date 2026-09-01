@@ -300,6 +300,13 @@
 **Status:** ✅ resolved (2026-08-31).
 **Decision:** Fold both into feat-021, which already touches navigation — the route assertion lands next to the tree's own destination tests, and the double-toggle guard next to the band's fetch. Neither is worth a feature of its own, and leaving them tracked-but-unfixed would let a known-latent path age into a surprise. — decided by rafaelsantos, 2026-08-31.
 
+### OQ-35 — In-grid editing across the whole system: inline edit of visibleForViewing fields in every data grid, plus a marker that opens an expandable side panel with all fields
+**Severity:** 🟡 Important
+**Description:** <what is unknown and why it matters>
+**Impact:** Raised by rafaelsantos 2026-08-31 during the /wf-fix visual collect, and deliberately kept OUT of the fix lane: it adds behaviour to every grid on every screen, so it needs a spec. Open decisions, none of them mine to make: (a) what starts the edit — clicking the cell, a row control, a keyboard key; (b) save granularity — per field on blur, or per row on commit, and what happens when a save fails mid-row; (c) whether BR-05's confirmation applies to an inline destructive edit; (d) Secret fields (C-12) — a listing must never offer reveal, so an inline editor must not become one; (e) what 'expand' means for the existing af-drawer (NotesDrawer, design 16), which today is open/closed with no second width; (f) whether the band's inner grid in the types list is editable too, or reading only as feat-020 decided. Reuse target identified: af-drawer / af-drawerDock / af-drawerTab, not a new pattern. Sequenced AFTER the current visual fix lane finishes.
+**Suggested path:** <how to resolve>
+**Status:** open.
+
 ## History
 
 | Date | Change |
@@ -353,6 +360,7 @@
 | 2026-08-31 | OQ-33 resolved: option (a) — the Navigator's root nodes navigate (Annotations → the types list, Tasks → the tasks list); recorded deviation from design 05's inert root labels |
 | 2026-08-31 | OQ-34 opened: feat-020 left two small test-coverage gaps: the band link's route stri |
 | 2026-08-31 | OQ-34 resolved: Fold both into feat-021, which already touches navigation — the route … |
+| 2026-09-01 | OQ-35 opened: In-grid editing across the whole system: inline edit of visibleForView |
 
 ### OQ-33 — The Navigator's `Annotations` node does not reach the types list, where feat-020's sub-grid lives
 **Severity:** 🟡 Important
