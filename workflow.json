@@ -4808,6 +4808,106 @@
             "pr": 24,
             "merged": "develop"
           }
+        },
+        {
+          "id": "feat-023-records-panel",
+          "title": "Side panel as the primary surface for records: inline editing in the grids, expandable panel, and the dialog-inside-a-panel rule (OQ-35) (US-2.2)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-023-records-panel.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/023-records-panel/spec.md"
+              ]
+            },
+            {
+              "id": "feat-023-records-panel.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/023-records-panel/plan.md",
+                "features/023-records-panel/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-023-records-panel.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/023-records-panel/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-023-records-panel.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-023-records-panel.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/023-records-panel/audit.md"
+              ]
+            },
+            {
+              "id": "feat-023-records-panel.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-023-records-panel.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
         }
       ]
     },

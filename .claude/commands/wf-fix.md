@@ -66,20 +66,32 @@ once against real code.
 5. **Implement, item by item.** Per item:
    - a test when the change is testable (behaviour, state, a rule) — write it first;
    - **no test when the change is only visual** (a colour, a width, a spacing). Say so plainly in
-     the record rather than inventing a jsdom assertion that cannot see it. jsdom loads no
-     stylesheet; a test that "covers" a CSS change and cannot fail is worse than no test.
+     the record rather than inventing an assertion that cannot see it — a unit test renderer
+     (jsdom and friends) computes no styles, so a test that "covers" a CSS change and cannot fail
+     is worse than no test at all.
    - commit per item, or per coherent group.
 6. **`verify` must be green** before you present anything. It is the same gate as always.
 7. **Present the result** — this is the point of the lane:
    - the dev server up, with the touched routes warmed;
-   - **for each visual item, evidence that it changed**: a screenshot, or the computed value
-     measured in the browser (`getComputedStyle`), or both. "I changed the CSS" is not evidence —
-     `classCoverage` proves a rule exists, not that it does anything;
+   - **for each visual item, evidence that it changed**: a screenshot, or the value measured in
+     the running app (e.g. `getComputedStyle` in a browser), or both. "I changed the CSS" is not
+     evidence — a guard that checks a rule *exists* says nothing about whether it does anything;
    - a table of items → what changed → how it was verified, and explicitly **what you did not do**
      and why.
 8. Write `fixes/<slug>/record.md`: the items, the diff summary, the evidence, anything deferred.
    This is the whole documentation trail for the lane — it replaces spec/plan/tasks, so it has to
    carry the reasoning, not just the file list.
+
+   **Also write `features/NNN-slug/audit.md` when the audit runs** (see `approve`): `wf done`
+   looks for the artifact under `features/`, not under `fixes/`. Point it at the real documents
+   rather than duplicating them — two copies drift. Found the hard way: `wf done` refuses to
+   close the audit step without it.
+
+   **And check the CI watches this branch prefix.** The lane pushes `fix/<slug>`; a workflow
+   generated before this was fixed may only list `feature/**`, in which case the push triggers
+   **no run at all** — and the publish gate's "green run on the branch" is then satisfied by
+   silence. `wf harness ci` now emits `fix/**` and `chore/**`; an older `ci.yml` needs the lines
+   added by hand.
 9. **Stop.** Do not push, do not open a PR. The human looks first.
 
 ---
