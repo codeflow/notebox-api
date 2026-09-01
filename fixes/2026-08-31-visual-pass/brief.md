@@ -1013,3 +1013,32 @@ No screenshot — the human's conclusion drawn from item 24's near-miss.
 > Note the full inline-edit vocabulary now implied across items 14, 24 and 25: **confirm edit**,
 > **cancel edit**, **delete row**, plus **edit** to enter the mode — four icons, all needing
 > localized tooltips (item 24's rule), in one column.
+
+---
+
+### 26 — The Workspace menu: its three items open in panels too
+
+No screenshot — the `Workspace` menu on the menu bar, visible in every frame.
+
+**The human's words, verbatim:**
+
+> No menu workspace o item new annotation type, new task e manage groups devem abrir em popups,
+> não se esqueça
+
+**The rule:** the Workspace menu's `New annotation type`, `New task` and `Manage groups` open in
+the side panel, not as full screens.
+
+→ **OQ-35.** This completes the picture: **every entry point** to those surfaces goes through the
+panel, not just the ones reached from a grid.
+
+> Why this matters more than it looks — recorded for the spec:
+> - The same destination is now reachable from **three places**: a menu item, a grid's action icon,
+>   and (for New task) an empty-state button. If the panel is opened by each caller separately, the
+>   three will drift. The spec should treat "open X in the panel" as **one thing many callers
+>   invoke**, not three implementations.
+> - `New annotation type` and `New task` are creation forms, so they inherit item 21's unresolved
+>   question about unsaved input inside a panel.
+> - `Manage groups` is the same screen as item 20, which itself contains a destructive action —
+>   so opening it from the menu leads straight to the dialog-inside-a-panel question.
+>
+> **Collect count so far: 26 items.** Nothing else outstanding from the human at this point.
