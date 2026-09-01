@@ -36,6 +36,7 @@ reopen and `/wf-next` resumes. The banner above every reply is that state.
 | `/wf-status` | Renders the pipeline and comments on it (stalls, blockers, what's next) | When you want a read, not just the banner |
 | `/wf-feature` | Adds a feature (spec→plan→tasks→implement→audit) — guided pick from the backlog, or by US id; routes to a satellite repo with `--project` | Start of each feature |
 | `/wf-answer` | Answers pending Open Questions one card at a time; updates the catalog and the PRD as you go; every round has an exit | When OQs accumulate, or when `/wf-next` hits one |
+| `/wf-fix` | The fast lane for small corrections: `collect` gathers a brief without acting, `start` implements it and shows the result, `approve` hands it to the normal audit → publish → review. Skips spec/plan/tasks **visibly** (marked skipped, brief path as the reason) — never the gates | A batch of visual fixes or small bugs, where a full lifecycle costs more than the change |
 | `/wf-agents` | Reviews/adjusts which model·effort runs each step | After setup, after a new feature, or anytime |
 | `/wf-engine` | Shows/switches the SDD engine; `learn` builds a manifest from an installed tool; `add <url>` downloads + learns one | Switching methodology, or after installing/upgrading an SDD tool |
 | `/wf-github` | Syncs pipeline state to GitHub: issues, PRs, comments, board — every outward action confirmed first | When GitHub integration is on |
