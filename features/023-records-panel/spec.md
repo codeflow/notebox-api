@@ -127,29 +127,24 @@ Feature: FR-05 — a record is edited where it is listed
       | grid          |
       | tasks grid    |
 
-  # AMENDMENT 2026-09-01, at T-07 — the subtasks grid leaves this outline. Raised, not resolved
-  # silently: the audit should judge it.
+      | subtasks grid |
+
+  # AMENDMENT WITHDRAWN 2026-09-01. The amendment that stood here removed the subtasks grid from
+  # this outline, arguing that A-7's rule pointed the other way for it and that feat-010's spec S13
+  # already specced its row editor.
   #
-  # This spec listed the subtasks grid here, but its own rule contradicts the listing. The rule is
-  # *a grid edits inline when its listed fields ARE its editable fields* — and the subtasks grid
-  # lists name, start, end and card, which is the whole of a subtask. Nothing about it needs a
-  # bigger surface.
+  # **It was wrong, and wrong in the way that matters most here.** The product owner had already
+  # said it, in their own words, in the visual-pass brief (item 14):
   #
-  # Three further facts, any one of which would be enough on its own:
+  #   > "e nesse grid a edição também abre um popup"
   #
-  #   1. That row editor is **feat-010's specced behaviour** (its spec S13, with a tested server
-  #      violation matrix from feat-012). An "Out" bullet in a later feature does not get to
-  #      delete an earlier feature's scenario — that is what the source hierarchy's precedent
-  #      layer is for.
-  #   2. **There is no destination.** This feature's own data model gives `PanelContent` no
-  #      subtask kind. "Routes to the panel" was never designed for it, so honouring the line
-  #      literally would mean moving the subtask mutation and its error matrix into the panel —
-  #      a rewrite of tested behaviour on a surface this feature does not otherwise touch.
-  #   3. feat-022 already read the product owner's words this way, in a code comment written at
-  #      the time: the subtask row editor is not what they meant by "editing inline".
+  # A direct human decision ranks with the PRD in this project's source hierarchy — above
+  # precedent, and far above a rule the implementer derived from the spec's own prose. The
+  # amendment inverted that order: it used my reading of A-7 to overrule what was asked for.
   #
-  # What holds instead, pinned by a test in `SubtasksPanel.test.tsx`: every column the subtasks
-  # grid lists has an editable control, and it uses its own editor rather than the records grid's.
+  # The example is restored and the behaviour built (T-11). feat-010's spec S13 is superseded for
+  # the *entry point* only — the subtask's fields, its validation and its server-violation matrix
+  # are untouched; they moved into the panel, they did not change.
 
 Feature: FR-05 — the panel is where a record is read and written
 

@@ -4897,29 +4897,34 @@
             {
               "id": "feat-023-records-panel.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-09-01T21:42:55Z",
+              "completed_at": "2026-09-01T21:47:17Z"
             },
             {
               "id": "feat-023-records-panel.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-09-01T21:47:17Z"
             }
           ],
           "project": "notebox-web",
           "github": {
-            "branch": "feature/records-panel"
+            "branch": "feature/records-panel",
+            "issue": 25,
+            "pr": 26
           }
         }
       ]

@@ -53,32 +53,51 @@ once against real code.
 
 1. **Read the brief file end to end.** It, not the conversation, is the source of truth — the
    conversation may have been compacted since. If `fixes/` has no open brief, say so and stop.
-2. **Resolve the items into a work list.** Group by file where that helps. Anything marked
+2. **Separate the RULES from the instances — before anything else.**
+
+   An item that says *"em qualquer um"*, *"em toda tela"*, *"pra cada tipo"*, *"todo"*, *"sempre"*
+   is a rule about a **class of things**, and the screenshot attached to it is one member of that
+   class, not the scope. For every such item, write down **the full list of instances** and check
+   the class, not the frame.
+
+   > This exists because it went wrong. A brief asked for a severity icon "pra cada tipo de
+   > alerta"; it was applied to the dialog in the screenshot and marked delivered, while eight
+   > other confirmations went without — including two written afterwards, with the pattern already
+   > in the stylesheet. Three other items in the same brief failed the same way. The product owner
+   > found all four, one at a time, which is the worst possible way for them to find out.
+
+   A rule item is done only when **every instance is done, or the ones left are named in the
+   record with a reason**. "Delivered" from one screen is a lie the record will carry forward.
+
+   Where the class can be counted mechanically — every dialog, every grid, every form — **write
+   the guard that counts it**. A per-screen assertion cannot see a rule applied once.
+
+3. **Resolve the items into a work list.** Group by file where that helps. Anything marked
    `needs clarification` gets asked **now**, all in one question card, before any code. Anything
    the codebase contradicts gets raised now too.
-3. **Register it in the pipeline, visibly as a fix:**
+4. **Register it in the pipeline, visibly as a fix:**
    - `./bin/wf feature add fix-<slug> "<one-line summary>" [--project <satellite>]`
    - `./bin/wf skip <id>.spec "fast lane — brief at fixes/<slug>/brief.md"` and the same for
      `.plan` and `.tasks`. **Skipped, never faked.** A spec written after the code is not a spec,
      and the pipeline must show which route the work took.
    - `./bin/wf start <id>.implement`
-4. **Branch:** `fix/<slug>` off the integration branch, in the satellite when routed.
-5. **Implement, item by item.** Per item:
+5. **Branch:** `fix/<slug>` off the integration branch, in the satellite when routed.
+6. **Implement, item by item.** Per item:
    - a test when the change is testable (behaviour, state, a rule) — write it first;
    - **no test when the change is only visual** (a colour, a width, a spacing). Say so plainly in
      the record rather than inventing an assertion that cannot see it — a unit test renderer
      (jsdom and friends) computes no styles, so a test that "covers" a CSS change and cannot fail
      is worse than no test at all.
    - commit per item, or per coherent group.
-6. **`verify` must be green** before you present anything. It is the same gate as always.
-7. **Present the result** — this is the point of the lane:
+7. **`verify` must be green** before you present anything. It is the same gate as always.
+8. **Present the result** — this is the point of the lane:
    - the dev server up, with the touched routes warmed;
    - **for each visual item, evidence that it changed**: a screenshot, or the value measured in
      the running app (e.g. `getComputedStyle` in a browser), or both. "I changed the CSS" is not
      evidence — a guard that checks a rule *exists* says nothing about whether it does anything;
    - a table of items → what changed → how it was verified, and explicitly **what you did not do**
      and why.
-8. Write `fixes/<slug>/record.md`: the items, the diff summary, the evidence, anything deferred.
+9. Write `fixes/<slug>/record.md`: the items, the diff summary, the evidence, anything deferred.
    This is the whole documentation trail for the lane — it replaces spec/plan/tasks, so it has to
    carry the reasoning, not just the file list.
 
@@ -92,7 +111,7 @@ once against real code.
    **no run at all** — and the publish gate's "green run on the branch" is then satisfied by
    silence. `wf harness ci` now emits `fix/**` and `chore/**`; an older `ci.yml` needs the lines
    added by hand.
-9. **Stop.** Do not push, do not open a PR. The human looks first.
+10. **Stop.** Do not push, do not open a PR. The human looks first.
 
 ---
 
@@ -133,6 +152,12 @@ rather than deleting it — a brief the human spent time on is not yours to eras
 - ❌ Act during `collect`. It is the one mode where doing work is the failure.
 - ❌ Write spec/plan/tasks after the fact to make the pipeline look complete. Skip them, with the
   reason recorded.
+- ❌ Mark a **rule** item delivered because the screen in its screenshot was fixed. Name every
+  instance, or say which ones are left and why.
+- ❌ Overrule the human with a rule you derived from their own words. If you disagree, **build what
+  was asked** and raise the concern beside it — a well-argued document explaining why your reading
+  should win is still overruling them, and this project's source hierarchy puts a direct human
+  decision above anything you infer.
 - ❌ Present a visual change without evidence it renders. That is the exact failure this project
   has hit repeatedly — a green suite over a screen nobody looked at.
 - ❌ Use this lane for a change that adds behaviour, a route, an endpoint, or a rule. If the work
