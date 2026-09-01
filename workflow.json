@@ -4819,7 +4819,7 @@
             {
               "id": "feat-023-records-panel.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -4829,12 +4829,13 @@
               "produces": [
                 "features/023-records-panel/spec.md"
               ],
-              "started_at": "2026-09-01T20:03:22Z"
+              "started_at": "2026-09-01T20:03:22Z",
+              "completed_at": "2026-09-01T20:05:36Z"
             },
             {
               "id": "feat-023-records-panel.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -4844,7 +4845,8 @@
               "produces": [
                 "features/023-records-panel/plan.md",
                 "features/023-records-panel/data-model.md"
-              ]
+              ],
+              "started_at": "2026-09-01T20:07:38Z"
             },
             {
               "id": "feat-023-records-panel.tasks",
