@@ -4819,7 +4819,7 @@
             {
               "id": "feat-023-records-panel.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -4828,7 +4828,8 @@
               "gate": "human_approval",
               "produces": [
                 "features/023-records-panel/spec.md"
-              ]
+              ],
+              "started_at": "2026-09-01T20:03:22Z"
             },
             {
               "id": "feat-023-records-panel.plan",
