@@ -20,7 +20,7 @@ This is an index — it does not duplicate canonical sources:
 - [x] **US-6.1** identity & multi-tenancy — feat-001 (api) + feat-002 (web) (PR #2, each repo).
 - [x] **US-1.1** annotation types — feat-003 (api, PR #4, 2026-07-23) + feat-004 (web, PR #5, 2026-07-24).
 - [x] **US-2.1** annotation records — feat-005 (api, PR #6, 2026-08-11) + feat-006 (web, PR #7, 2026-08-12) + feat-007 rich-text sanitization (api, PR #8, closed C-08).
-- [x] **US-2.2** listing & detail — feat-008 (api, PR #10, 2026-08-12) + feat-009 (web, PR #9, 2026-08-12; audit Round 1 pass, 300 tests) + feat-020 records sub-grid (web, PR #19, 2026-08-31; audit Round 2 pass after F-01, 624 tests). Absorbs US-1.2's visible-column projection. On develop; promotion pending.
+- [x] **US-2.2** listing & detail — feat-008 (api, PR #10, 2026-08-12) + feat-009 (web, PR #9, 2026-08-12; audit Round 1 pass, 300 tests) + feat-020 records sub-grid (web, PR #19, 2026-08-31) + feat-021 navigator root destinations (web, PR #21, 2026-09-01) + feat-022 visual pass (web, PR #24, 2026-09-01; 24 of 26 brief items, three real bugs). Absorbs US-1.2's visible-column projection. On develop; promotion pending.
 
 ## 2b. Delivered this wave ✅
 - [x] **US-4.1** tasks & subtasks with derived progress — feat-010 (api, PR #12, 2026-08-14; AD-10 CDI events inaugurated) + feat-011 (web, PR #11, 2026-08-15; first nav chrome, 355 tests + live pass). On `develop`, promotion pending.

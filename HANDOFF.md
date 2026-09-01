@@ -1,7 +1,7 @@
 # HANDOFF — the project
 
 > Session continuity. What's done, what's in flight, and how to resume. Language: English.
-> **Updated:** 2026-08-31 (feat-020 records sub-grid merged to develop)
+> **Updated:** 2026-09-01 (feat-021 and feat-022 merged; the /wf-fix lane exists)
 
 ## Current state
 - **notebox-api** (Java 17 / Quarkus / Jakarta EE / MySQL) + satellite **notebox-web** (react/next).
@@ -13,7 +13,25 @@
   - **US-4.1** tasks, both halves — feat-010 (api, PR #12) + feat-011 (web, PR #11).
   - **US-4.2** task details, both halves — feat-012 (api, PR #14) + feat-013 (web, PR #13). **E4 is fully delivered on develop.**
   - **US-3.1** groups & navigation, all three parts — feat-014 (api, PR #16) + feat-016 counts (api, PR #18) + feat-015 (web, PR #15). **E3 delivered.**
-- **Just landed (2026-08-31):** feat-020 — the records sub-grid inside the annotation-types list (OQ-32, US-2.2 web). Squash `06a1b55`, PR #19, issue #18, 624 tests, branch + PR CI green.
+- **Just landed (2026-09-01):** feat-021 (tree roots navigate, PR #21, squash `b41e399`) and
+  feat-022 (the visual pass, PR #24, squash `7fa3354`, 643 tests), plus a build chore (PR #22).
+  - **`/wf-fix` is a new lane** (`.claude/commands/wf-fix.md`, mirrored into the workflow
+    template): `collect` gathers a brief into `fixes/<slug>/brief.md` **on disk**, because a long
+    session gets compacted and a brief kept only in context loses items; `start` implements it;
+    `approve` hands it to the normal audit → publish → review. `spec`/`plan`/`tasks` are marked
+    **skipped**, never written after the fact.
+  - **Two defects in that lane, found by using it, fixed here:** the CI workflow did not watch
+    `fix/**`, so pushing a fix branch triggered NO run while the publish gate asks for a green
+    one — absence reading as silence; and the lane stores documents under `fixes/` while
+    `wf done` looks in `features/NNN-slug/`. **The template's copy still has both.**
+  - **`npm run verify` no longer collides with a running dev server** (PR #22): it builds into
+    `.next-verify`, and `dev` runs Turbopack. First visit to a route went 2.3s → 0.8s.
+  - **OQ-35 is the big one waiting:** during the visual collect it grew from "inline editing" into
+    "the side panel becomes the primary surface" — record view, record edit, new task, Groups,
+    Members and the message catalog all move into it. Its sharpest open question, from the human:
+    a screen inside the panel still needs confirmations (BR-05) and creation forms, so **what does
+    a dialog inside a panel look like?** Four options recorded, none chosen.
+- **Previously (2026-08-31):** feat-020 — the records sub-grid inside the annotation-types list (OQ-32, US-2.2 web). Squash `06a1b55`, PR #19, issue #18, 624 tests, branch + PR CI green.
   - **The band reuses `RecordGridCell`, never re-renders values.** That component is the single place where a Secret field becomes a mask (C-12) and a Free-text value becomes a plain-text preview (C-08). The whole compliance argument rests there — do not let a second caller render values itself.
   - **Two structures, not one:** an `open: Set<typeId>` (what is showing) and a `bands: Map<typeId, BandState>` (what was fetched). Collapsing keeps the map entry — that *is* the cache. Conflating them makes the "reopening does not refetch" scenario fail.
   - **Audit lesson worth keeping — a test can assert the wrong mock and look thorough.** F-01: the assertion the spec named as C-12's evidence watched `imagesClient.fetchObjectUrl` (the IMAGE path) while the reveal path is `annotationRecordsClient.reveal`, unmocked in that file. It could not fail. Fixing it needed *two* parts: mock the right client **and** render as ADMIN, since the reveal affordance is role-gated and a roleless test would have been just as vacuous. **Ask of every "asserts X does not happen": can it fail?**

@@ -4777,27 +4777,37 @@
             {
               "id": "feat-022-fix-visual-pass.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-09-01T19:14:07Z",
+              "completed_at": "2026-09-01T19:14:07Z"
             },
             {
               "id": "feat-022-fix-visual-pass.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-09-01T19:14:07Z",
+              "completed_at": "2026-09-01T19:44:14Z"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 23,
+            "branch": "fix/visual-pass",
+            "pr": 24,
+            "merged": "develop"
+          }
         }
       ]
     },
