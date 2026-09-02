@@ -4926,6 +4926,411 @@
             "issue": 25,
             "pr": 26
           }
+        },
+        {
+          "id": "feat-024-inline-grids",
+          "title": "Inline editing in every remaining data grid, and the marker that opens the full form (OQ-35, brief 2.3/4.4) (US-2.2)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-024-inline-grids.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/024-inline-grids/spec.md"
+              ],
+              "completed_at": "2026-09-01T23:53:59Z"
+            },
+            {
+              "id": "feat-024-inline-grids.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/024-inline-grids/plan.md",
+                "features/024-inline-grids/data-model.md"
+              ],
+              "completed_at": "2026-09-01T23:53:59Z"
+            },
+            {
+              "id": "feat-024-inline-grids.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/024-inline-grids/tasks.md"
+              ],
+              "completed_at": "2026-09-01T23:54:17Z"
+            },
+            {
+              "id": "feat-024-inline-grids.implement",
+              "title": "Implement — code + tests",
+              "status": "done",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T00:27:34Z"
+            },
+            {
+              "id": "feat-024-inline-grids.audit",
+              "title": "Audit — adversarial check",
+              "status": "done",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/024-inline-grids/audit.md"
+              ],
+              "completed_at": "2026-09-02T00:27:35Z"
+            },
+            {
+              "id": "feat-024-inline-grids.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-024-inline-grids.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
+        },
+        {
+          "id": "feat-025-code-block-lines",
+          "title": "Line numbers inside the rich-text editor's code block (brief item 16.1) (US-2.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-025-code-block-lines.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/025-code-block-lines/spec.md"
+              ]
+            },
+            {
+              "id": "feat-025-code-block-lines.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/025-code-block-lines/plan.md",
+                "features/025-code-block-lines/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-025-code-block-lines.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/025-code-block-lines/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-025-code-block-lines.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-025-code-block-lines.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/025-code-block-lines/audit.md"
+              ]
+            },
+            {
+              "id": "feat-025-code-block-lines.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-025-code-block-lines.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
+        },
+        {
+          "id": "feat-026-locale-management",
+          "title": "Add a locale at runtime, with English as the fallback for untranslated keys (brief item 24.3) (US-5.2)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-026-locale-management.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/026-locale-management/spec.md"
+              ]
+            },
+            {
+              "id": "feat-026-locale-management.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/026-locale-management/plan.md",
+                "features/026-locale-management/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-026-locale-management.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/026-locale-management/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-026-locale-management.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-026-locale-management.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/026-locale-management/audit.md"
+              ]
+            },
+            {
+              "id": "feat-026-locale-management.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-026-locale-management.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
+        },
+        {
+          "id": "feat-027-preferences-help",
+          "title": "Preferences (interface language + theme) and Help (About), as panel content (brief item 18.1) (US-5.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-027-preferences-help.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/027-preferences-help/spec.md"
+              ]
+            },
+            {
+              "id": "feat-027-preferences-help.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/027-preferences-help/plan.md",
+                "features/027-preferences-help/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-027-preferences-help.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/027-preferences-help/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-027-preferences-help.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-027-preferences-help.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/027-preferences-help/audit.md"
+              ]
+            },
+            {
+              "id": "feat-027-preferences-help.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-027-preferences-help.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ],
+          "project": "notebox-web"
         }
       ]
     },
