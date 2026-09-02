@@ -5153,7 +5153,7 @@
           "id": "feat-026-locale-management",
           "title": "Add a locale at runtime, with English as the fallback for untranslated keys (brief item 24.3) (US-5.2)",
           "kind": "feature",
-          "status": "pending",
+          "status": "blocked",
           "instructions": "instructions/feature-lifecycle.md",
           "steps": [
             {
@@ -5247,7 +5247,8 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "notes": "blocked by OQ-37: adding a locale is impossible for the interface until the catalog reaches it — 425 bundled strings, 93 reachable"
         },
         {
           "id": "feat-027-preferences-help",

@@ -360,6 +360,7 @@
 | 2026-08-31 | OQ-33 resolved: option (a) — the Navigator's root nodes navigate (Annotations → the types list, Tasks → the tasks list); recorded deviation from design 05's inert root labels |
 | 2026-08-31 | OQ-34 opened: feat-020 left two small test-coverage gaps: the band link's route stri |
 | 2026-08-31 | OQ-34 resolved: Fold both into feat-021, which already touches navigation — the route … |
+| 2026-09-02 | OQ-37 opened: the message catalog reaches 93 server messages and none of the 425 interface strings — US-5.2 is half true, and feat-026 depends on the answer |
 | 2026-09-01 | OQ-36 opened: a dark theme needs 169 colours tokenised and a palette designed — raised with its cost rather than half-shipped |
 | 2026-09-01 | OQ-35 opened: In-grid editing across the whole system: inline edit of visibleForView |
 
@@ -418,3 +419,42 @@ read as unfinished — it reads as broken, and it would be reported as a bug aga
 **The question for the product owner:** is (2)+(3) worth its own feature, and if so, is there a
 dark palette they want followed — an ADF Fusion dark skin, or the design handoff extended? Without
 an answer to the palette, the work cannot start honestly.
+
+### OQ-37 — The message catalog reaches 93 server messages and none of the 425 interface strings
+
+**Opened:** 2026-09-02, while specifying feat-026 · **Status:** open, blocks feat-026
+
+Brief item 24.3 asks for a way to add a locale at runtime. Specifying it surfaced that the
+foundation it needs is not there, and that **US-5.2's promise is currently half true**:
+
+> *"As a tenant administrator, I want to edit translations at runtime, so wording changes need no
+> deploy."*
+
+| | keys | reachable from the catalog screen? |
+|---|---|---|
+| API messages (`messages.properties`) | **93** | **yes** — `TranslationCatalog` lists them, overrides apply, and the UI shows the API's messages verbatim (AD-05) |
+| Interface strings (`lib/i18n/messages/en.ts`) | **425** | **no** — `I18nProvider` never fetches anything; `t()` reads a bundled TypeScript object |
+
+So an administrator can reword *"Invalid email or password."* without a deploy, and cannot reword
+a single column header, button or tooltip. Adding a locale is impossible for the interface at all:
+`type Locale = 'en' | 'pt'` is a compile-time union over two bundled catalogs.
+
+**Nothing is broken** — every test is honest about what it tests, and the catalog screen does
+exactly what it says for the keys it lists. What is wrong is the *scope* of the promise.
+
+### What making it true would take
+
+1. `I18nProvider` fetches `/translations?locale=X` after sign-in and merges the tenant's overrides
+   **over** the bundled catalog, which stays as the default and the fallback.
+2. The catalog screen must list the interface keys, which means the web's 425 keys have to reach
+   the API — a build step that ships them, or an endpoint the web registers them through.
+3. A decision about first paint: the bundled strings render immediately and the overrides arrive a
+   moment later, so a reworded label visibly changes after load unless the fetch blocks the shell.
+4. Only then does "add a locale" mean anything: a new locale starts as English throughout and is
+   translated key by key.
+
+### The question
+
+Is (1)–(4) worth a feature — it spans both projects and touches every screen's first paint — or is
+the honest move to **narrow US-5.2** to what it actually delivers (server messages), and say so in
+the PRD? Either answer is defensible. Inventing the architecture without asking is not.
