@@ -5010,13 +5010,14 @@
             {
               "id": "feat-024-inline-grids.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T00:46:00Z"
             },
             {
               "id": "feat-024-inline-grids.review",
@@ -5030,7 +5031,12 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 27,
+            "branch": "feature/inline-grids",
+            "pr": 28
+          }
         },
         {
           "id": "feat-025-code-block-lines",
@@ -5042,7 +5048,7 @@
             {
               "id": "feat-025-code-block-lines.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -5051,12 +5057,13 @@
               "gate": "human_approval",
               "produces": [
                 "features/025-code-block-lines/spec.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T00:47:11Z"
             },
             {
               "id": "feat-025-code-block-lines.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -5066,12 +5073,13 @@
               "produces": [
                 "features/025-code-block-lines/plan.md",
                 "features/025-code-block-lines/data-model.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T00:47:11Z"
             },
             {
               "id": "feat-025-code-block-lines.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -5080,23 +5088,25 @@
               "gate": "human_approval",
               "produces": [
                 "features/025-code-block-lines/tasks.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T00:47:12Z"
             },
             {
               "id": "feat-025-code-block-lines.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T01:02:52Z"
             },
             {
               "id": "feat-025-code-block-lines.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -5105,18 +5115,20 @@
               "gate": "audit_pass",
               "produces": [
                 "features/025-code-block-lines/audit.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T01:02:52Z"
             },
             {
               "id": "feat-025-code-block-lines.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T01:02:53Z"
             },
             {
               "id": "feat-025-code-block-lines.review",
