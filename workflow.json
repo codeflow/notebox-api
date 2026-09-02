@@ -5142,7 +5142,12 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 29,
+            "pr": 30,
+            "branch": "feature/code-block-lines"
+          }
         },
         {
           "id": "feat-026-locale-management",

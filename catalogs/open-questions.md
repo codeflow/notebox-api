@@ -360,6 +360,7 @@
 | 2026-08-31 | OQ-33 resolved: option (a) — the Navigator's root nodes navigate (Annotations → the types list, Tasks → the tasks list); recorded deviation from design 05's inert root labels |
 | 2026-08-31 | OQ-34 opened: feat-020 left two small test-coverage gaps: the band link's route stri |
 | 2026-08-31 | OQ-34 resolved: Fold both into feat-021, which already touches navigation — the route … |
+| 2026-09-01 | OQ-36 opened: a dark theme needs 169 colours tokenised and a palette designed — raised with its cost rather than half-shipped |
 | 2026-09-01 | OQ-35 opened: In-grid editing across the whole system: inline edit of visibleForView |
 
 ### OQ-33 — The Navigator's `Annotations` node does not reach the types list, where feat-020's sub-grid lives
@@ -389,3 +390,31 @@ Design screen 05 draws the tree without root-node links, which is why it was bui
 | 2026-08-24 | OQ-26 opened: lint signal removed from CI rather than left faking a pass; what replaces it is undecided. |
 | 2026-08-24 | OQ-23 clarified: its type→group ruling governs the payload; the Navigator renders group→type per design screen 05, inverted client-side. |
 | 2026-08-24 | OQ-27 opened+resolved: aggregate counts added to the API (additive), as a slice that must precede feat-015's implement. |
+
+### OQ-36 — A dark theme means tokenising 169 hardcoded colours and designing an ADF Fusion dark palette
+
+**Opened:** 2026-09-01, during feat-027 · **Status:** open, needs the product owner
+
+The product owner asked for Preferences to hold *"idioma + tema (claro/escuro)"*. The language half
+shipped in feat-027. The theme did not, and the reason is a measurement rather than a preference:
+
+```
+src/styles/adf-fusion.css   169 distinct hex colours,  0 CSS custom properties
+```
+
+A theme toggle needs three things, and only the first is mechanical:
+
+1. **The mechanism** — a `data-theme` attribute, a stored choice, a `prefers-color-scheme` default.
+   Small, and genuinely a few hours.
+2. **Tokenisation** — every one of those 169 colours replaced by a variable named for its *role*
+   (surface, border, header, selected row, badge). Naming by role means reading each usage; a
+   mechanical `--c-17: #123456` mapping would be worse than the hardcoding it replaces.
+3. **A dark palette, designed.** Which of the theme's blues becomes which in the dark is a design
+   decision. Inventing it is inventing product.
+
+**Why it was not half-shipped.** Darkening the shell while the Fusion widgets stay light does not
+read as unfinished — it reads as broken, and it would be reported as a bug against every screen.
+
+**The question for the product owner:** is (2)+(3) worth its own feature, and if so, is there a
+dark palette they want followed — an ADF Fusion dark skin, or the design handoff extended? Without
+an answer to the palette, the work cannot start honestly.
