@@ -5371,7 +5371,7 @@
             {
               "id": "feat-028-form-flow.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -5380,12 +5380,13 @@
               "gate": "human_approval",
               "produces": [
                 "features/028-form-flow/spec.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T19:31:40Z"
             },
             {
               "id": "feat-028-form-flow.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -5395,12 +5396,13 @@
               "produces": [
                 "features/028-form-flow/plan.md",
                 "features/028-form-flow/data-model.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T19:31:40Z"
             },
             {
               "id": "feat-028-form-flow.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -5409,23 +5411,25 @@
               "gate": "human_approval",
               "produces": [
                 "features/028-form-flow/tasks.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T19:31:40Z"
             },
             {
               "id": "feat-028-form-flow.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T19:31:41Z"
             },
             {
               "id": "feat-028-form-flow.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -5434,18 +5438,20 @@
               "gate": "audit_pass",
               "produces": [
                 "features/028-form-flow/audit.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T19:31:41Z"
             },
             {
               "id": "feat-028-form-flow.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T19:31:41Z"
             },
             {
               "id": "feat-028-form-flow.review",
@@ -5459,7 +5465,12 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 33,
+            "pr": 34,
+            "branch": "feature/form-flow"
+          }
         }
       ]
     },
