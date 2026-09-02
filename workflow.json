@@ -5259,7 +5259,7 @@
             {
               "id": "feat-027-preferences-help.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -5268,12 +5268,13 @@
               "gate": "human_approval",
               "produces": [
                 "features/027-preferences-help/spec.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T03:01:34Z"
             },
             {
               "id": "feat-027-preferences-help.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -5283,12 +5284,13 @@
               "produces": [
                 "features/027-preferences-help/plan.md",
                 "features/027-preferences-help/data-model.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T03:01:34Z"
             },
             {
               "id": "feat-027-preferences-help.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -5297,23 +5299,25 @@
               "gate": "human_approval",
               "produces": [
                 "features/027-preferences-help/tasks.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T03:01:34Z"
             },
             {
               "id": "feat-027-preferences-help.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T03:01:34Z"
             },
             {
               "id": "feat-027-preferences-help.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -5322,18 +5326,20 @@
               "gate": "audit_pass",
               "produces": [
                 "features/027-preferences-help/audit.md"
-              ]
+              ],
+              "completed_at": "2026-09-02T03:01:35Z"
             },
             {
               "id": "feat-027-preferences-help.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T03:01:35Z"
             },
             {
               "id": "feat-027-preferences-help.review",
@@ -5347,7 +5353,12 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web"
+          "project": "notebox-web",
+          "github": {
+            "issue": 31,
+            "pr": 32,
+            "branch": "feature/preferences-help"
+          }
         }
       ]
     },
