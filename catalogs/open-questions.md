@@ -458,3 +458,76 @@ exactly what it says for the keys it lists. What is wrong is the *scope* of the 
 Is (1)–(4) worth a feature — it spans both projects and touches every screen's first paint — or is
 the honest move to **narrow US-5.2** to what it actually delivers (server messages), and say so in
 the PRD? Either answer is defensible. Inventing the architecture without asking is not.
+
+---
+
+### OQ-38 — Does a subtask record when it was completed?
+
+**Opened:** 2026-09-02, from a direct product-owner request · **Status:** ✅ resolved (2026-09-02)
+
+The product owner asked for an indicator, with a localized tooltip, telling a member that a subtask was
+finished **after its planned end date**. Specifying it surfaced that the product stores no such fact:
+a subtask carries a `done` boolean and nothing else about completion.
+
+**Why deriving it does not work.** Without a stored moment, "finished late" can only be computed as
+*done, and the end date is in the past*. That expression is **false when it should be true and true when
+it should be false**: a subtask finished on time starts reporting itself late the day today walks past
+its end date, and nothing distinguishes it from one genuinely delivered late. The information is
+destroyed at the moment of completion unless it is written down then.
+
+**Decision.** A completion moment is **persisted** when a subtask becomes done, and **cleared** when it
+stops being done. The API records and exposes the moment; the late/on-time comparison belongs to the
+client, which already holds the planned end date in the same payload — recorded as a spec decision in
+`features/029-subtask-completion-notebox-api/spec.md` (Out of scope) so the approval gate can overturn
+it. Subtasks completed before this exists carry no moment and are never reported as late; the moment is
+unrecoverable and inventing one would manufacture a verdict.
+
+— decided by rafaelsantos, 2026-09-02.
+
+**Delivered by:** feat-029-subtask-completion-notebox-api (this fact) · feat-030-subtask-completion-notebox-web
+(the question about a missing start date, the auto-filled end date, and the indicator).
+
+---
+
+### OQ-39 — No test can tell a correct completion moment from a wrong one
+
+**Opened:** 2026-09-03, while planning feat-029 · **Status:** open, non-blocking
+
+The twelve scenarios in `features/029-subtask-completion-notebox-api/spec.md` all assert the moment's
+**presence or absence**, because there is no clock seam anywhere in this codebase — ten entities call
+`Instant.now()` directly and no test bounds an instant between two captured values.
+
+The consequence is uncomfortable and worth writing down: an implementation that stored `getCreatedAt()`,
+or `Instant.EPOCH`, would **pass all twelve**. The one thing this feature exists to get right — that the
+recorded moment is the moment completion actually happened — is the one thing no automated check covers.
+
+**Impact.** A wrong-but-present moment produces a wrong lateness verdict in feat-030, on every subtask,
+silently. A moment equal to creation time would mark work completed the same day as finished late.
+
+**Suggested path.** The live pass in feat-030 is the only check available today: complete a subtask whose
+planned end is in the future and confirm no late indicator appears. A real fix is a `Clock` seam, which
+feat-029's plan rejects as out of proportion for one field but prices at two call sites
+(`markDone(boolean, Instant)`) with no schema change — see its rejected alternative 4.
+
+**Depends on:** nothing. **Raised by:** the design panel's own advocate for the clock-seam option, which
+is the only one of the three proposals that found this hole.
+
+---
+
+### OQ-40 — Nothing sets a JDBC time zone, and the stored timestamps carry none
+
+**Opened:** 2026-09-03, while planning feat-029 · **Status:** open, non-blocking
+
+`DATETIME(6)` carries no zone and nothing in the configuration sets a JDBC time zone, so every `Instant`
+round-trip rides the JVM default zone. This is **pre-existing** and equally true of every `created_at`
+and `updated_at` in the schema — feat-029 introduces nothing new here.
+
+It is recorded now because feat-029 is the first feature whose entire value is the **correctness of a
+moment**. A deployment whose application JVM and database disagree on zone would show a systematic offset
+that, for created/updated timestamps, nobody would notice — and that, for a completion moment compared
+against a planned date, silently shifts lateness verdicts near midnight.
+
+**Suggested path.** Decide and pin the zone explicitly (UTC everywhere is the obvious candidate) as a
+cross-cutting change, not inside a feature that only surfaced it.
+
+**Depends on:** nothing. **Related:** OQ-39 — both are about the moment being right rather than present.
