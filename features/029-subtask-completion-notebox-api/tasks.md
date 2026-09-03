@@ -78,7 +78,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
       - Tests only; T-02 already shipped the behaviour. This is where the **BR-06 freeze** is evidenced
         end to end: the percentage still counts `done`, never the moment.
 
-- [ ] **T-06 · A pre-FR-20 row keeps reporting nothing**
+- [x] **T-06 · A pre-FR-20 row keeps reporting nothing**
       - files: `src/test/java/com/notebox/api/infrastructure/persistence/TaskRepositoryTest.java`
       - covers: FR-20 · scenario: *"A subtask completed before this feature existed reports no moment"*
       - depends: T-03
