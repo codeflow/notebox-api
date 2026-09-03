@@ -375,7 +375,31 @@ class TaskResourceTest {
         given().header("Authorization", authB)
                 .when().get("/tasks/" + taskB)
                 .then().statusCode(200)
-                .body("name", equalTo("OwnedByB"));
+                .body("name", equalTo("OwnedByB"))
+                // FR-20 (feat-029 T-07): A's rejected completion left no trace on B's subtask.
+                .body("subtasks[0].done", equalTo(false))
+                .body("subtasks[0].completedAt", nullValue());
+    }
+
+    /**
+     * C-02 on the path this feature touches. The existing unauthenticated assertion issues only a task
+     * listing, so the 401 half was unevidenced on the subtask update — the seam a completion travels.
+     */
+    @Test
+    void subtaskUpdate_unauthenticated_rejected() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        String subtaskId = addSubtask(auth, taskId, "Ship", false);
+
+        given().contentType(ContentType.JSON)
+                .body(subtaskJson("Ship", true))
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId)
+                .then().statusCode(401);
+
+        given().contentType(ContentType.JSON)
+                .body(subtaskJson("Ship", true))
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(401);
     }
 
     @Test

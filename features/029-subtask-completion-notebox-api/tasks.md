@@ -90,7 +90,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
         state. The test then updates the subtask leaving it done, and asserts the moment is **still**
         null — the no-backfill rule, which is the one-way decision whose window closes at deploy.
 
-- [ ] **T-07 · Security evidence on the path this feature touches**
+- [x] **T-07 · Security evidence on the path this feature touches**
       - files: `src/test/java/com/notebox/api/api/TaskResourceTest.java`
       - covers: C-01, C-02 · scenario: *"A subtask of another tenant cannot be completed"*
       - depends: T-04
