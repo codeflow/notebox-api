@@ -5616,13 +5616,15 @@
                   "id": "feat-029-subtask-completion-notebox-api.implement.t5",
                   "title": "T-05 — The transition through the real aggregate",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium",
                     "isolation": "worktree"
-                  }
+                  },
+                  "started_at": "2026-09-03T12:36:39Z",
+                  "completed_at": "2026-09-03T12:45:44Z"
                 },
                 {
                   "id": "feat-029-subtask-completion-notebox-api.implement.t6",

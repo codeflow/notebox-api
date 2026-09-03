@@ -67,7 +67,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
         That list **enumerates keys rather than scanning code**, so a key added to the catalogs but not
         to the list is silently uncovered — the coverage test would pass while proving nothing about it.
 
-- [ ] **T-05 · The transition through the real aggregate**
+- [x] **T-05 · The transition through the real aggregate**
       - files: `src/test/java/com/notebox/api/application/task/TaskServiceTest.java`
       - covers: FR-20, BR-06, BR-07 · scenarios: *"Completing a subtask records the moment"* (50%),
         *"A subtask created already done records the moment"* (100%), *"Rescheduling a completed subtask
