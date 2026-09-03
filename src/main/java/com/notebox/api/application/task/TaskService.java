@@ -152,7 +152,7 @@ public class TaskService {
         subtask.setName(input.name());
         subtask.setStartDate(input.startDate());
         subtask.setEndDate(input.endDate());
-        subtask.setDone(input.doneOrFalse());
+        subtask.markDone(input.doneOrFalse());
         subtask.setCard(toCard(input.card()));
         if (!wasDone && subtask.isDone()) {
             events.fire(new SubtaskCompleted(taskId));

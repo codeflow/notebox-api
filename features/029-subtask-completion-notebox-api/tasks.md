@@ -21,7 +21,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
       - The comment block is the one in `data-model.md`, verbatim: why before what, and the two
         explicit refusals (no CHECK, following V6; no backfill).
 
-- [ ] **T-02 · The transition records and erases the moment**
+- [x] **T-02 · The transition records and erases the moment**
       - files: `domain/Subtask.java`, `application/task/TaskService.java`,
         `src/test/java/com/notebox/api/domain/SubtaskTest.java` *(new)*
       - covers: FR-20, BR-06 (frozen) · scenarios: *"Completing a subtask records the moment"*,
