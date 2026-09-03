@@ -53,7 +53,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
         inside the write transaction is built from the managed entity — so the two differ in the last
         digits and the test flakes.
 
-- [ ] **T-04 · Reject a client-supplied moment, in both locales**
+- [x] **T-04 · Reject a client-supplied moment, in both locales**
       - files: `api/dto/SubtaskInput.java`, `resources/messages.properties`,
         `resources/messages_pt.properties`,
         `src/test/java/com/notebox/api/infrastructure/i18n/TaskMessageCoverageTest.java`,

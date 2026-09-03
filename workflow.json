@@ -5603,12 +5603,14 @@
                   "id": "feat-029-subtask-completion-notebox-api.implement.t4",
                   "title": "T-04 — Reject a client-supplied moment, in both locales",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-09-03T12:15:48Z",
+                  "completed_at": "2026-09-03T12:36:37Z"
                 },
                 {
                   "id": "feat-029-subtask-completion-notebox-api.implement.t5",

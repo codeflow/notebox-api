@@ -853,6 +853,56 @@ class TaskResourceTest {
                 .body("violations.code", hasItem("task.list.size.out_of_bounds"));
     }
 
+    // ---- FR-20 (feat-029 T-04): the moment is the server's to write ----
+
+    /**
+     * Spec: "The completion moment is not client-writable" — the poison-field treatment BR-06 and BR-07
+     * already get, so a client learns it was wrong instead of silently disagreeing with the server.
+     */
+    @Test
+    void subtaskCompletion_clientSuppliedMoment_rejected() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"done\": true}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+        String moment = given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().extract().path("subtasks[0].completedAt");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"done\": true, \"completedAt\": \"2020-01-01T00:00:00Z\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId(auth, taskId))
+                .then().statusCode(400)
+                .body("code", equalTo("validation.failed"))
+                .body("violations.code", hasItem("task.subtask.completed_at.not_writable"));
+
+        // The rejected write changed nothing.
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().body("subtasks[0].completedAt", equalTo(moment));
+    }
+
+    /** Spec: "The rejection resolves in the caller's locale" (C-09, BR-08). */
+    @Test
+    void subtaskCompletion_rejection_resolvesInPortugueseLocale() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\"}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+
+        given().header("Authorization", auth).header("Accept-Language", "pt").contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"completedAt\": \"2020-01-01T00:00:00Z\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId(auth, taskId))
+                .then().statusCode(400)
+                .body("violations.find { it.code == 'task.subtask.completed_at.not_writable' }.message",
+                        equalTo("O momento de conclusão da subtarefa é registrado pelo servidor "
+                                + "e não pode ser definido diretamente."));
+    }
+
     // ---- FR-20 (feat-029 T-03): the completion moment on the wire ----
 
     /**

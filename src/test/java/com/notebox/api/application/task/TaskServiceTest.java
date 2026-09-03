@@ -88,11 +88,11 @@ class TaskServiceTest {
     }
 
     private static SubtaskInput subtask(String name, boolean done) {
-        return new SubtaskInput(name, null, null, done, null);
+        return new SubtaskInput(name, null, null, done, null, null);
     }
 
     private static SubtaskInput subtask(String name, LocalDate start, LocalDate end) {
-        return new SubtaskInput(name, start, end, false, null);
+        return new SubtaskInput(name, start, end, false, null, null);
     }
 
     private static TaskInput taskWith(String name, CardInput card, String details) {
@@ -329,7 +329,7 @@ class TaskServiceTest {
         UUID subtaskId = task.getSubtasks().get(0).getId();
         events.reset();
 
-        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true, null));
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true, null, null));
         em.flush();
 
         assertEquals(100, task.getStatus(), "the flip still drives status (BR-06)");
@@ -431,7 +431,7 @@ class TaskServiceTest {
     void addSubtask_withCard_subtaskCarriesIt() {
         actAsFreshTenant();
         Task task = service.create(taskWith("Broker migration", null, null));
-        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false,
+        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false, null,
                 new CardInput("LEG-7", "https://tracker.example/LEG-7")));
 
         Task reloaded = reload(task.getId());
@@ -460,7 +460,7 @@ class TaskServiceTest {
     void updateSubtask_omittingCard_clearsIt() {
         actAsFreshTenant();
         Task task = service.create(taskWith("Broker migration", null, null));
-        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false,
+        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false, null,
                 new CardInput("LEG-7", null)));
         UUID subtaskId = reload(task.getId()).getSubtasks().get(0).getId();
 
