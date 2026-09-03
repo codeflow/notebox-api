@@ -9,7 +9,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
 
 ---
 
-- [ ] **T-01 · Add the completion column**
+- [x] **T-01 · Add the completion column**
       - files: `src/main/resources/db/migration/V9__subtask_completed_at.sql`
       - covers: FR-20 · enables every scenario; asserts none on its own
       - depends: —

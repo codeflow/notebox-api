@@ -5564,12 +5564,14 @@
                   "id": "feat-029-subtask-completion-notebox-api.implement.t1",
                   "title": "T-01 — Add the completion column",
                   "kind": "task",
-                  "status": "pending",
+                  "status": "done",
                   "instructions": "instructions/feature-implement.md",
                   "agent": {
                     "model": "sonnet",
                     "effort": "medium"
-                  }
+                  },
+                  "started_at": "2026-09-03T11:42:13Z",
+                  "completed_at": "2026-09-03T11:58:17Z"
                 },
                 {
                   "id": "feat-029-subtask-completion-notebox-api.implement.t2",
