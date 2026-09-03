@@ -8,7 +8,7 @@ import com.notebox.api.domain.Subtask;
 
 /**
  * Wire shape of a subtask (FR-11) — name, optional date pair, done flag, optional inline card
- * (FR-13) and timestamps.
+ * (FR-13), the completion moment (FR-20) and timestamps.
  */
 public record SubtaskDto(
         UUID id,
@@ -17,6 +17,7 @@ public record SubtaskDto(
         LocalDate endDate,
         boolean done,
         CardDto card,
+        Instant completedAt,
         Instant createdAt,
         Instant updatedAt) {
 
@@ -34,6 +35,7 @@ public record SubtaskDto(
                 subtask.getEndDate(),
                 subtask.isDone(),
                 CardDto.from(subtask.getCard()),
+                subtask.getCompletedAt(),
                 subtask.getCreatedAt(),
                 subtask.getUpdatedAt());
     }

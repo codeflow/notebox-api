@@ -41,7 +41,7 @@ every way the plan could be wrong**, so they go first while changing the plan is
         when two instants are value-equal at the stored resolution; `assertEquals` there can pass
         vacuously.
 
-- [ ] **T-03 · Expose the moment in the read model**
+- [x] **T-03 · Expose the moment in the read model**
       - files: `api/dto/SubtaskDto.java`, `src/test/java/com/notebox/api/api/TaskResourceTest.java`
       - covers: FR-20 · scenario: *"The read model carries what a lateness comparison needs"*
       - depends: T-02

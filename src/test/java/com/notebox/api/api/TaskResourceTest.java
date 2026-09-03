@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.UUID;
@@ -850,6 +851,76 @@ class TaskResourceTest {
                 .when().get("/tasks?size=0")
                 .then().statusCode(400)
                 .body("violations.code", hasItem("task.list.size.out_of_bounds"));
+    }
+
+    // ---- FR-20 (feat-029 T-03): the completion moment on the wire ----
+
+    /**
+     * Spec: "The read model carries what a lateness comparison needs" — the client compares the moment
+     * with the subtask's own planned end date, so both must arrive in the same payload.
+     *
+     * <p><b>Reads are compared against reads, never against a mutation response.</b> Instant.now()
+     * carries nanoseconds and the stored column holds microseconds, and the response built inside the
+     * write transaction comes from the managed entity — so the two differ in the last digits.
+     */
+    @Test
+    void subtaskCompletion_readModelCarriesTheMomentAndThePlannedEnd() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"startDate\": \"2026-09-01\", \"endDate\": \"2026-09-05\", \"done\": true}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+
+        String moment = given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].completedAt", notNullValue())
+                .body("subtasks[0].endDate", equalTo("2026-09-05"))
+                .extract().path("subtasks[0].completedAt");
+
+        // A read against a read: a rename leaves the moment byte-identical on the wire.
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship it\", \"startDate\": \"2026-09-01\", \"endDate\": \"2026-09-05\", \"done\": true}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId(auth, taskId))
+                .then().statusCode(200);
+
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].completedAt", equalTo(moment));
+    }
+
+    /** Un-completing on the wire: the moment is gone from the read model. */
+    @Test
+    void subtaskCompletion_unmarkingDone_clearsTheMomentOnTheWire() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"done\": true}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+        String subtaskId = subtaskId(auth, taskId);
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId)
+                .then().statusCode(200);
+
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].done", equalTo(false))
+                .body("subtasks[0].completedAt", nullValue());
+    }
+
+    /** The first subtask's id, read back — the create response is not relied on for identity. */
+    private String subtaskId(String auth, String taskId) {
+        return given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .extract().path("subtasks[0].id");
     }
 
     @Test
