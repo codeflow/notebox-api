@@ -5495,7 +5495,7 @@
         },
         {
           "id": "feat-029-subtask-completion-notebox-api",
-          "title": "Record when a subtask was completed, and complete it from the grid (FR-11, BR-06/BR-07) (US-4.1)",
+          "title": "Record when a subtask was completed, and complete it from the grid (FR-20, BR-06/BR-07) (US-4.1)",
           "kind": "feature",
           "status": "pending",
           "instructions": "instructions/feature-lifecycle.md",
@@ -5552,7 +5552,7 @@
             {
               "id": "feat-029-subtask-completion-notebox-api.implement",
               "title": "Implement — code + tests",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
@@ -5654,12 +5654,13 @@
                   "completed_at": "2026-09-03T12:58:23Z"
                 }
               ],
-              "started_at": "2026-09-03T11:39:17Z"
+              "started_at": "2026-09-03T11:39:17Z",
+              "completed_at": "2026-09-03T12:58:23Z"
             },
             {
               "id": "feat-029-subtask-completion-notebox-api.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -5668,18 +5669,21 @@
               "gate": "audit_pass",
               "produces": [
                 "features/029-subtask-completion-notebox-api/audit.md"
-              ]
+              ],
+              "started_at": "2026-09-03T12:59:18Z",
+              "notes": "product owner chose to move on (2026-09-03): 5 of 6 axes returned, 19 findings, 0 blockers, verdict pass-with-findings recorded in audit.md; the scenario-honesty axis was NOT run"
             },
             {
               "id": "feat-029-subtask-completion-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-09-04T02:14:37Z"
             },
             {
               "id": "feat-029-subtask-completion-notebox-api.review",
@@ -5696,7 +5700,7 @@
         },
         {
           "id": "feat-030-subtask-completion-notebox-web",
-          "title": "Record when a subtask was completed, and complete it from the grid (FR-11, BR-06/BR-07) (US-4.1)",
+          "title": "Record when a subtask was completed, and complete it from the grid (FR-20, BR-06/BR-07) (US-4.1)",
           "kind": "feature",
           "status": "pending",
           "instructions": "instructions/feature-lifecycle.md",
