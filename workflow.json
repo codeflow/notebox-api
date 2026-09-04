@@ -5676,27 +5676,35 @@
             {
               "id": "feat-029-subtask-completion-notebox-api.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
               "gate": "verify_green",
-              "started_at": "2026-09-04T02:14:37Z"
+              "started_at": "2026-09-04T02:14:37Z",
+              "completed_at": "2026-09-04T02:41:50Z"
             },
             {
               "id": "feat-029-subtask-completion-notebox-api.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-09-04T02:43:11Z",
+              "completed_at": "2026-09-04T02:49:17Z"
             }
-          ]
+          ],
+          "github": {
+            "branch": "feature/subtask-completion",
+            "pr": 21,
+            "merged": "develop"
+          }
         },
         {
           "id": "feat-030-subtask-completion-notebox-web",
