@@ -531,3 +531,25 @@ against a planned date, silently shifts lateness verdicts near midnight.
 cross-cutting change, not inside a feature that only surfaced it.
 
 **Depends on:** nothing. **Related:** OQ-39 — both are about the moment being right rather than present.
+
+---
+
+### OQ-41 — What does the late-completion indicator look like in a datagrid cell?
+
+**Opened:** 2026-09-04, while specifying feat-030 · **Status:** open, blocks nothing
+
+FR-20's member-facing half needs a marker beside a subtask's end date when the work was completed
+after that date. **The design handoff draws no marker of this kind in a datagrid cell** — it has
+severity messages in panels and dialogs, and action icons in a row's actions column, but nothing
+that annotates a *value* cell.
+
+**Proposal:** reuse the severity glyph already used by `SeverityMessage`, sized to the row's action
+icons, placed after the end date, with the localized tooltip as its accessible name. That keeps the
+vocabulary the product already has instead of inventing a badge.
+
+**Why it blocks nothing:** the behaviour is specified and testable regardless of the glyph — the
+scenarios assert that an indicator appears or does not, and what its tooltip says. Only the visual
+treatment is open, and it is recorded as a divergence from the handoff (FR-19/NFR-09) so the
+approval gate settles it rather than a reviewer discovering it.
+
+**Depends on:** nothing. **Delivered by:** feat-030-subtask-completion-notebox-web.

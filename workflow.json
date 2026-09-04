@@ -5716,7 +5716,7 @@
             {
               "id": "feat-030-subtask-completion-notebox-web.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -5725,12 +5725,14 @@
               "gate": "human_approval",
               "produces": [
                 "features/030-subtask-completion-notebox-web/spec.md"
-              ]
+              ],
+              "started_at": "2026-09-04T02:52:24Z",
+              "completed_at": "2026-09-04T02:53:35Z"
             },
             {
               "id": "feat-030-subtask-completion-notebox-web.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -5740,12 +5742,14 @@
               "produces": [
                 "features/030-subtask-completion-notebox-web/plan.md",
                 "features/030-subtask-completion-notebox-web/data-model.md"
-              ]
+              ],
+              "started_at": "2026-09-04T02:53:36Z",
+              "completed_at": "2026-09-04T02:56:20Z"
             },
             {
               "id": "feat-030-subtask-completion-notebox-web.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -5754,23 +5758,96 @@
               "gate": "human_approval",
               "produces": [
                 "features/030-subtask-completion-notebox-web/tasks.md"
-              ]
+              ],
+              "started_at": "2026-09-04T02:56:20Z",
+              "completed_at": "2026-09-04T02:56:20Z"
             },
             {
               "id": "feat-030-subtask-completion-notebox-web.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-030-subtask-completion-notebox-web.implement.t1",
+                  "title": "T-01 — The three helpers, and the timezone traps",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-04T02:56:31Z",
+                  "completed_at": "2026-09-04T03:11:19Z"
+                },
+                {
+                  "id": "feat-030-subtask-completion-notebox-web.implement.t2",
+                  "title": "T-02 — The tick asks, fills, or just sends",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-04T03:13:25Z",
+                  "completed_at": "2026-09-04T03:24:12Z"
+                },
+                {
+                  "id": "feat-030-subtask-completion-notebox-web.implement.t3",
+                  "title": "T-03 — The late indicator and its tooltip",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-09-04T03:24:12Z",
+                  "completed_at": "2026-09-04T03:33:02Z"
+                },
+                {
+                  "id": "feat-030-subtask-completion-notebox-web.implement.t4",
+                  "title": "T-04 — Date order, before the round trip",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-09-04T03:33:02Z",
+                  "completed_at": "2026-09-04T03:34:45Z"
+                },
+                {
+                  "id": "feat-030-subtask-completion-notebox-web.implement.t5",
+                  "title": "T-05 — Both locales, and the guard the catalog cannot give",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-04T03:34:45Z",
+                  "completed_at": "2026-09-04T03:41:58Z"
+                }
+              ],
+              "started_at": "2026-09-04T02:56:21Z",
+              "completed_at": "2026-09-04T03:41:58Z"
             },
             {
               "id": "feat-030-subtask-completion-notebox-web.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -5779,18 +5856,20 @@
               "gate": "audit_pass",
               "produces": [
                 "features/030-subtask-completion-notebox-web/audit.md"
-              ]
+              ],
+              "notes": "product owner chose to skip (2026-09-04) — same call as feat-029; every test in this feature was killed by a deliberate regression before being kept, and the live browser pass at the end is the remaining check"
             },
             {
               "id": "feat-030-subtask-completion-notebox-web.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "in_progress",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "started_at": "2026-09-04T03:42:06Z"
             },
             {
               "id": "feat-030-subtask-completion-notebox-web.review",
