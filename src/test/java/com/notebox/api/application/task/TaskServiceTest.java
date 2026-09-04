@@ -3,12 +3,15 @@ package com.notebox.api.application.task;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -88,11 +91,11 @@ class TaskServiceTest {
     }
 
     private static SubtaskInput subtask(String name, boolean done) {
-        return new SubtaskInput(name, null, null, done, null);
+        return new SubtaskInput(name, null, null, done, null, null);
     }
 
     private static SubtaskInput subtask(String name, LocalDate start, LocalDate end) {
-        return new SubtaskInput(name, start, end, false, null);
+        return new SubtaskInput(name, start, end, false, null, null);
     }
 
     private static TaskInput taskWith(String name, CardInput card, String details) {
@@ -329,7 +332,7 @@ class TaskServiceTest {
         UUID subtaskId = task.getSubtasks().get(0).getId();
         events.reset();
 
-        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true, null));
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true, null, null));
         em.flush();
 
         assertEquals(100, task.getStatus(), "the flip still drives status (BR-06)");
@@ -337,6 +340,84 @@ class TaskServiceTest {
         assertEquals(SEP_5, task.getEndDate());
         assertEquals(1, events.seen().size());
         assertInstanceOf(SubtaskCompleted.class, events.seen().get(0));
+    }
+
+    // ---- FR-20 (feat-029 T-05): the completion moment through the real aggregate ----
+
+    /**
+     * Spec: "Completing a subtask records the moment", with the BR-06 percentage stated as a number
+     * rather than as a claim about history — 1 of 2 done is 50%, and the moment is not an input to it.
+     */
+    @Test
+    @TestTransaction
+    void updateSubtask_completing_recordsTheMomentAndStatusStillCountsDone() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null, null));
+        service.addSubtask(task.getId(), subtask("A", SEP_1, SEP_5));
+        service.addSubtask(task.getId(), subtask("B", SEP_1, SEP_5));
+        em.flush();
+        assertEquals(0, task.getStatus(), "neither done yet");
+        UUID subtaskId = task.getSubtasks().get(0).getId();
+
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, true, null, null));
+        em.flush();
+
+        assertNotNull(task.subtask(subtaskId).orElseThrow().getCompletedAt(), "the transition records WHEN");
+        assertEquals(50, task.getStatus(), "status counts the flag, never the moment (BR-06)");
+    }
+
+    /** Spec: "A subtask created already done records the moment" — the add path, through the service. */
+    @Test
+    @TestTransaction
+    void addSubtask_bornDone_recordsTheMoment() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null, null));
+
+        service.addSubtask(task.getId(), new SubtaskInput("A", SEP_1, SEP_5, true, null, null));
+        em.flush();
+
+        assertNotNull(task.getSubtasks().get(0).getCompletedAt(), "birth-as-done records it too");
+        assertEquals(100, task.getStatus());
+    }
+
+    /**
+     * Spec: "Rescheduling a completed subtask keeps its moment". The moment records when work finished;
+     * moving the plan afterwards must not rewrite history — and this is exactly the case that makes a
+     * subtask late after the fact, so it has to be exact.
+     */
+    @Test
+    @TestTransaction
+    void updateSubtask_reschedulingACompletedSubtask_keepsItsMoment() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null, null));
+        service.addSubtask(task.getId(), new SubtaskInput("A", SEP_1, SEP_5, true, null, null));
+        em.flush();
+        UUID subtaskId = task.getSubtasks().get(0).getId();
+        Instant recorded = task.getSubtasks().get(0).getCompletedAt();
+
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_10, true, null, null));
+        em.flush();
+
+        assertSame(recorded, task.subtask(subtaskId).orElseThrow().getCompletedAt(),
+                "a reschedule does not re-stamp the moment");
+        assertEquals(SEP_10, task.getEndDate(), "but the plan did move (BR-07)");
+    }
+
+    /** Un-completing through the service erases it, and the percentage follows the flag back down. */
+    @Test
+    @TestTransaction
+    void updateSubtask_uncompleting_erasesTheMomentAndStatusFollows() {
+        actAsFreshTenant();
+        Task task = service.create(new TaskInput("Migrate broker", "HIGH", null, null, null, null, null, null));
+        service.addSubtask(task.getId(), new SubtaskInput("A", SEP_1, SEP_5, true, null, null));
+        em.flush();
+        UUID subtaskId = task.getSubtasks().get(0).getId();
+
+        service.updateSubtask(task.getId(), subtaskId, new SubtaskInput("A", SEP_1, SEP_5, false, null, null));
+        em.flush();
+
+        assertNull(task.subtask(subtaskId).orElseThrow().getCompletedAt());
+        assertEquals(0, task.getStatus());
     }
 
     @Test
@@ -431,7 +512,7 @@ class TaskServiceTest {
     void addSubtask_withCard_subtaskCarriesIt() {
         actAsFreshTenant();
         Task task = service.create(taskWith("Broker migration", null, null));
-        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false,
+        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false, null,
                 new CardInput("LEG-7", "https://tracker.example/LEG-7")));
 
         Task reloaded = reload(task.getId());
@@ -460,7 +541,7 @@ class TaskServiceTest {
     void updateSubtask_omittingCard_clearsIt() {
         actAsFreshTenant();
         Task task = service.create(taskWith("Broker migration", null, null));
-        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false,
+        service.addSubtask(task.getId(), new SubtaskInput("Contract review", null, null, false, null,
                 new CardInput("LEG-7", null)));
         UUID subtaskId = reload(task.getId()).getSubtasks().get(0).getId();
 

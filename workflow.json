@@ -4910,21 +4910,23 @@
             {
               "id": "feat-023-records-panel.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "in_progress",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
               "gate": "human_approval",
-              "started_at": "2026-09-01T21:47:17Z"
+              "started_at": "2026-09-01T21:47:17Z",
+              "completed_at": "2026-09-03T03:04:14Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "branch": "feature/records-panel",
             "issue": 25,
-            "pr": 26
+            "pr": 26,
+            "merged": "develop"
           }
         },
         {
@@ -5022,20 +5024,23 @@
             {
               "id": "feat-024-inline-grids.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-09-03T03:04:21Z",
+              "completed_at": "2026-09-03T03:04:22Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "issue": 27,
             "branch": "feature/inline-grids",
-            "pr": 28
+            "pr": 28,
+            "merged": "develop"
           }
         },
         {
@@ -5133,33 +5138,36 @@
             {
               "id": "feat-025-code-block-lines.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "done",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "started_at": "2026-09-03T03:04:22Z",
+              "completed_at": "2026-09-03T03:04:22Z"
             }
           ],
           "project": "notebox-web",
           "github": {
             "issue": 29,
             "pr": 30,
-            "branch": "feature/code-block-lines"
+            "branch": "feature/code-block-lines",
+            "merged": "develop"
           }
         },
         {
           "id": "feat-026-locale-management",
           "title": "Add a locale at runtime, with English as the fallback for untranslated keys (brief item 24.3) (US-5.2)",
           "kind": "feature",
-          "status": "blocked",
+          "status": "skipped",
           "instructions": "instructions/feature-lifecycle.md",
           "steps": [
             {
               "id": "feat-026-locale-management.spec",
               "title": "Spec — what and why, in Gherkin",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-spec.md",
               "agent": {
                 "model": "opus",
@@ -5168,12 +5176,13 @@
               "gate": "human_approval",
               "produces": [
                 "features/026-locale-management/spec.md"
-              ]
+              ],
+              "notes": "parent feature skipped — blocked by OQ-37"
             },
             {
               "id": "feat-026-locale-management.plan",
               "title": "Plan — how, with contracts",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-plan.md",
               "agent": {
                 "model": "opus",
@@ -5183,12 +5192,13 @@
               "produces": [
                 "features/026-locale-management/plan.md",
                 "features/026-locale-management/data-model.md"
-              ]
+              ],
+              "notes": "parent feature skipped — blocked by OQ-37"
             },
             {
               "id": "feat-026-locale-management.tasks",
               "title": "Tasks — atomic and verifiable",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-tasks.md",
               "agent": {
                 "model": "sonnet",
@@ -5197,23 +5207,25 @@
               "gate": "human_approval",
               "produces": [
                 "features/026-locale-management/tasks.md"
-              ]
+              ],
+              "notes": "parent feature skipped — blocked by OQ-37"
             },
             {
               "id": "feat-026-locale-management.implement",
               "title": "Implement — code + tests",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-implement.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "high"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "notes": "parent feature skipped — blocked by OQ-37"
             },
             {
               "id": "feat-026-locale-management.audit",
               "title": "Audit — adversarial check",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-audit.md",
               "agent": {
                 "model": "opus",
@@ -5222,33 +5234,36 @@
               "gate": "audit_pass",
               "produces": [
                 "features/026-locale-management/audit.md"
-              ]
+              ],
+              "notes": "parent feature skipped — blocked by OQ-37"
             },
             {
               "id": "feat-026-locale-management.publish",
               "title": "Publish — branch feature/<slug> + CI",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-publish.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "verify_green"
+              "gate": "verify_green",
+              "notes": "parent feature skipped — blocked by OQ-37"
             },
             {
               "id": "feat-026-locale-management.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
-              "status": "pending",
+              "status": "skipped",
               "instructions": "instructions/feature-review.md",
               "agent": {
                 "model": "sonnet",
                 "effort": "medium"
               },
-              "gate": "human_approval"
+              "gate": "human_approval",
+              "notes": "parent feature skipped — blocked by OQ-37"
             }
           ],
           "project": "notebox-web",
-          "notes": "blocked by OQ-37: adding a locale is impossible for the interface until the catalog reaches it — 425 bundled strings, 93 reachable"
+          "notes": "blocked by OQ-37 — the message catalog reaches the 93 server messages and none of the 425 interface strings, so adding a locale is impossible for the UI until a UI catalog exists; deferred, not delivered"
         },
         {
           "id": "feat-027-preferences-help",
@@ -5345,6 +5360,433 @@
             {
               "id": "feat-027-preferences-help.review",
               "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "done",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "started_at": "2026-09-03T03:04:22Z",
+              "completed_at": "2026-09-03T03:04:22Z"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 31,
+            "pr": 32,
+            "branch": "feature/preferences-help",
+            "merged": "develop"
+          }
+        },
+        {
+          "id": "feat-028-form-flow",
+          "title": "Error focus, error clearing as you type, and Enter advancing between fields (US-2.1) (US-2.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-028-form-flow.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/028-form-flow/spec.md"
+              ],
+              "completed_at": "2026-09-02T19:31:40Z"
+            },
+            {
+              "id": "feat-028-form-flow.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/028-form-flow/plan.md",
+                "features/028-form-flow/data-model.md"
+              ],
+              "completed_at": "2026-09-02T19:31:40Z"
+            },
+            {
+              "id": "feat-028-form-flow.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/028-form-flow/tasks.md"
+              ],
+              "completed_at": "2026-09-02T19:31:40Z"
+            },
+            {
+              "id": "feat-028-form-flow.implement",
+              "title": "Implement — code + tests",
+              "status": "done",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T19:31:41Z"
+            },
+            {
+              "id": "feat-028-form-flow.audit",
+              "title": "Audit — adversarial check",
+              "status": "done",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/028-form-flow/audit.md"
+              ],
+              "completed_at": "2026-09-02T19:31:41Z"
+            },
+            {
+              "id": "feat-028-form-flow.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "done",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green",
+              "completed_at": "2026-09-02T19:31:41Z"
+            },
+            {
+              "id": "feat-028-form-flow.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "done",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "started_at": "2026-09-03T03:04:22Z",
+              "completed_at": "2026-09-03T03:04:23Z"
+            }
+          ],
+          "project": "notebox-web",
+          "github": {
+            "issue": 33,
+            "pr": 34,
+            "branch": "feature/form-flow",
+            "merged": "develop"
+          }
+        },
+        {
+          "id": "feat-029-subtask-completion-notebox-api",
+          "title": "Record when a subtask was completed, and complete it from the grid (FR-20, BR-06/BR-07) (US-4.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-029-subtask-completion-notebox-api.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "done",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/029-subtask-completion-notebox-api/spec.md"
+              ],
+              "started_at": "2026-09-03T03:28:33Z",
+              "completed_at": "2026-09-03T10:39:52Z"
+            },
+            {
+              "id": "feat-029-subtask-completion-notebox-api.plan",
+              "title": "Plan — how, with contracts",
+              "status": "done",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/029-subtask-completion-notebox-api/plan.md",
+                "features/029-subtask-completion-notebox-api/data-model.md"
+              ],
+              "started_at": "2026-09-03T10:39:52Z",
+              "completed_at": "2026-09-03T11:12:19Z"
+            },
+            {
+              "id": "feat-029-subtask-completion-notebox-api.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "done",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/029-subtask-completion-notebox-api/tasks.md"
+              ],
+              "started_at": "2026-09-03T11:12:19Z",
+              "completed_at": "2026-09-03T11:39:17Z"
+            },
+            {
+              "id": "feat-029-subtask-completion-notebox-api.implement",
+              "title": "Implement — code + tests",
+              "status": "done",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green",
+              "steps": [
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t1",
+                  "title": "T-01 — Add the completion column",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-03T11:42:13Z",
+                  "completed_at": "2026-09-03T11:58:17Z"
+                },
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t2",
+                  "title": "T-02 — The transition records and erases the moment",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-03T11:58:17Z",
+                  "completed_at": "2026-09-03T12:09:02Z"
+                },
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t3",
+                  "title": "T-03 — Expose the moment in the read model",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-03T12:09:02Z",
+                  "completed_at": "2026-09-03T12:15:48Z"
+                },
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t4",
+                  "title": "T-04 — Reject a client-supplied moment, in both locales",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-03T12:15:48Z",
+                  "completed_at": "2026-09-03T12:36:37Z"
+                },
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t5",
+                  "title": "T-05 — The transition through the real aggregate",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-09-03T12:36:39Z",
+                  "completed_at": "2026-09-03T12:45:44Z"
+                },
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t6",
+                  "title": "T-06 — A pre-FR-20 row keeps reporting nothing",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium",
+                    "isolation": "worktree"
+                  },
+                  "started_at": "2026-09-03T12:45:45Z",
+                  "completed_at": "2026-09-03T12:50:24Z"
+                },
+                {
+                  "id": "feat-029-subtask-completion-notebox-api.implement.t7",
+                  "title": "T-07 — Security evidence on the path this feature touches",
+                  "kind": "task",
+                  "status": "done",
+                  "instructions": "instructions/feature-implement.md",
+                  "agent": {
+                    "model": "sonnet",
+                    "effort": "medium"
+                  },
+                  "started_at": "2026-09-03T12:50:25Z",
+                  "completed_at": "2026-09-03T12:58:23Z"
+                }
+              ],
+              "started_at": "2026-09-03T11:39:17Z",
+              "completed_at": "2026-09-03T12:58:23Z"
+            },
+            {
+              "id": "feat-029-subtask-completion-notebox-api.audit",
+              "title": "Audit — adversarial check",
+              "status": "skipped",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/029-subtask-completion-notebox-api/audit.md"
+              ],
+              "started_at": "2026-09-03T12:59:18Z",
+              "notes": "product owner chose to move on (2026-09-03): 5 of 6 axes returned, 19 findings, 0 blockers, verdict pass-with-findings recorded in audit.md; the scenario-honesty axis was NOT run"
+            },
+            {
+              "id": "feat-029-subtask-completion-notebox-api.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "in_progress",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green",
+              "started_at": "2026-09-04T02:14:37Z"
+            },
+            {
+              "id": "feat-029-subtask-completion-notebox-api.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
+              "status": "pending",
+              "instructions": "instructions/feature-review.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval"
+            }
+          ]
+        },
+        {
+          "id": "feat-030-subtask-completion-notebox-web",
+          "title": "Record when a subtask was completed, and complete it from the grid (FR-20, BR-06/BR-07) (US-4.1)",
+          "kind": "feature",
+          "status": "pending",
+          "instructions": "instructions/feature-lifecycle.md",
+          "steps": [
+            {
+              "id": "feat-030-subtask-completion-notebox-web.spec",
+              "title": "Spec — what and why, in Gherkin",
+              "status": "pending",
+              "instructions": "instructions/feature-spec.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/030-subtask-completion-notebox-web/spec.md"
+              ]
+            },
+            {
+              "id": "feat-030-subtask-completion-notebox-web.plan",
+              "title": "Plan — how, with contracts",
+              "status": "pending",
+              "instructions": "instructions/feature-plan.md",
+              "agent": {
+                "model": "opus",
+                "effort": "high"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/030-subtask-completion-notebox-web/plan.md",
+                "features/030-subtask-completion-notebox-web/data-model.md"
+              ]
+            },
+            {
+              "id": "feat-030-subtask-completion-notebox-web.tasks",
+              "title": "Tasks — atomic and verifiable",
+              "status": "pending",
+              "instructions": "instructions/feature-tasks.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "human_approval",
+              "produces": [
+                "features/030-subtask-completion-notebox-web/tasks.md"
+              ]
+            },
+            {
+              "id": "feat-030-subtask-completion-notebox-web.implement",
+              "title": "Implement — code + tests",
+              "status": "pending",
+              "instructions": "instructions/feature-implement.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "high"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-030-subtask-completion-notebox-web.audit",
+              "title": "Audit — adversarial check",
+              "status": "pending",
+              "instructions": "instructions/feature-audit.md",
+              "agent": {
+                "model": "opus",
+                "effort": "xhigh"
+              },
+              "gate": "audit_pass",
+              "produces": [
+                "features/030-subtask-completion-notebox-web/audit.md"
+              ]
+            },
+            {
+              "id": "feat-030-subtask-completion-notebox-web.publish",
+              "title": "Publish — branch feature/<slug> + CI",
+              "status": "pending",
+              "instructions": "instructions/feature-publish.md",
+              "agent": {
+                "model": "sonnet",
+                "effort": "medium"
+              },
+              "gate": "verify_green"
+            },
+            {
+              "id": "feat-030-subtask-completion-notebox-web.review",
+              "title": "Review — PR → integration branch, your approval on GitHub",
               "status": "pending",
               "instructions": "instructions/feature-review.md",
               "agent": {
@@ -5354,12 +5796,7 @@
               "gate": "human_approval"
             }
           ],
-          "project": "notebox-web",
-          "github": {
-            "issue": 31,
-            "pr": 32,
-            "branch": "feature/preferences-help"
-          }
+          "project": "notebox-web"
         }
       ]
     },

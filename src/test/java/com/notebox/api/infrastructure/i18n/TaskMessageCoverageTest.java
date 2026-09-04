@@ -22,6 +22,7 @@ class TaskMessageCoverageTest {
             "task.subtask.name.required",
             "task.subtask.name.too_long",
             "task.subtask.date.invalid",
+            "task.subtask.completed_at.not_writable",
             "task.subtask.not_found",
             "task.list.size.out_of_bounds",
             // feat-012 (US-4.2)

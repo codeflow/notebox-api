@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.UUID;
@@ -374,7 +375,31 @@ class TaskResourceTest {
         given().header("Authorization", authB)
                 .when().get("/tasks/" + taskB)
                 .then().statusCode(200)
-                .body("name", equalTo("OwnedByB"));
+                .body("name", equalTo("OwnedByB"))
+                // FR-20 (feat-029 T-07): A's rejected completion left no trace on B's subtask.
+                .body("subtasks[0].done", equalTo(false))
+                .body("subtasks[0].completedAt", nullValue());
+    }
+
+    /**
+     * C-02 on the path this feature touches. The existing unauthenticated assertion issues only a task
+     * listing, so the 401 half was unevidenced on the subtask update — the seam a completion travels.
+     */
+    @Test
+    void subtaskUpdate_unauthenticated_rejected() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        String subtaskId = addSubtask(auth, taskId, "Ship", false);
+
+        given().contentType(ContentType.JSON)
+                .body(subtaskJson("Ship", true))
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId)
+                .then().statusCode(401);
+
+        given().contentType(ContentType.JSON)
+                .body(subtaskJson("Ship", true))
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(401);
     }
 
     @Test
@@ -850,6 +875,126 @@ class TaskResourceTest {
                 .when().get("/tasks?size=0")
                 .then().statusCode(400)
                 .body("violations.code", hasItem("task.list.size.out_of_bounds"));
+    }
+
+    // ---- FR-20 (feat-029 T-04): the moment is the server's to write ----
+
+    /**
+     * Spec: "The completion moment is not client-writable" — the poison-field treatment BR-06 and BR-07
+     * already get, so a client learns it was wrong instead of silently disagreeing with the server.
+     */
+    @Test
+    void subtaskCompletion_clientSuppliedMoment_rejected() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"done\": true}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+        String moment = given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().extract().path("subtasks[0].completedAt");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"done\": true, \"completedAt\": \"2020-01-01T00:00:00Z\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId(auth, taskId))
+                .then().statusCode(400)
+                .body("code", equalTo("validation.failed"))
+                .body("violations.code", hasItem("task.subtask.completed_at.not_writable"));
+
+        // The rejected write changed nothing.
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().body("subtasks[0].completedAt", equalTo(moment));
+    }
+
+    /** Spec: "The rejection resolves in the caller's locale" (C-09, BR-08). */
+    @Test
+    void subtaskCompletion_rejection_resolvesInPortugueseLocale() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\"}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+
+        given().header("Authorization", auth).header("Accept-Language", "pt").contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"completedAt\": \"2020-01-01T00:00:00Z\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId(auth, taskId))
+                .then().statusCode(400)
+                .body("violations.find { it.code == 'task.subtask.completed_at.not_writable' }.message",
+                        equalTo("O momento de conclusão da subtarefa é registrado pelo servidor "
+                                + "e não pode ser definido diretamente."));
+    }
+
+    // ---- FR-20 (feat-029 T-03): the completion moment on the wire ----
+
+    /**
+     * Spec: "The read model carries what a lateness comparison needs" — the client compares the moment
+     * with the subtask's own planned end date, so both must arrive in the same payload.
+     *
+     * <p><b>Reads are compared against reads, never against a mutation response.</b> Instant.now()
+     * carries nanoseconds and the stored column holds microseconds, and the response built inside the
+     * write transaction comes from the managed entity — so the two differ in the last digits.
+     */
+    @Test
+    void subtaskCompletion_readModelCarriesTheMomentAndThePlannedEnd() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"startDate\": \"2026-09-01\", \"endDate\": \"2026-09-05\", \"done\": true}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+
+        String moment = given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].completedAt", notNullValue())
+                .body("subtasks[0].endDate", equalTo("2026-09-05"))
+                .extract().path("subtasks[0].completedAt");
+
+        // A read against a read: a rename leaves the moment byte-identical on the wire.
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship it\", \"startDate\": \"2026-09-01\", \"endDate\": \"2026-09-05\", \"done\": true}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId(auth, taskId))
+                .then().statusCode(200);
+
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].completedAt", equalTo(moment));
+    }
+
+    /** Un-completing on the wire: the moment is gone from the read model. */
+    @Test
+    void subtaskCompletion_unmarkingDone_clearsTheMomentOnTheWire() {
+        String auth = newActorAuth();
+        String taskId = createTask(auth, "Cutover", "HIGH");
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\", \"done\": true}")
+                .when().post("/tasks/" + taskId + "/subtasks")
+                .then().statusCode(201);
+        String subtaskId = subtaskId(auth, taskId);
+
+        given().header("Authorization", auth).contentType(ContentType.JSON)
+                .body("{\"name\": \"Ship\"}")
+                .when().put("/tasks/" + taskId + "/subtasks/" + subtaskId)
+                .then().statusCode(200);
+
+        given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .body("subtasks[0].done", equalTo(false))
+                .body("subtasks[0].completedAt", nullValue());
+    }
+
+    /** The first subtask's id, read back — the create response is not relied on for identity. */
+    private String subtaskId(String auth, String taskId) {
+        return given().header("Authorization", auth)
+                .when().get("/tasks/" + taskId)
+                .then().statusCode(200)
+                .extract().path("subtasks[0].id");
     }
 
     @Test
